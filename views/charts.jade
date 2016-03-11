@@ -1,5 +1,330 @@
 include layout
 
-
-
-include charts.html
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    meta(name='description', content='')
+    meta(name='author', content='')
+    title SB Admin - Bootstrap Admin Template
+    link(href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', rel='stylesheet')
+    // Custom CSS
+    link(href='stylesheets/sb-admin.css', rel='stylesheet')
+    // Morris Charts CSS
+    link(href='stylesheets/plugins/morris.css', rel='stylesheet')
+    // Custom Fonts
+    link(href='font-awesome/css/font-awesome.min.css', rel='stylesheet', type='text/css')
+    // Custom Javascript
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js')
+    // HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries
+    // WARNING: Respond.js doesn't work if you view the page via file://
+    //if lt IE 9
+      script(src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js')
+      script(src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js')
+  body
+    #wrapper
+      // Navigation
+      nav.navbar.navbar-inverse.navbar-fixed-top(role='navigation')
+        // Brand and toggle get grouped for better mobile display
+        .navbar-header
+          button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-ex1-collapse')
+            span.sr-only Toggle navigation
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+          a.navbar-brand(href='/') Twitter Bot Admin V1.0
+        // Top Menu Items
+        ul.nav.navbar-right.top-nav
+          li.dropdown
+            a.dropdown-toggle(href='#', data-toggle='dropdown')
+              i.fa.fa-envelope
+              b.caret
+            ul.dropdown-menu.message-dropdown
+              li.message-preview
+                a(href='#')
+                  .media
+                    span.pull-left
+                      img.media-object(src='http://placehold.it/50x50', alt='')
+                    .media-body
+                      h5.media-heading
+                        strong #{user.username}
+                      p.small.text-muted
+                        i.fa.fa-clock-o
+                        |  Yesterday at 4:32 PM
+                      p Lorem ipsum dolor sit amet, consectetur...
+              li.message-preview
+                a(href='#')
+                  .media
+                    span.pull-left
+                      img.media-object(src='http://placehold.it/50x50', alt='')
+                    .media-body
+                      h5.media-heading
+                        strong #{user.username}
+                      p.small.text-muted
+                        i.fa.fa-clock-o
+                        |  Yesterday at 4:32 PM
+                      p Lorem ipsum dolor sit amet, consectetur...
+              li.message-preview
+                a(href='#')
+                  .media
+                    span.pull-left
+                      img.media-object(src='http://placehold.it/50x50', alt='')
+                    .media-body
+                      h5.media-heading
+                        strong #{user.username}
+                      p.small.text-muted
+                        i.fa.fa-clock-o
+                        |  Yesterday at 4:32 PM
+                      p Lorem ipsum dolor sit amet, consectetur...
+              li.message-footer
+                a(href='#') Read All New Messages
+          li.dropdown
+            a.dropdown-toggle(href='#', data-toggle='dropdown')
+              i.fa.fa-bell
+              b.caret
+            ul.dropdown-menu.alert-dropdown
+              li
+                a(href='#')
+                  | Alert Name 
+                  span.label.label-default Alert Badge
+              li
+                a(href='#')
+                  | Alert Name 
+                  span.label.label-primary Alert Badge
+              li
+                a(href='#')
+                  | Alert Name 
+                  span.label.label-success Alert Badge
+              li
+                a(href='#')
+                  | Alert Name 
+                  span.label.label-info Alert Badge
+              li
+                a(href='#')
+                  | Alert Name 
+                  span.label.label-warning Alert Badge
+              li
+                a(href='#')
+                  | Alert Name 
+                  span.label.label-danger Alert Badge
+              li.divider
+              li
+                a(href='#') View All
+          li.dropdown
+            a.dropdown-toggle(href='#', data-toggle='dropdown')
+              i.fa.fa-user
+              |  #{user.username} 
+              b.caret
+            ul.dropdown-menu
+              li
+                a(href='#')
+                  i.fa.fa-fw.fa-user
+                  |  Profile
+              li
+                a(href='#')
+                  i.fa.fa-fw.fa-envelope
+                  |  Inbox
+              li
+                a(href='#')
+                  i.fa.fa-fw.fa-gear
+                  |  Settings
+              li.divider
+              li
+                a(href='logout')
+                  i.fa.fa-fw.fa-power-off
+                  |  Log Out
+        // Sidebar Menu Items - These collapse to the responsive navigation menu on small screens
+        .collapse.navbar-collapse.navbar-ex1-collapse
+          ul.nav.navbar-nav.side-nav
+            li
+              a(href='/')
+                i.fa.fa-fw.fa-dashboard
+                |  Dashboard
+            li.active
+              a(href='charts')
+                i.fa.fa-fw.fa-bar-chart-o
+                |  Charts
+            li
+              a(href='javascript:;', data-toggle='collapse', data-target='#demo')
+                i.fa.fa-fw.fa-arrows-v
+                |  Dropdown 
+                i.fa.fa-fw.fa-caret-down
+              ul#demo.collapse
+                li
+                  a(href='#') Accounts
+                li
+                  a(href='#') New Account
+            li
+              a(href='forms')
+                i.fa.fa-fw.fa-edit
+                |  Forms
+        // /.navbar-collapse
+      #page-wrapper
+        .container-fluid
+          // Page Heading
+          .row
+            .col-lg-12
+              h1.page-header
+                | Charts
+              ol.breadcrumb
+                li
+                  i.fa.fa-dashboard
+                  a(href='/') Dashboard
+                li.active
+                  i.fa.fa-bar-chart-o
+                  |  Charts
+          // /.row
+          // Flot Charts
+          .row
+            .col-lg-12
+              h2.page-header Flot Charts
+              p.lead
+                | Flot is a pure JavaScript plotting library for jQuery, with a focus on simple usage, attractive looks and interactive features. For full usage instructions and documentation for Flot Charts, visit 
+                a(href='http://www.flotcharts.org/') http://www.flotcharts.org/
+                | .
+          // /.row
+          .row
+            .col-lg-12
+              .panel.panel-primary
+                .panel-heading
+                  h3.panel-title
+                    i.fa.fa-bar-chart-o
+                    |  Line Graph Example with Tooltips
+                .panel-body
+                  .flot-chart
+                    #flot-line-chart.flot-chart-content
+          // /.row
+          .row
+            .col-lg-4
+              .panel.panel-green
+                .panel-heading
+                  h3.panel-title
+                    i.fa.fa-long-arrow-right
+                    |  Pie Chart Example with Tooltips
+                .panel-body
+                  .flot-chart
+                    #flot-pie-chart.flot-chart-content
+                  .text-right
+                    a(href='#')
+                      | View Details 
+                      i.fa.fa-arrow-circle-right
+            .col-lg-8
+              .panel.panel-yellow
+                .panel-heading
+                  h3.panel-title
+                    i.fa.fa-long-arrow-right
+                    |  Multiple Axes Line Graph Example with Tooltips and Raw Data
+                .panel-body
+                  .flot-chart
+                    #flot-multiple-axes-chart.flot-chart-content
+                  .text-right
+                    a(href='#')
+                      | View Details 
+                      i.fa.fa-arrow-circle-right
+          // /.row
+          .row
+            .col-lg-6
+              .panel.panel-red
+                .panel-heading
+                  h3.panel-title
+                    i.fa.fa-long-arrow-right
+                    |  Moving Line Chart
+                .panel-body
+                  .flot-chart
+                    #flot-moving-line-chart.flot-chart-content
+                  .text-right
+                    a(href='#')
+                      | View Details 
+                      i.fa.fa-arrow-circle-right
+            .col-lg-6
+              .panel.panel-primary
+                .panel-heading
+                  h3.panel-title
+                    i.fa.fa-long-arrow-right
+                    |  Bar Graph with Tooltips
+                .panel-body
+                  .flot-chart
+                    #flot-bar-chart.flot-chart-content
+                  .text-right
+                    a(href='#')
+                      | View Details 
+                      i.fa.fa-arrow-circle-right
+          // /.row
+          // Morris Charts
+          .row
+            .col-lg-12
+              h2.page-header Morris Charts
+              p.lead
+                | Morris.js is a very simple API for drawing line, bar, area and donut charts. For full usage instructions and documentation for Morris.js charts, visit 
+                a(href='http://morrisjs.github.io/morris.js/') http://morrisjs.github.io/morris.js/
+                | .
+          // /.row
+          .row
+            .col-lg-12
+              .panel.panel-green
+                .panel-heading
+                  h3.panel-title
+                    i.fa.fa-bar-chart-o
+                    |  Area Line Graph Example with Tooltips
+                .panel-body
+                  #morris-area-chart
+          // /.row
+          .row
+            .col-lg-4
+              .panel.panel-yellow
+                .panel-heading
+                  h3.panel-title
+                    i.fa.fa-long-arrow-right
+                    |  Donut Chart Example
+                .panel-body
+                  #morris-donut-chart
+                  .text-right
+                    a(href='#')
+                      | View Details 
+                      i.fa.fa-arrow-circle-right
+            .col-lg-4
+              .panel.panel-red
+                .panel-heading
+                  h3.panel-title
+                    i.fa.fa-long-arrow-right
+                    |  Line Graph Example with Tooltips
+                .panel-body
+                  #morris-line-chart
+                  .text-right
+                    a(href='#')
+                      | View Details 
+                      i.fa.fa-arrow-circle-right
+            .col-lg-4
+              .panel.panel-primary
+                .panel-heading
+                  h3.panel-title
+                    i.fa.fa-long-arrow-right
+                    |  Bar Graph Example
+                .panel-body
+                  #morris-bar-chart
+                  .text-right
+                    a(href='#')
+                      | View Details 
+                      i.fa.fa-arrow-circle-right
+          // /.row
+        // /.container-fluid
+      // /#page-wrapper
+    // /#wrapper
+    // jQuery
+    script(src='javascripts/jquery.js')
+    // Bootstrap Core JavaScript
+    script(src='javascripts/bootstrap.min.js')
+    // Morris Charts JavaScript
+    script(src='javascripts/plugins/morris/raphael.min.js')
+    script(src='javascripts/plugins/morris/morris.min.js')
+    script(src='javascripts/plugins/morris/morris-data.js')
+    // Flot Charts JavaScript
+    //if lte IE 8
+      script(src='js/excanvas.min.js')
+    script(src='javascripts/plugins/flot/jquery.flot.js')
+    script(src='javascripts/plugins/flot/jquery.flot.tooltip.min.js')
+    script(src='javascripts/plugins/flot/jquery.flot.resize.js')
+    script(src='javascripts/plugins/flot/jquery.flot.pie.js')
+    script(src='javascripts/plugins/flot/flot-data.js')

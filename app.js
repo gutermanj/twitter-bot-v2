@@ -6,6 +6,10 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mongodb = require('mongodb');
 var bcrypt = require('bcryptjs');
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
+var ObjectId = require('mongodb').ObjectID;
+var url = 'mongodb://localhost:27017/twitterbot';
 
 var mongoose = require('mongoose');
 
@@ -162,16 +166,42 @@ app.get('/logout', function(req, res) {
   res.redirect('/');
 });
 
-
 app.get('/', requireLogin, function(req, res, next) {
+
+    // Connect to database
+    MongoClient.connect(url, function(err, db) {
+    assert.equal(null, err);
+    findUsers(db, function() {
+        db.close();
+    });
+  });
+
+    // Find the users
+    var findUsers = function(db, callback) {
+     var users =db.collection('users').find();
+     users.each(function(err, users) {
+      
+        assert.equal(err, null);
+        if (users != null) {
+           console.log(users);
+
+        } else {
+           callback();
+        }
+     });
+    };
+
+  res.locals.user = req.session.user;
   res.render('index', { title: 'Twitter Bot | Dash' });
 });
 
 app.get('/charts', requireLogin, function(req, res) {
+  res.locals.user = req.session.user;
   res.render('charts', { title: 'Twitter Bot | Charts' });
 });
 
 app.get('/forms', requireLogin, function(req, res) {
+  res.locals.user = req.session.user;
   res.render('forms', { title: 'Twitter Bot | Forms' });
 });
 

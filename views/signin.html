@@ -30,7 +30,11 @@
 
 </head>
 <body>
-<div class="container">    
+
+
+
+
+<div class="container admin-form hidden">    
         
     <div id="loginbox" class="mainbox col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3"> 
 
@@ -57,12 +61,75 @@
                     <div class="form-group">
                         <!-- Button -->
                         <div class="col-sm-12 controls">
+                        	<button class="btn btn-default pull-left back-btn"><i class="glyphicon glyphicon-menu-left"></i> Back</button>
                             <button type="submit" href="#" class="btn btn-default pull-right"><i class="glyphicon glyphicon-log-in"></i> Log in</button>                          
                         </div>
                     </div>
 
                 </form>     
 
+            </div>                     
+        </div>  
+    </div>
+</div>
+
+<div class="container user-form hidden">    
+        
+    <div id="loginbox" class="mainbox col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3"> 
+
+        
+        <div class="panel panel-default box-shadow--4dp" >
+            <div class="panel-heading">
+                <div class="panel-title text-center">User Login</div>
+            </div>     
+
+            <div class="panel-body" >
+
+                <form id="form" class="form-horizontal" method="POST">
+                   
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                        <input id="user" type="text" class="form-control" name="username" value="" placeholder="Username">                                        
+                    </div>
+
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                        <input id="password" type="password" class="form-control" name="password" placeholder="Password">
+                    </div>                                                                  
+
+                    <div class="form-group">
+                        <!-- Button -->
+                        <div class="col-sm-12 controls">
+                        	<button class="btn btn-default pull-left back-btn"><i class="glyphicon glyphicon-menu-left"></i> Back</button> 
+                            <button type="submit" href="#" class="btn btn-default pull-right"><i class="glyphicon glyphicon-log-in"></i> Log in</button>                          
+                        </div>
+                    </div>
+
+                </form>     
+
+            </div>                     
+        </div>  
+    </div>
+</div>
+
+<div class="container user-or-admin">    
+        
+    <div id="loginbox" class="mainbox col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3"> 
+
+        
+        <div class="panel panel-default box-shadow--4dp" >
+            <div class="panel-heading">
+                <div class="panel-title text-center">Welcome Back</div>
+            </div>     
+
+            <div class="panel-body" >
+            	
+
+            	<br>
+            	<button class='btn btn-default form-control js-user-btn'>I'm a User</button>
+            	<br><br>
+            	<button class='btn btn-default form-control js-admin-btn'>I'm an Admin</button>
+            	<br><br>
             </div>                     
         </div>  
     </div>

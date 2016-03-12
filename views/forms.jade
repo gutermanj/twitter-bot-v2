@@ -24,6 +24,8 @@ html(lang='en')
     //if lt IE 9
       script(src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js')
       script(src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js')
+
+      script(src='https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js')
   body
     #wrapper
       // Navigation
@@ -150,11 +152,11 @@ html(lang='en')
             li
               a(href='javascript:;', data-toggle='collapse', data-target='#demo')
                 i.fa.fa-fw.fa-arrows-v
-                |  Dropdown 
+                |  Account Options 
                 i.fa.fa-fw.fa-caret-down
               ul#demo.collapse
                 li
-                  a(href='#') Accounts
+                  a(href='#') Manage Accounts
                 li
                   a(href='#') New Account
             li.active
@@ -168,7 +170,7 @@ html(lang='en')
           .row
             .col-lg-12
               h1.page-header
-                | Forms
+                | All Forms
               ol.breadcrumb
                 li
                   i.fa.fa-dashboard
@@ -178,144 +180,84 @@ html(lang='en')
                   |  Forms
           // /.row
           .row
-            .col-lg-6
-              form(role='form')
+            .col-lg-12
+             h3 New Account
+                  br
+              form(action='/signin' method="POST")
                 .form-group
-                  label Text Input
-                  input.form-control
-                  p.help-block Example block-level help text here.
+                  label Account Name
+                  input.form-control.new-account-field-1(placeholder='Please Enter A Unique Title For This Account')
                 .form-group
-                  label Text Input with Placeholder
-                  input.form-control(placeholder='Enter text')
+                  label Username
+                  input.form-control.new-account-field-2(placeholder='Enter The Accounts Twitter Username')
                 .form-group
-                  label Static Control
-                  p.form-control-static email@example.com
+                  label Password
+                  input.form-control.new-account-field-3(placeholder='Enter The Accounts Twitter Password')
+                  p.form-control-static *We need this to tweet on your behalf
+
                 .form-group
-                  label File input
-                  input(type='file')
-                .form-group
-                  label Text area
-                  textarea.form-control(rows='3')
-                .form-group
-                  label Checkboxes
-                  .checkbox
-                    label
-                      input(type='checkbox', value='')
-                      | Checkbox 1
-                  .checkbox
-                    label
-                      input(type='checkbox', value='')
-                      | Checkbox 2
-                  .checkbox
-                    label
-                      input(type='checkbox', value='')
-                      | Checkbox 3
-                .form-group
-                  label Inline Checkboxes
-                  label.checkbox-inline
-                    input(type='checkbox')
-                    | 1
-                  label.checkbox-inline
-                    input(type='checkbox')
-                    | 2
-                  label.checkbox-inline
-                    input(type='checkbox')
-                    | 3
-                .form-group
-                  label Radio Buttons
-                  .radio
-                    label
-                      input#optionsRadios1(type='radio', name='optionsRadios', value='option1', checked='')
-                      | Radio 1
-                  .radio
-                    label
-                      input#optionsRadios2(type='radio', name='optionsRadios', value='option2')
-                      | Radio 2
-                  .radio
-                    label
-                      input#optionsRadios3(type='radio', name='optionsRadios', value='option3')
-                      | Radio 3
-                .form-group
-                  label Inline Radio Buttons
-                  label.radio-inline
-                    input#optionsRadiosInline1(type='radio', name='optionsRadiosInline', value='option1', checked='')
-                    | 1
-                  label.radio-inline
-                    input#optionsRadiosInline2(type='radio', name='optionsRadiosInline', value='option2')
-                    | 2
-                  label.radio-inline
-                    input#optionsRadiosInline3(type='radio', name='optionsRadiosInline', value='option3')
-                    | 3
-                .form-group
-                  label Selects
+                  label Retweets Per 15 Mins
                   select.form-control
-                    option 1
-                    option 2
-                    option 3
-                    option 4
-                    option 5
+                    option 1 - $10/month
+                    option 2 - $20/month
+                    option 3 - $25/month
+                button.btn.btn-primary(type='submit') Submit Button
+                br
+                br
+            .row
+            .col-lg-12
+             h3 Update Account
+                  br
+              form(action='/signin' method="POST")
                 .form-group
-                  label Multiple Selects
-                  select.form-control(multiple='')
-                    option 1
-                    option 2
-                    option 3
-                    option 4
-                    option 5
-                button.btn.btn-default(type='submit') Submit Button
-                button.btn.btn-default(type='reset') Reset Button
-            .col-lg-6
-              h1 Disabled Form States
-              form(role='form')
-                fieldset(disabled='')
-                  .form-group
-                    label(for='disabledSelect') Disabled input
-                    input#disabledInput.form-control(type='text', placeholder='Disabled input', disabled='')
-                  .form-group
-                    label(for='disabledSelect') Disabled select menu
-                    select#disabledSelect.form-control
-                      option Disabled select
-                  .checkbox
-                    label
-                      input(type='checkbox')
-                      | Disabled Checkbox
-                  button.btn.btn-primary(type='submit') Disabled Button
-              h1 Form Validation
-              form(role='form')
-                .form-group.has-success
-                  label.control-label(for='inputSuccess') Input with success
-                  input#inputSuccess.form-control(type='text')
-                .form-group.has-warning
-                  label.control-label(for='inputWarning') Input with warning
-                  input#inputWarning.form-control(type='text')
-                .form-group.has-error
-                  label.control-label(for='inputError') Input with error
-                  input#inputError.form-control(type='text')
-              h1 Input Groups
-              form(role='form')
-                .form-group.input-group
-                  span.input-group-addon @
-                  input.form-control(type='text', placeholder='Username')
-                .form-group.input-group
-                  input.form-control(type='text')
-                  span.input-group-addon .00
-                .form-group.input-group
-                  span.input-group-addon
-                    i.fa.fa-eur
-                  input.form-control(type='text', placeholder='Font Awesome Icon')
-                .form-group.input-group
-                  span.input-group-addon $
-                  input.form-control(type='text')
-                  span.input-group-addon .00
-                .form-group.input-group
-                  input.form-control(type='text')
-                  span.input-group-btn
-                    button.btn.btn-default(type='button')
-                      i.fa.fa-search
-              p
-                | For complete documentation, please visit 
-                a(href='http://getbootstrap.com/css/#forms') Bootstrap's Form Documentation
-                | .
+                  label Account Name
+                  input.form-control.new-account-field-1(placeholder='Please Enter A Unique Title For This Account')
+                .form-group
+                  label Username
+                  input.form-control.new-account-field-2(placeholder='Enter The Accounts Twitter Username')
+                .form-group
+                  label Password
+                  input.form-control.new-account-field-3(placeholder='Enter The Accounts Twitter Password')
+                  p.form-control-static *We need this to tweet on your behalf
+
+                .form-group
+                  label Retweets Per 15 Mins
+                  select.form-control
+                    option 1 - $10/month
+                    option 2 - $20/month
+                    option 3 - $25/month
+                button.btn.btn-primary(type='submit') Submit Button
+                br
+                br
+            .row
+            h2(style='color: darkred;') DANGER ZONE
+            hr(style='border-color: darkred;')
+            .col-lg-12
+             h3 Delete Account
+                  br
+              form(action='/signin' method="POST")
+                .form-group
+                  label Account Name
+                  input.form-control.new-account-field-1(placeholder='Please Enter A Unique Title For This Account')
+                .form-group
+                  label Username
+                  input.form-control.new-account-field-2(placeholder='Enter The Accounts Twitter Username')
+                .form-group
+                  label Password
+                  input.form-control.new-account-field-3(placeholder='Enter The Accounts Twitter Password')
+                  p.form-control-static *We need this to tweet on your behalf
+
+                .form-group
+                  label Retweets Per 15 Mins
+                  select.form-control
+                    option 1 - $10/month
+                    option 2 - $20/month
+                    option 3 - $25/month
+                button.btn.btn-primary(type='submit') Submit Button
+                br
+                br
+
+
           // /.row
         // /.container-fluid
       // /#page-wrapper

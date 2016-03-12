@@ -5,7 +5,7 @@ html
     meta(name='viewport', content='width=device-width, initial-scale=1')
     meta(name='description', content='')
     meta(name='author', content='')
-    title SB Admin - Bootstrap Admin Template
+    title Twitter Bot | Dashboard
     // Bootstrap Core CSS
     link(href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', rel='stylesheet')
     // Custom CSS
@@ -14,6 +14,7 @@ html
     link(href='stylesheets/plugins/morris.css', rel='stylesheet')
     // Custom Fonts
     link(href='font-awesome/css/font-awesome.min.css', rel='stylesheet', type='text/css')
+    link(href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css', rel='stylesheet')
     // Custom Javascript
     script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js')
     // HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries
@@ -147,11 +148,11 @@ html
             li
               a(href='javascript:;', data-toggle='collapse', data-target='#demo')
                 i.fa.fa-fw.fa-arrows-v
-                |  Dropdown 
+                |  Account Options
                 i.fa.fa-fw.fa-caret-down
               ul#demo.collapse
                 li
-                  a(href='#') Accounts
+                  a(href='#') Manage Accounts
                 li
                   a(href='#') New Account
             li
@@ -178,10 +179,10 @@ html
                 .panel-heading
                   .row
                     .col-xs-3
-                      i.fa.fa-comments.fa-5x
+                      i.fa.fa-user.fa-5x
                     .col-xs-9.text-right
-                      .huge 
-                      div Total Accounts!
+                      .huge #{userCount - 1}
+                      div Total Users!
                 a(href='#')
                   .panel-footer
                     span.pull-left View Details
@@ -193,10 +194,10 @@ html
                 .panel-heading
                   .row
                     .col-xs-3
-                      i.fa.fa-tasks.fa-5x
+                      i.fa.fa-users.fa-5x
                     .col-xs-9.text-right
                       .huge 12
-                      div New Tasks!
+                      div Active Accounts!
                 a(href='#')
                   .panel-footer
                     span.pull-left View Details
@@ -208,10 +209,10 @@ html
                 .panel-heading
                   .row
                     .col-xs-3
-                      i.fa.fa-shopping-cart.fa-5x
+                      i.fa.fa-hourglass.fa-5x
                     .col-xs-9.text-right
                       .huge 124
-                      div New Orders!
+                      div Pending Accounts!
                 a(href='#')
                   .panel-footer
                     span.pull-left View Details
@@ -223,10 +224,10 @@ html
                 .panel-heading
                   .row
                     .col-xs-3
-                      i.fa.fa-support.fa-5x
+                      i.fa.fa-user-times.fa-5x
                     .col-xs-9.text-right
                       .huge 13
-                      div Support Tickets!
+                      div Inactive!
                 a(href='#')
                   .panel-footer
                     span.pull-left View Details
@@ -240,7 +241,7 @@ html
                 .panel-heading
                   h3.panel-title
                     i.fa.fa-bar-chart-o.fa-fw
-                    |  Area Chart
+                    |  Account Volume
                 .panel-body
                   #morris-area-chart
           // /.row

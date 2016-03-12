@@ -59,3 +59,37 @@ $(function(){
     });
 
 });
+
+
+
+
+$(document).on('ready', function() {
+    $('.js-user-btn').on('click', function() {
+        $('.user-form').fadeIn('slow');
+        $('.user-form').toggleClass('hidden');
+        $('.user-or-admin').toggleClass('hidden');
+    });
+
+     $('.js-admin-btn').on('click', function() {
+        $('.admin-form').fadeIn('slow');
+        $('.admin-form').toggleClass('hidden');
+        $('.user-or-admin').toggleClass('hidden');
+    });
+
+     $('.back-btn').on('click', function (e) {
+        e.preventDefault();
+        $('.user-or-admin').toggleClass('hidden');
+        $('.user-form').addClass('hidden');
+        $('.admin-form').addClass('hidden');
+     });
+
+});
+
+
+
+
+
+
+
+
+

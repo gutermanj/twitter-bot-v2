@@ -179,18 +179,21 @@ app.get('/', requireLogin, function(req, res, next) {
     // Find the users
     var findUsers = function(db, callback) {
      var users =db.collection('users').find();
-     users.each(function(err, users) {
-      
-        assert.equal(err, null);
-        if (users != null) {
-           console.log(users);
+     userCount = 0;
+       users.each(function(err, users) {
+          userCount++;
+          assert.equal(err, null);
+          if (users != null) {
+             console.log(users);
+          } else {
+            res.locals.usercount = 2;
+             callback();
+             console.log("User count: " + userCount);
+             res.locals.userCount = userCount;
+          }
 
-        } else {
-           callback();
-        }
-     });
+       });
     };
-
   res.locals.user = req.session.user;
   res.render('index', { title: 'Twitter Bot | Dash' });
 });

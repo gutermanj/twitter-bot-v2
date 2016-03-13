@@ -10,12 +10,16 @@ var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 var url = 'mongodb://localhost:27017/twitterbot';
+var Twit = require('twit');
+var config = require('./config.js');
 
 var mongoose = require('mongoose');
 
 var Schema = mongoose.Schema;
 var ObjectId = Schema.ObjectId;
 
+
+// Connect to the database
 mongoose.connect('mongodb://localhost/twitterbot', function(err, db) {
   if (err) {
     console.log('Something went wrong while connecting to the DB: ');
@@ -41,6 +45,31 @@ var User = mongoose.model('User', new Schema({
   password: String,
 }));
 
+// Twitter configuration
+
+var T = new Twit({
+  consumer_key:         'YVu6kpgTujnw3YDqZzMKt5gtm',
+  consumer_secret:      '57v0LHrZIbuY2V7UG1gebQjadUdOTJrv3Mjgz8XauGoTa9Krfp',
+  access_token:         '200342291-56EYNCD1rohnHdh5WQW6x3iFImkBM914rAUkuRkB',
+  access_token_secret:  'F9IOmWjGS2uD7uxjUyfsr9tDSjl2fIAQNKik61Aiz4FXK',
+  timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests.
+});
+
+// Account Model
+
+var Account = mongoose.model('Account', new Schema({
+  id: ObjectId,
+  username: String,
+  password: String,
+  consumer_key: String,
+  consumer_secret: String,
+  access_token: String,
+  access_token_secret: String,
+  timeout_ms: String, // optional HTTP request timeout to appli to all requests.
+}));
+
+
+// Session Options
 var firebaseStoreOptions = {
     // Your FireBase database
     host: 'twitterbot.firebaseio.com/',
@@ -210,7 +239,17 @@ app.get('/forms', requireLogin, function(req, res) {
 
 
 
+// New Tweet Hard Coded
 
+function newTweet() {
+  T.post('statuses/update', { status: 'Where would we be without APIs? #nodejs #twitter #api' }, function(err, data, response) {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(data)
+    }
+  });
+}
 
 
 // ---------- ERROR CATCHES ----------------------

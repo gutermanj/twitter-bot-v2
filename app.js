@@ -11,7 +11,6 @@ var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 var url = 'mongodb://localhost:27017/twitterbot';
 var Twit = require('twit');
-var config = require('./config.js');
 
 var mongoose = require('mongoose');
 
@@ -48,10 +47,10 @@ var User = mongoose.model('User', new Schema({
 // Twitter configuration
 
 var T = new Twit({
-  consumer_key:         'YVu6kpgTujnw3YDqZzMKt5gtm',
-  consumer_secret:      '57v0LHrZIbuY2V7UG1gebQjadUdOTJrv3Mjgz8XauGoTa9Krfp',
-  access_token:         '200342291-56EYNCD1rohnHdh5WQW6x3iFImkBM914rAUkuRkB',
-  access_token_secret:  'F9IOmWjGS2uD7uxjUyfsr9tDSjl2fIAQNKik61Aiz4FXK',
+  consumer_key:         '1X8yoooqEevRWdhErqolMb4pE',
+  consumer_secret:      'BjxfK292LJnRxxwlMGeYnEyqanuKPvv25sTt8ULRZPum4HxUnC',
+  access_token:         '708512539303350272-Jf4rQFi4Iq3OLQS5C27xkIIxaZdJySd',
+  access_token_secret:  '1PxOSwkUxDB6ulw57o6ix5JKn20N6KiJlz4qpefnI2Cp3',
   timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests.
 });
 
@@ -60,12 +59,14 @@ var T = new Twit({
 var Account = mongoose.model('Account', new Schema({
   id: ObjectId,
   username: String,
+  email: String,
   password: String,
   consumer_key: String,
   consumer_secret: String,
   access_token: String,
   access_token_secret: String,
-  timeout_ms: String, // optional HTTP request timeout to appli to all requests.
+  timeout_ms: String,
+  timestamp: String, // optional HTTP request timeout to apply to all requests.
 }));
 
 
@@ -133,6 +134,57 @@ function requireLogin(req, res, next) {
 
 
 
+// Current Time, can be used for Timestamps
+
+
+  var date = new Date();
+  var current_hour = date.getHours();
+  if (current_hour > 12) {
+      var hours = current_hour - 12;
+      var dateOrNight = "PM"
+  } else {
+      var dateOrNight = "AM"
+  }
+
+  if (date.getMinutes() === 0) {
+      var minutes = "00";
+  } else if (date.getMinutes() < 10) {
+      var minutes = "0" + date.getMinutes();
+  } else {
+      var minutes = date.getMinutes();
+  }
+
+
+
+  var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  var current_day = days[date.getDay()];
+
+  var current_date = date.getDate();
+
+  var current_month = months[date.getMonth()];
+
+
+  var year = date.getYear() - 100
+
+  var timestamp = current_day + " " + hours + ":" + minutes + " " + dateOrNight + ", " + current_month + " " + current_date + " " + "20" + year;
+
+  console.log(timestamp);
+
+
+
+
+
+
+
+
+
+
+
+// --------------- Mostly Routes ---------------------
+
 app.get('/signup', function(req, res, next) {
   res.render('signup');
 });
@@ -197,13 +249,13 @@ app.get('/logout', function(req, res) {
 
 app.get('/', requireLogin, function(req, res, next) {
 
-    // Connect to database
+    // Connect to database, call findUsers function
     MongoClient.connect(url, function(err, db) {
     assert.equal(null, err);
     findUsers(db, function() {
         db.close();
+      });
     });
-  });
 
     // Find the users
     var findUsers = function(db, callback) {
@@ -213,16 +265,46 @@ app.get('/', requireLogin, function(req, res, next) {
           userCount++;
           assert.equal(err, null);
           if (users != null) {
-             console.log(users);
+            console.log("User Count: " + userCount);
+            console.log(users);
           } else {
-            res.locals.usercount = 2;
-             callback();
-             console.log("User count: " + userCount);
-             res.locals.userCount = userCount;
+            console.log("-----------------------------------" + "Account Total: " + (userCount - 1));
+            callback();
+            res.locals.userCount = userCount;
           }
 
        });
     };
+
+
+
+    // Connect to database, call findAccounts function
+    MongoClient.connect(url, function(err, db) {
+    assert.equal(null, err);
+    findAccounts(db, function() {
+        db.close();
+      });
+    });
+
+    // Find the accounts
+    var findAccounts = function(db, callback) {
+     var accounts =db.collection('accounts').find();
+     accountCount = 0;
+       accounts.each(function(err, accounts) {
+          accountCount++;
+          assert.equal(err, null);
+          if (accounts != null) {
+            console.log("Account Count: " + accountCount);
+            console.log(accounts);
+          } else {
+            console.log("-----------------------------------" + "Account Total: " + (accountCount - 1));
+            callback();
+            res.locals.userCount = accountCount;
+          }
+
+       });
+    };
+
   res.locals.user = req.session.user;
   res.render('index', { title: 'Twitter Bot | Dash' });
 });
@@ -239,16 +321,91 @@ app.get('/forms', requireLogin, function(req, res) {
 
 
 
+// New Account created by admin
+
+app.post('/newaccount', function(req, res) {
+
+  // Account Schema Structure
+
+  // var Account = mongoose.model('Account', new Schema({
+  //   id: ObjectId,
+  //   username: String,
+  //   email: String,
+  //   password: String,
+  //   consumer_key: String,
+  //   consumer_secret: String,
+  //   access_token: String,
+  //   access_token_secret: String,
+  //   timeout_ms: String, // optional HTTP request timeout to appli to all requests.
+  // }));
+
+
+  var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
+
+  var account = new Account({
+    username: req.body.username,
+    email: req.body.email,
+    password: hash,
+    consumer_key: req.body.consumer_key,
+    consumer_secret: req.body.consumer_secret,
+    access_token: req.body.access_token,
+    access_token_secret: req.body.access_token_secret,
+    price: req.body.price,
+    timestamp: timestamp,
+
+  });
+
+  account.save(function(err) {
+      if (err) {
+        var err = 'Something bad happened, try again!';
+      if (err.code === 11000) {
+        var error = 'That email is already taken, try another!';
+      }
+
+      res.render('forms', { error: error });
+      console.log(err);
+    } else {
+      res.redirect('/');
+    }
+
+  });
+
+
+  console.log(req.body.price);
+});
+
+
+
+
+
+// New Tweet POST routes
+
+app.post('/tweet', function(req, res) {
+  var status = req.body.tweet
+  newTweet(status);
+  res.redirect('/forms');
+});
+
+
+
 // New Tweet Hard Coded
 
-function newTweet() {
-  T.post('statuses/update', { status: 'Where would we be without APIs? #nodejs #twitter #api' }, function(err, data, response) {
+function newTweet(status) {
+  var status = status;
+  T.post('statuses/update', { status: status }, function(err, data, response) {
     if (err) {
       console.log(err);
     } else {
-      console.log(data)
+      console.log(data);
     }
   });
+}
+
+function getTweets() {
+  T.get('search/tweets', { q: '@julianguterman since:2011-07-11', count: 10 }, function(err, data, response) {
+    console.log(data)
+  })
+
 }
 
 

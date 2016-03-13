@@ -181,29 +181,58 @@ html(lang='en')
           // /.row
           .row
             .col-lg-12
-             h3 New Account
+             h3 New Admin Tweet
                   br
-              form(action='/signin' method="POST")
+              form(action='/tweet' method="POST")
                 .form-group
-                  label Account Name
-                  input.form-control.new-account-field-1(placeholder='Please Enter A Unique Title For This Account')
+                  label New Tweet
+                  input.form-control(placeholder='Enter a Tweet', name='tweet')
+
+                button.btn.btn-primary(type='submit') Tweet!
+                br
+                br
+                hr
+          .row
+            .col-lg-12
+              h3 New Account
+              hr
+          form(action='/newaccount' method="POST")
+            .col-lg-6
                 .form-group
                   label Username
-                  input.form-control.new-account-field-2(placeholder='Enter The Accounts Twitter Username')
+                  input.form-control(placeholder='Enter the accounts @username', name='username', required)
+                .form-group
+                  label Email
+                  input.form-control(placeholder='Enter the account e-mail', name='email', type='email', required)
                 .form-group
                   label Password
-                  input.form-control.new-account-field-3(placeholder='Enter The Accounts Twitter Password')
-                  p.form-control-static *We need this to tweet on your behalf
-
+                  input.form-control(placeholder='Enter a password for this account', name='password', type='password', required)
                 .form-group
-                  label Retweets Per 15 Mins
-                  select.form-control
-                    option 1 - $10/month
-                    option 2 - $20/month
-                    option 3 - $25/month
-                button.btn.btn-primary(type='submit') Submit Button
-                br
-                br
+                  label Password Confirmation
+                  input.form-control(placeholder='Enter it again', type='password', required)
+            .col-lg-6
+                .form-group
+                  label Consumer Key
+                  input.form-control(placeholder='Consumer Key - from Twitter', name='consumer_key', required)
+                .form-group
+                  label Consumer Secret
+                  input.form-control(placeholder='Consumer Secret - from Twitter', name='consumer_secret', required)
+                .form-group
+                  label Access Token
+                  input.form-control(placeholder='Access Token - from Twitter', name='access_token', required)
+                .form-group
+                  label Access Token Secret
+                  input.form-control(placeholder='Access Token Secret - from Twitter', name='access_token_secret', required)
+
+            .col-lg-12
+              .form-group
+                label Retweets Per 15 Mins
+                select.form-control(name='price', required)
+                  option(value='10') 1 - $10/month
+                  option(value='20') 2 - $20/month
+                  option(value='25') 3 - $25/month
+              button.btn.btn-primary.form-control(type='submit') Create Account
+                  
             .row
             .col-lg-12
              h3 Update Account

@@ -4,29 +4,43 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var mongodb = require('mongodb');
+// var mongodb = require('mongodb');
 var bcrypt = require('bcryptjs');
-var MongoClient = require('mongodb').MongoClient;
+// var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
 var url = 'mongodb://localhost:27017/twitterbot';
 var Twit = require('twit');
 
-var mongoose = require('mongoose');
 
-var Schema = mongoose.Schema;
-var ObjectId = Schema.ObjectId;
+var pg = require('pg');
+var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/twitterbot';
 
+var client = new pg.Client(connectionString);
 
-// Connect to the database
-mongoose.connect('mongodb://localhost/twitterbot', function(err, db) {
+client.connect(function(err, db) {
   if (err) {
-    console.log('Something went wrong while connecting to the DB: ');
-    console.log(err);
+    console.log('Something went wrong while connecting to the db');
   } else {
-    console.log('Connected to the Database :) Don\'t have too much fun!');
+    console.log('Connected to db');
   }
 });
+
+// var mongoose = require('mongoose');
+
+// var Schema = mongoose.Schema;
+// var ObjectId = Schema.ObjectId;
+
+
+// // Connect to the database
+// mongoose.connect('mongodb://localhost/twitterbot', function(err, db) {
+//   if (err) {
+//     console.log('Something went wrong while connecting to the DB: ');
+//     console.log(err);
+//   } else {
+//     console.log('Connected to the Database :) Don\'t have too much fun!');
+//   }
+// });
 
 var session = require('express-session');
 var FirebaseStore = require('connect-firebase')(session);
@@ -35,14 +49,14 @@ var FirebaseStore = require('connect-firebase')(session);
 var users = require('./routes/users');
 
 
-// User Model
+// // User Model
 
-var User = mongoose.model('User', new Schema({
-  id: ObjectId,
-  username: String,
-  email: { type: String, unique: true },
-  password: String,
-}));
+// var User = mongoose.model('User', new Schema({
+//   id: ObjectId,
+//   username: String,
+//   email: { type: String, unique: true },
+//   password: String,
+// }));
 
 // Twitter configuration
 
@@ -56,18 +70,18 @@ var T = new Twit({
 
 // Account Model
 
-var Account = mongoose.model('Account', new Schema({
-  id: ObjectId,
-  username: String,
-  email: String,
-  password: String,
-  consumer_key: String,
-  consumer_secret: String,
-  access_token: String,
-  access_token_secret: String,
-  timeout_ms: String,
-  timestamp: String, // optional HTTP request timeout to apply to all requests.
-}));
+// var Account = mongoose.model('Account', new Schema({
+//   id: ObjectId,
+//   username: String,
+//   email: String,
+//   password: String,
+//   consumer_key: String,
+//   consumer_secret: String,
+//   access_token: String,
+//   access_token_secret: String,
+//   timeout_ms: String,
+//   timestamp: String, // optional HTTP request timeout to apply to all requests.
+// }));
 
 
 // Session Options
@@ -144,6 +158,7 @@ function requireLogin(req, res, next) {
       var dateOrNight = "PM"
   } else {
       var dateOrNight = "AM"
+      var hours = current_hour
   }
 
   if (date.getMinutes() === 0) {
@@ -338,6 +353,22 @@ app.post('/newaccount', function(req, res) {
   //   access_token_secret: String,
   //   timeout_ms: String, // optional HTTP request timeout to appli to all requests.
   // }));
+
+
+  var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+  var current_day = days[date.getDay()];
+
+  var current_date = date.getDate();
+
+  var current_month = months[date.getMonth()];
+
+
+  var year = date.getYear() - 100
+
+  var timestamp = current_day + " " + hours + ":" + minutes + " " + dateOrNight + ", " + current_month + " " + current_date + " " + "20" + year;
 
 
   var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));

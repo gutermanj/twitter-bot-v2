@@ -18,6 +18,7 @@ var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/tw
 
 var client = new pg.Client(connectionString);
 
+
 client.connect(function(err, db) {
   if (err) {
     console.log('Something went wrong while connecting to the db');
@@ -25,6 +26,10 @@ client.connect(function(err, db) {
     console.log('Connected to db');
   }
 });
+
+
+// var query = client.query('CREATE TABLE accounts(id SERIAL PRIMARY KEY, username VARCHAR(40) not null, email VARCHAR(40) not null, password VARCHAR(120) not null, consumer_key VARCHAR(80) not null, consumer_secret VARCHAR(80) not null, access_token VARCHAR(80) not null, access_token_secret VARCHAR(80) not null, price VARCHAR(40) not null, timestamp VARCHAR(40) not null, complete BOOLEAN)');
+// query.on('end', function() { client.end(); });
 
 // var mongoose = require('mongoose');
 
@@ -122,29 +127,29 @@ app.use(session({
 }));
 
 
-app.use(function(req, res, next) {
-  if (req.session && req.session.user) {
-    User.findOne({ username: req.session.username }, function(err, user) {
-      if (user) {
-        req.user = user;
-        delete req.user.password;
-        req.session.user = req.user;
-        res.locals.user = req.user;
-      }
-      next();
-    });
-  } else {
-    next();
-  }
-});
+// app.use(function(req, res, next) {
+//   if (req.session && req.session.user) {
+//     User.findOne({ username: req.session.username }, function(err, user) {
+//       if (user) {
+//         req.user = user;
+//         delete req.user.password;
+//         req.session.user = req.user;
+//         res.locals.user = req.user;
+//       }
+//       next();
+//     });
+//   } else {
+//     next();
+//   }
+// });
 
-function requireLogin(req, res, next) {
-  if (!req.session.user) {
-    res.redirect('/signin');
-  } else {
-    next();
-  }
-}
+// function requireLogin(req, res, next) {
+//   if (!req.session.user) {
+//     res.redirect('/signin');
+//   } else {
+//     next();
+//   }
+// }
 
 
 
@@ -262,147 +267,88 @@ app.get('/logout', function(req, res) {
   res.redirect('/');
 });
 
-app.get('/', requireLogin, function(req, res, next) {
-
-    // Connect to database, call findUsers function
-    MongoClient.connect(url, function(err, db) {
-    assert.equal(null, err);
-    findUsers(db, function() {
-        db.close();
-      });
-    });
-
-    // Find the users
-    var findUsers = function(db, callback) {
-     var users =db.collection('users').find();
-     userCount = 0;
-       users.each(function(err, users) {
-          userCount++;
-          assert.equal(err, null);
-          if (users != null) {
-            console.log("User Count: " + userCount);
-            console.log(users);
-          } else {
-            console.log("-----------------------------------" + "Account Total: " + (userCount - 1));
-            callback();
-            res.locals.userCount = userCount;
-          }
-
-       });
-    };
-
-
-
-    // Connect to database, call findAccounts function
-    MongoClient.connect(url, function(err, db) {
-    assert.equal(null, err);
-    findAccounts(db, function() {
-        db.close();
-      });
-    });
-
-    // Find the accounts
-    var findAccounts = function(db, callback) {
-     var accounts =db.collection('accounts').find();
-     accountCount = 0;
-       accounts.each(function(err, accounts) {
-          accountCount++;
-          assert.equal(err, null);
-          if (accounts != null) {
-            console.log("Account Count: " + accountCount);
-            console.log(accounts);
-          } else {
-            console.log("-----------------------------------" + "Account Total: " + (accountCount - 1));
-            callback();
-            res.locals.userCount = accountCount;
-          }
-
-       });
-    };
-
-  res.locals.user = req.session.user;
+app.get('/', function(req, res, next) {
+  // res.locals.user = req.session.user;
   res.render('index', { title: 'Twitter Bot | Dash' });
 });
 
-app.get('/charts', requireLogin, function(req, res) {
+app.get('/charts', function(req, res) {
   res.locals.user = req.session.user;
   res.render('charts', { title: 'Twitter Bot | Charts' });
 });
 
-app.get('/forms', requireLogin, function(req, res) {
+app.get('/forms', function(req, res) {
   res.locals.user = req.session.user;
   res.render('forms', { title: 'Twitter Bot | Forms' });
 });
 
 
-
-// New Account created by admin
-
+// New account created by admin
 app.post('/newaccount', function(req, res) {
 
-  // Account Schema Structure
 
-  // var Account = mongoose.model('Account', new Schema({
-  //   id: ObjectId,
-  //   username: String,
-  //   email: String,
-  //   password: String,
-  //   consumer_key: String,
-  //   consumer_secret: String,
-  //   access_token: String,
-  //   access_token_secret: String,
-  //   timeout_ms: String, // optional HTTP request timeout to appli to all requests.
-  // }));
+    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+    var current_day = days[date.getDay()];
+
+    var current_date = date.getDate();
+
+    var current_month = months[date.getMonth()];
 
 
-  var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var year = date.getYear() - 100
 
-  var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-  var current_day = days[date.getDay()];
-
-  var current_date = date.getDate();
-
-  var current_month = months[date.getMonth()];
+    var timestamp = current_day + " " + hours + ":" + minutes + " " + dateOrNight + ", " + current_month + " " + current_date + " " + "20" + year;
 
 
-  var year = date.getYear() - 100
+    var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
 
-  var timestamp = current_day + " " + hours + ":" + minutes + " " + dateOrNight + ", " + current_month + " " + current_date + " " + "20" + year;
+    var results = [];
+
+    // Grab data from http request
+    var data = {
+      username: req.body.username,
+      email: req.body.email,
+      password: hash,
+      consumer_key: req.body.consumer_key,
+      consumer_secret: req.body.consumer_secret,
+      access_token: req.body.access_token,
+      access_token_secret: req.body.access_token_secret,
+      price: req.body.price,
+      timestamp: timestamp,
+      complete: false
+    };
+
+    // Get a Postgres client from the connection pool
+    pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+          done();
+          console.log(err);
+          return res.status(500).json({ success: false, data: err});
+        }
+
+        // SQL Query > Insert Data
+        client.query("INSERT INTO accounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, price, timestamp, complete) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.price, data.timestamp, data.complete]);
+
+        // SQL Query > Select Data
+        var query = client.query("SELECT * FROM accounts ORDER BY id ASC");
+
+        // Stream results back one row at a time
+        query.on('row', function(row) {
+            results.push(row);
+        });
+
+        // After all data is returned, close connection and return results
+        query.on('end', function() {
+            done();
+            return res.json(results);
+        });
 
 
-  var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
-
-  var account = new Account({
-    username: req.body.username,
-    email: req.body.email,
-    password: hash,
-    consumer_key: req.body.consumer_key,
-    consumer_secret: req.body.consumer_secret,
-    access_token: req.body.access_token,
-    access_token_secret: req.body.access_token_secret,
-    price: req.body.price,
-    timestamp: timestamp,
-
-  });
-
-  account.save(function(err) {
-      if (err) {
-        var err = 'Something bad happened, try again!';
-      if (err.code === 11000) {
-        var error = 'That email is already taken, try another!';
-      }
-
-      res.render('forms', { error: error });
-      console.log(err);
-    } else {
-      res.redirect('/');
-    }
-
-  });
-
-
-  console.log(req.body.price);
+    });
 });
 
 

@@ -4,26 +4,26 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-// var mongodb = require('mongodb');
 var bcrypt = require('bcryptjs');
-// var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
-var ObjectId = require('mongodb').ObjectID;
-var url = 'mongodb://localhost:27017/twitterbot';
 var Twit = require('twit');
 
 
+// Database configuration
 var pg = require('pg');
 var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/twitterbot';
 
 var client = new pg.Client(connectionString);
 
+// Creating tables
+// ----------------------------------------
 // var query = client.query('CREATE TABLE accounts(id SERIAL PRIMARY KEY, username VARCHAR(150) not null, email VARCHAR(150) not null, password VARCHAR(150) not null, consumer_key VARCHAR(150) not null, consumer_secret VARCHAR(150) not null, access_token VARCHAR(150) not null, access_token_secret VARCHAR(150) not null, price VARCHAR(150) not null, complete BOOLEAN)');
 // query.on('end', function() { client.end(); });
 
 // var query = client.query('CREATE TABLE users(id SERIAL PRIMARY KEY, username VARCHAR(150) not null, email VARCHAR(150) not null, password VARCHAR(150) not null, complete BOOLEAN)');
 // query.on('end', function() { client.end(); });
 
+// Connect to the database
 client.connect(function(err, db) {
   if (err) {
     console.log('Something went wrong while connecting to the db');
@@ -40,16 +40,9 @@ var FirebaseStore = require('connect-firebase')(session);
 var users = require('./routes/users');
 
 
-// // User Model
-
-// var User = mongoose.model('User', new Schema({
-//   id: ObjectId,
-//   username: String,
-//   email: { type: String, unique: true },
-//   password: String,
-// }));
-
 // Twitter configuration
+// This will be set as a variable per request...
+// So I don't really need this, but I'm gonna keep it for reference
 
 var T = new Twit({
   consumer_key:         '1X8yoooqEevRWdhErqolMb4pE',
@@ -59,9 +52,10 @@ var T = new Twit({
   timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests.
 });
 
-// Session Options
+// Session configuration
 var firebaseStoreOptions = {
     // Your FireBase database
+    // Go to the host in your browser to see sessions
     host: 'twitterbot.firebaseio.com/',
     // Secret token you can create for your Firebase database
     token: '4cRYm1o1AXmlLDGG1rl6wZKNYVpoyyk9g9W3Du1G',
@@ -125,7 +119,6 @@ function requireLogin(req, res, next) {
 
 // Current Time, can be used for Timestamps
 
-
   var date = new Date();
   var current_hour = date.getHours();
   if (current_hour > 12) {
@@ -144,24 +137,22 @@ function requireLogin(req, res, next) {
       var minutes = date.getMinutes();
   }
 
-
-
   var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
   var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
   var current_day = days[date.getDay()];
-
   var current_date = date.getDate();
-
   var current_month = months[date.getMonth()];
-
-
   var year = date.getYear() - 100
-
   var timestamp = current_day + " " + hours + ":" + minutes + " " + dateOrNight + ", " + current_month + " " + current_date + " " + "20" + year;
-
   console.log(timestamp);
+
+// END TIMESTAMP
+
+
+
+
+
+
 
 
 
@@ -175,13 +166,14 @@ function requireLogin(req, res, next) {
 
 // --------------- Mostly Routes ---------------------
 
+// Signup route, I'm probably gonna remove this when I deploy
 app.get('/signup', function(req, res, next) {
   res.render('signup');
 });
 
 app.post('/signup', function(req, res, next) {
   
-
+  // Turn that password into some funkyness
   var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
 
     var results = [];
@@ -194,7 +186,7 @@ app.post('/signup', function(req, res, next) {
       complete: false
     };
 
-    req.session.user = data;
+    req.session.user = data; // Set session from user just created
 
     // Get a Postgres client from the connection pool
     pg.connect(connectionString, function(err, client, done) {
@@ -205,10 +197,10 @@ app.post('/signup', function(req, res, next) {
           return res.status(500).json({ success: false, data: err});
         }
 
-        // SQL Query > Insert Data
+        // SQL Query > Create the row with new user
         client.query("INSERT INTO users(username, email, password, complete) values($1, $2, $3, $4)", [data.username, data.email, data.password, data.complete]);
 
-        // SQL Query > Select Data
+        // SQL Query > Grab last user created for session
         var query = client.query("SELECT * FROM users ORDER BY id DESC LIMIT 1");
 
         // Stream results back one row at a time
@@ -226,6 +218,7 @@ app.post('/signup', function(req, res, next) {
   });
 
 
+// Signin route
 app.get('/signin', function(req, res) {
   if(!req.session.user) {
     res.render('signin');
@@ -234,6 +227,8 @@ app.get('/signin', function(req, res) {
   }
 });
 
+
+// Signin route
 app.post('/signin', function(req, res) {
 
     var results = [];
@@ -247,9 +242,10 @@ app.post('/signin', function(req, res) {
           return res.status(500).json({ success: false, data: err});
         }
 
-        // SQL Query > Select Data
+        // SQL Query > Grab user input
         var emailInput = req.body.email;
         var passwordInput = req.body.password;
+        // See if the email exists
         var query = client.query('SELECT * FROM users WHERE email =' + '\'' + emailInput + '\'');
 
         // Stream results back one row at a time
@@ -260,34 +256,40 @@ app.post('/signin', function(req, res) {
         // After all data is returned, close connection and return results
         query.on('end', function() {
           console.log(results[0]);
-            done();
+            done(); // If the email doesn't exist - get out of here
             if (results === null) {
               res.redirect('/signin');
-            } else {
+            } else { // If it does exist
               if (results[0] !== undefined) {
               var user = results[0];
+              // Check bcrypted password to see if they match
               if (bcrypt.compareSync(req.body.password, user.password)) {
-                req.session.user = user;
+                req.session.user = user; // Set the session
                 res.locals.user = user;
-                // console.log("LOGIN QUERY RESULTS: " + user);
+                console.log("LOGIN QUERY RESULTS: " + user);
                 res.redirect('/');
               } else {
+                // If they don't match
                 res.redirect('/signin');
               }
             } else {
               res.redirect('/signin');
-            }
+            } // For some reason I have to check if it's undefined as well as 
+              // null or SQL will yell at us
           }
         });
       });
   });
 
 
+// Logout route
 app.get('/logout', function(req, res) {
   req.session.destroy();
   res.redirect('/');
 });
 
+
+// Dashboard route
 app.get('/', requireLogin, function(req, res, next) {
   console.log("Current Session: " + req.session.user);
   res.locals.user = req.session.user;
@@ -295,11 +297,15 @@ app.get('/', requireLogin, function(req, res, next) {
 
 });
 
+
+// Charts route
 app.get('/charts', requireLogin, function(req, res) {
   res.locals.user = req.session.user;
   res.render('charts', { title: 'Twitter Bot | Charts' });
 });
 
+
+// Forms route
 app.get('/forms', requireLogin, function(req, res) {
   res.locals.user = req.session.user;
   res.render('forms', { title: 'Twitter Bot | Forms' });
@@ -309,24 +315,19 @@ app.get('/forms', requireLogin, function(req, res) {
 // New account created by admin
 app.post('/newaccount', function(req, res) {
 
-
+    // TIME STAMP
     var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
     var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
     var current_day = days[date.getDay()];
-
     var current_date = date.getDate();
-
     var current_month = months[date.getMonth()];
-
-
     var year = date.getYear() - 100
-
     var timestamp = current_day + " " + hours + ":" + minutes + " " + dateOrNight + ", " + current_month + " " + current_date + " " + "20" + year;
 
-
+    // Turning that password into something funky
     var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
+
+
 
     var results = [];
 
@@ -356,11 +357,11 @@ app.post('/newaccount', function(req, res) {
           return res.status(500).json({ success: false, data: err});
         }
 
-        // SQL Query > Insert Data
+        // SQL Query > Create new row for an account
         client.query("INSERT INTO accounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, price, timestamp, complete) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.price, data.timestamp, data.complete]);
 
 
-        // SQL Query > Select Data
+        // SQL Query > Last account created
         var query = client.query("SELECT * FROM accounts ORDER BY id DESC LIMIT 1");
 
         // Stream results back one row at a time

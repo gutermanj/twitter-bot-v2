@@ -269,7 +269,7 @@ app.post('/signin', function(req, res) {
               if (bcrypt.compareSync(req.body.password, user.password)) {
                 req.session.user = user;
                 res.locals.user = user;
-                console.log("LOGIN QUERY RESULTS: " + user);
+                // console.log("LOGIN QUERY RESULTS: " + user);
                 res.redirect('/');
               } else {
                 res.redirect('/signin');

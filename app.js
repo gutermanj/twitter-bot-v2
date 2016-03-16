@@ -18,6 +18,11 @@ var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/tw
 
 var client = new pg.Client(connectionString);
 
+// var query = client.query('CREATE TABLE accounts(id SERIAL PRIMARY KEY, username VARCHAR(150) not null, email VARCHAR(150) not null, password VARCHAR(150) not null, consumer_key VARCHAR(150) not null, consumer_secret VARCHAR(150) not null, access_token VARCHAR(150) not null, access_token_secret VARCHAR(150) not null, price VARCHAR(150) not null, complete BOOLEAN)');
+// query.on('end', function() { client.end(); });
+
+// var query = client.query('CREATE TABLE users(id SERIAL PRIMARY KEY, username VARCHAR(150) not null, email VARCHAR(150) not null, password VARCHAR(150) not null, complete BOOLEAN)');
+// query.on('end', function() { client.end(); });
 
 client.connect(function(err, db) {
   if (err) {
@@ -27,25 +32,6 @@ client.connect(function(err, db) {
   }
 });
 
-
-// var query = client.query('CREATE TABLE accounts(id SERIAL PRIMARY KEY, username VARCHAR(40) not null, email VARCHAR(40) not null, password VARCHAR(120) not null, consumer_key VARCHAR(80) not null, consumer_secret VARCHAR(80) not null, access_token VARCHAR(80) not null, access_token_secret VARCHAR(80) not null, price VARCHAR(40) not null, timestamp VARCHAR(40) not null, complete BOOLEAN)');
-// query.on('end', function() { client.end(); });
-
-// var mongoose = require('mongoose');
-
-// var Schema = mongoose.Schema;
-// var ObjectId = Schema.ObjectId;
-
-
-// // Connect to the database
-// mongoose.connect('mongodb://localhost/twitterbot', function(err, db) {
-//   if (err) {
-//     console.log('Something went wrong while connecting to the DB: ');
-//     console.log(err);
-//   } else {
-//     console.log('Connected to the Database :) Don\'t have too much fun!');
-//   }
-// });
 
 var session = require('express-session');
 var FirebaseStore = require('connect-firebase')(session);
@@ -72,22 +58,6 @@ var T = new Twit({
   access_token_secret:  '1PxOSwkUxDB6ulw57o6ix5JKn20N6KiJlz4qpefnI2Cp3',
   timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests.
 });
-
-// Account Model
-
-// var Account = mongoose.model('Account', new Schema({
-//   id: ObjectId,
-//   username: String,
-//   email: String,
-//   password: String,
-//   consumer_key: String,
-//   consumer_secret: String,
-//   access_token: String,
-//   access_token_secret: String,
-//   timeout_ms: String,
-//   timestamp: String, // optional HTTP request timeout to apply to all requests.
-// }));
-
 
 // Session Options
 var firebaseStoreOptions = {
@@ -143,13 +113,13 @@ app.use(session({
 //   }
 // });
 
-// function requireLogin(req, res, next) {
-//   if (!req.session.user) {
-//     res.redirect('/signin');
-//   } else {
-//     next();
-//   }
-// }
+function requireLogin(req, res, next) {
+  if (!req.session.user) {
+    res.redirect('/signin');
+  } else {
+    next();
+  }
+}
 
 
 
@@ -210,31 +180,50 @@ app.get('/signup', function(req, res, next) {
 });
 
 app.post('/signup', function(req, res, next) {
+  
+
   var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
 
-  var user = new User({
-    username: req.body.username,
-    email: req.body.email,
-    password: hash,
+    var results = [];
+
+    // Grab data from http request
+    var data = {
+      username: req.body.username,
+      email: req.body.email,
+      password: hash,
+      complete: false
+    };
+
+    req.session.user = data;
+
+    // Get a Postgres client from the connection pool
+    pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+          done();
+          console.log(err);
+          return res.status(500).json({ success: false, data: err});
+        }
+
+        // SQL Query > Insert Data
+        client.query("INSERT INTO users(username, email, password, complete) values($1, $2, $3, $4)", [data.username, data.email, data.password, data.complete]);
+
+        // SQL Query > Select Data
+        var query = client.query("SELECT * FROM users ORDER BY id DESC LIMIT 1");
+
+        // Stream results back one row at a time
+        query.on('row', function(row) {
+            results.push(row);
+        });
+
+        // After all data is returned, close connection and return results
+        query.on('end', function() {
+            done();
+            res.redirect('/');
+        });
+      });
+
   });
-
-  user.save(function(err) {
-      if (err) {
-        var err = 'Something bad happened, try again!';
-      if (err.code === 11000) {
-        var error = 'That email is already taken, try another!';
-      }
-
-      res.render('signup.jade', { error: error });
-      console.log(err);
-      console.log(error);
-    } else {
-      req.session.user = user; // set-cookie set: session={ email: '...', pass: '...' }
-      res.redirect('/');
-    }
-
-  });
-});
 
 
 app.get('/signin', function(req, res) {
@@ -246,20 +235,51 @@ app.get('/signin', function(req, res) {
 });
 
 app.post('/signin', function(req, res) {
-  User.findOne({ username: req.body.username }, function(err, user) {
-    if (!user) {
-      res.render('signin.jade', { error: 'Invalid Username or Password' });
-      console.log(err);
-    } else {
-      if (bcrypt.compareSync(req.body.password, user.password)) {
-        req.session.user = user; // set-cookie set: session={ email: '...', pass: '...' }
-        res.redirect('/');
-      } else {
-        res.render('signin.jade', { error: 'Invalid Username or Password' });
-      }
-    }
+
+    var results = [];
+
+    // Get a Postgres client from the connection pool
+    pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+          done();
+          console.log(err);
+          return res.status(500).json({ success: false, data: err});
+        }
+
+        // SQL Query > Select Data
+        var query = client.query("SELECT * FROM accounts WHERE username = " + req.body.username + "");
+
+        // Stream results back one row at a time
+        query.on('row', function(row) {
+            results.push(row);
+        });
+
+        // After all data is returned, close connection and return results
+        query.on('end', function() {
+            done();
+            req.session.user = results;
+            res.redirect('/');
+        });
+      });
+
   });
-});
+
+
+
+  // User.findOne({ username: req.body.username }, function(err, user) {
+  //   if (!user) {
+  //     res.render('signin.jade', { error: 'Invalid Username or Password' });
+  //     console.log(err);
+  //   } else {
+  //     if (bcrypt.compareSync(req.body.password, user.password)) {
+  //       req.session.user = user; // set-cookie set: session={ email: '...', pass: '...' }
+  //       res.redirect('/');
+  //     } else {
+  //       res.render('signin.jade', { error: 'Invalid Username or Password' });
+  //     }
+  //   }
+  // });
 
 
 app.get('/logout', function(req, res) {
@@ -267,17 +287,18 @@ app.get('/logout', function(req, res) {
   res.redirect('/');
 });
 
-app.get('/', function(req, res, next) {
-  // res.locals.user = req.session.user;
+app.get('/', requireLogin, function(req, res, next) {
+  res.locals.user = req.session.user;
   res.render('index', { title: 'Twitter Bot | Dash' });
+
 });
 
-app.get('/charts', function(req, res) {
+app.get('/charts', requireLogin, function(req, res) {
   res.locals.user = req.session.user;
   res.render('charts', { title: 'Twitter Bot | Charts' });
 });
 
-app.get('/forms', function(req, res) {
+app.get('/forms', requireLogin, function(req, res) {
   res.locals.user = req.session.user;
   res.render('forms', { title: 'Twitter Bot | Forms' });
 });
@@ -321,6 +342,9 @@ app.post('/newaccount', function(req, res) {
       complete: false
     };
 
+
+      req.session.user = data;
+
     // Get a Postgres client from the connection pool
     pg.connect(connectionString, function(err, client, done) {
         // Handle connection errors
@@ -333,8 +357,9 @@ app.post('/newaccount', function(req, res) {
         // SQL Query > Insert Data
         client.query("INSERT INTO accounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, price, timestamp, complete) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.price, data.timestamp, data.complete]);
 
+
         // SQL Query > Select Data
-        var query = client.query("SELECT * FROM accounts ORDER BY id ASC");
+        var query = client.query("SELECT * FROM accounts ORDER BY id DESC LIMIT 1");
 
         // Stream results back one row at a time
         query.on('row', function(row) {

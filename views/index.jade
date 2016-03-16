@@ -48,7 +48,7 @@ html
                       img.media-object(src='http://placehold.it/50x50', alt='')
                     .media-body
                       h5.media-heading
-                        strong
+                        strong #{user.username}
                       p.small.text-muted
                         i.fa.fa-clock-o
                         |  Yesterday at 4:32 PM
@@ -60,7 +60,7 @@ html
                       img.media-object(src='http://placehold.it/50x50', alt='')
                     .media-body
                       h5.media-heading
-                        strong
+                        strong #{user.username}
                       p.small.text-muted
                         i.fa.fa-clock-o
                         |  Yesterday at 4:32 PM
@@ -72,7 +72,7 @@ html
                       img.media-object(src='http://placehold.it/50x50', alt='')
                     .media-body
                       h5.media-heading
-                        strong
+                        strong #{user.username}
                       p.small.text-muted
                         i.fa.fa-clock-o
                         |  Yesterday at 4:32 PM
@@ -114,7 +114,7 @@ html
           li.dropdown
             a.dropdown-toggle(href='#', data-toggle='dropdown')
               i.fa.fa-user
-              |  
+              |  #{user.username} 
               b.caret
             ul.dropdown-menu
               li
@@ -226,7 +226,7 @@ html
                     .col-xs-3
                       i.fa.fa-user-times.fa-5x
                     .col-xs-9.text-right
-                      .huge 0
+
                       div Inactive!
                 a(href='#')
                   .panel-footer

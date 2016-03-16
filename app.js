@@ -248,7 +248,9 @@ app.post('/signin', function(req, res) {
         }
 
         // SQL Query > Select Data
-        var query = client.query("SELECT * FROM accounts WHERE username = " + req.body.username + "");
+        var emailInput = req.body.email;
+        var passwordInput = req.body.password;
+        var query = client.query('SELECT * FROM users WHERE email =' + '\'' + emailInput + '\'');
 
         // Stream results back one row at a time
         query.on('row', function(row) {
@@ -257,29 +259,28 @@ app.post('/signin', function(req, res) {
 
         // After all data is returned, close connection and return results
         query.on('end', function() {
+          console.log(results[0]);
             done();
-            req.session.user = results;
-            res.redirect('/');
+            if (results === null) {
+              res.redirect('/signin');
+            } else {
+              if (results[0] !== undefined) {
+              var user = results[0];
+              if (bcrypt.compareSync(req.body.password, user.password)) {
+                req.session.user = user;
+                res.locals.user = user;
+                console.log("LOGIN QUERY RESULTS: " + user);
+                res.redirect('/');
+              } else {
+                res.redirect('/signin');
+              }
+            } else {
+              res.redirect('/signin');
+            }
+          }
         });
       });
-
   });
-
-
-
-  // User.findOne({ username: req.body.username }, function(err, user) {
-  //   if (!user) {
-  //     res.render('signin.jade', { error: 'Invalid Username or Password' });
-  //     console.log(err);
-  //   } else {
-  //     if (bcrypt.compareSync(req.body.password, user.password)) {
-  //       req.session.user = user; // set-cookie set: session={ email: '...', pass: '...' }
-  //       res.redirect('/');
-  //     } else {
-  //       res.render('signin.jade', { error: 'Invalid Username or Password' });
-  //     }
-  //   }
-  // });
 
 
 app.get('/logout', function(req, res) {
@@ -288,6 +289,7 @@ app.get('/logout', function(req, res) {
 });
 
 app.get('/', requireLogin, function(req, res, next) {
+  console.log("Current Session: " + req.session.user);
   res.locals.user = req.session.user;
   res.render('index', { title: 'Twitter Bot | Dash' });
 

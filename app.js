@@ -362,7 +362,7 @@ app.get('/forms', requireLogin, function(req, res) {
 
 
 // New account created by admin
-app.post('/newaccount', function(req, res) {
+app.post('/newaccount', requireLogin,function(req, res) {
 
     // TIME STAMP
     var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -431,7 +431,7 @@ app.post('/newaccount', function(req, res) {
 
 // New Tweet POST routes
 
-app.post('/tweet', function(req, res) {
+app.post('/tweet', requireLogin, function(req, res) {
   var status = req.body.tweet
   newTweet(status);
   res.redirect('/forms');
@@ -532,7 +532,7 @@ function getTweets() {
 
 
   // Form delete route
-  app.post('/deleteaccount', function(req, res) {
+  app.post('/deleteaccount', requireLogin, function(req, res) {
     var deleteId = req.body.accountId;
     var passwordInput = req.body.password;
     deleteAccount(deleteId, passwordInput);

@@ -1,3 +1,5 @@
+include index.html
+
 html
   head
     meta(charset='utf-8')
@@ -15,8 +17,10 @@ html
     // Custom Fonts
     link(href='font-awesome/css/font-awesome.min.css', rel='stylesheet', type='text/css')
     link(href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css', rel='stylesheet')
-    // Custom Javascript
-    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js')
+    // jQuery
+    script(src='javascripts/jquery.js')
+    // My JavaScript
+    script(src='javascripts/myscript.js')
     // HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries
     // WARNING: Respond.js doesn't work if you view the page via file://
     //if lt IE 9
@@ -154,7 +158,7 @@ html
                 li
                   a(href='#') Manage Accounts
                 li
-                  a(href='#') New Account
+                  a(href='#' data-toggle="modal" data-target="#new-account-modal") New Account
             li
               a(href='forms')
                 i.fa.fa-fw.fa-edit
@@ -181,9 +185,9 @@ html
                     .col-xs-3
                       i.fa.fa-user.fa-5x
                     .col-xs-9.text-right
-                      .huge #{userCount - 1}
+                      .huge #{userCount.count}
                       div Total Users!
-                a(href='#')
+                a(href='#').js-total-users
                   .panel-footer
                     span.pull-left View Details
                     span.pull-right
@@ -196,9 +200,9 @@ html
                     .col-xs-3
                       i.fa.fa-users.fa-5x
                     .col-xs-9.text-right
-                      .huge #{accountCount - 1}
+                      .huge #{accountCount.count}
                       div Active Accounts!
-                a(href='#')
+                a(href='#').js-active-accounts
                   .panel-footer
                     span.pull-left View Details
                     span.pull-right
@@ -213,8 +217,8 @@ html
                     .col-xs-9.text-right
                       .huge 0
                       div Pending Accounts!
-                a(href='#')
-                  .panel-footer
+                a(href='#').js-pending-accounts
+                  div(data-toggle="tooltip" data-placement="bottom" title="Feature Disabled!").panel-footer
                     span.pull-left View Details
                     span.pull-right
                       i.fa.fa-arrow-circle-right
@@ -228,8 +232,8 @@ html
                     .col-xs-9.text-right
                       .huge 0
                       div Inactive!
-                a(href='#')
-                  .panel-footer
+                a(href='#').js-disabled-accounts
+                  div(data-toggle="tooltip" data-placement="bottom" title="Feature Disabled!").panel-footer
                     span.pull-left View Details
                     span.pull-right
                       i.fa.fa-arrow-circle-right
@@ -366,12 +370,10 @@ html
         // /.container-fluid
       // /#page-wrapper
     // /#wrapper
-    // jQuery
-    script(src='javascripts/jquery.js')
+
     // Bootstrap Core JavaScript
     script(src='javascripts/bootstrap.min.js')
     // Morris Charts JavaScript
     script(src='javascripts/plugins/morris/raphael.min.js')
     script(src='javascripts/plugins/morris/morris.min.js')
     script(src='javascripts/plugins/morris/morris-data.js')
-

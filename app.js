@@ -223,7 +223,7 @@ app.get('/signin', function(req, res) {
   if(!req.session.user) {
     res.render('signin');
   } else {
-    res.redirect('index');
+    res.redirect('/');
   }
 });
 
@@ -291,9 +291,58 @@ app.get('/logout', function(req, res) {
 
 // Dashboard route
 app.get('/', requireLogin, function(req, res, next) {
+
+    // Get some info for the charts
+    var userCount = [];
+    var accountCount = [];
+
+    // Get a Postgres client from the connection pool
+    pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+          done();
+          console.log(err);
+          return res.status(500).json({ success: false, data: err});
+        }
+
+        // SQL Query > Last account created
+        var users = client.query("SELECT COUNT(*) FROM users");
+
+        // haha, account count
+        var accounts = client.query("SELECT COUNT(*) FROM accounts");
+
+        // Stream results back one row at a time
+        users.on('row', function(row) {
+            userCount.push(row);
+        });
+
+        // After all data is returned, close connection and return results
+        users.on('end', function() {
+            res.locals.userCount = userCount[0];
+            console.log(userCount[0].count);
+            done();
+        });
+
+
+
+        // Stream results back one row at a time
+        accounts.on('row', function(row) {
+          accountCount.push(row);
+        });
+
+        // After all data is returned, close connection and return results
+        accounts.on('end', function() {
+            done();
+            console.log(accountCount);
+            res.locals.accountCount = accountCount[0];
+            res.render('index', { title: 'Twitter Bot | Dash' });
+        });
+
+    });
+
+
   console.log("Current Session: " + req.session.user);
   res.locals.user = req.session.user;
-  res.render('index', { title: 'Twitter Bot | Dash' });
 
 });
 
@@ -344,9 +393,6 @@ app.post('/newaccount', function(req, res) {
       timestamp: timestamp,
       complete: false
     };
-
-
-      req.session.user = data;
 
     // Get a Postgres client from the connection pool
     pg.connect(connectionString, function(err, client, done) {
@@ -412,6 +458,127 @@ function getTweets() {
   })
 
 }
+
+
+
+
+
+
+// SQL functions that I might need sometimes
+//---------------------------------------------------------------------
+
+
+// DELETE AN ACCOUNT ---------------------------------------------------------------------
+  
+  //Ajax route to grab the users
+  app.get('/api/v1/users', requireLogin, function(req, res) {
+      var results = [];
+
+      pg.connect(connectionString, function(err, client, done) {
+          // Handle connection errors
+          if(err) {
+            done();
+            console.log(err);
+            return res.status(500).json({ success: false, data: err});
+          }
+
+          // SQL Query > Create the row with new user
+          var query = client.query("SELECT * FROM users");
+
+          // Stream results back one row at a time
+          query.on('row', function(row) {
+              results.push(row);
+          });
+
+          // After all data is returned, close connection and redirect to /forms
+          query.on('end', function() {
+              done();
+              return res.json(results);
+          });
+        });
+  });
+
+  //Ajax route to grab the accounts
+  app.get('/api/v1/accounts', requireLogin, function(req, res) {
+    if (!req.session.user) {
+      res.redirect('/signin');
+    } else {
+      var results = [];
+
+      pg.connect(connectionString, function(err, client, done) {
+          // Handle connection errors
+          if(err) {
+            done();
+            console.log(err);
+            return res.status(500).json({ success: false, data: err});
+          }
+
+          // SQL Query > Create the row with new user
+          var query = client.query("SELECT * FROM accounts");
+
+          // Stream results back one row at a time
+          query.on('row', function(row) {
+              results.push(row);
+          });
+
+          // After all data is returned, close connection and redirect to /forms
+          query.on('end', function() {
+              done();
+              return res.json(results);
+          });
+        });
+      }
+  });
+
+
+  // Form delete route
+  app.post('/deleteaccount', function(req, res) {
+    var deleteId = req.body.accountId;
+    var passwordInput = req.body.password;
+    deleteAccount(deleteId, passwordInput);
+    res.redirect('/forms');
+  });
+
+      // Get a Postgres client from the connection pool
+  function deleteAccount(deleteId, passwordInput) {
+    pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+          done();
+          console.log(err);
+          return res.status(500).json({ success: false, data: err});
+        }
+
+        var account = client.query("SELECT * FROM accounts WHERE id=(" + deleteId + ")");
+
+
+        if (account !== null) {
+          if(account !== undefined) {
+              // SQL Query > Create the row with new user
+              var query = client.query("DELETE FROM accounts WHERE id=(" + deleteId + ")");
+
+              // Stream results back one row at a time
+              query.on('row', function(row) {
+                  results.push(row);
+              });
+
+              // After all data is returned, close connection and redirect to /forms
+              query.on('end', function() {
+                  done();
+              });
+            }
+          } 
+      });
+  }
+
+// END Delete an account ---------------------------------------------------------------------
+
+
+
+
+
+// ---------------------------------------------------------------------
+// END SQL FUNCTIONS that I might need sometimes
 
 
 // ---------- ERROR CATCHES ----------------------

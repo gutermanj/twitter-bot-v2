@@ -52,7 +52,7 @@ html(lang='en')
                       img.media-object(src='http://placehold.it/50x50', alt='')
                     .media-body
                       h5.media-heading
-                        strong
+                        strong #{user.username}
                       p.small.text-muted
                         i.fa.fa-clock-o
                         |  Yesterday at 4:32 PM
@@ -64,7 +64,7 @@ html(lang='en')
                       img.media-object(src='http://placehold.it/50x50', alt='')
                     .media-body
                       h5.media-heading
-                        strong
+                        strong #{user.username}
                       p.small.text-muted
                         i.fa.fa-clock-o
                         |  Yesterday at 4:32 PM
@@ -76,7 +76,7 @@ html(lang='en')
                       img.media-object(src='http://placehold.it/50x50', alt='')
                     .media-body
                       h5.media-heading
-                        strong
+                        strong #{user.username}
                       p.small.text-muted
                         i.fa.fa-clock-o
                         |  Yesterday at 4:32 PM
@@ -109,7 +109,7 @@ html(lang='en')
                   | Alert Name 
                   span.label.label-warning Alert Badge
               li
-                a(href='#')
+                a(href='#') 
                   | Alert Name 
                   span.label.label-danger Alert Badge
               li.divider
@@ -118,7 +118,7 @@ html(lang='en')
           li.dropdown
             a.dropdown-toggle(href='#', data-toggle='dropdown')
               i.fa.fa-user
-              |  
+              |  #{user.username} 
               b.caret
             ul.dropdown-menu
               li
@@ -191,7 +191,7 @@ html(lang='en')
                 button.btn.btn-primary(type='submit') Tweet!
                 br
                 br
-                hr
+                hr(style='border-color: black;')
           .row
             .col-lg-12
               h3 New Account
@@ -223,68 +223,29 @@ html(lang='en')
                 .form-group
                   label Access Token Secret
                   input.form-control(placeholder='Access Token Secret - from Twitter', name='access_token_secret', required)
-
-            .col-lg-12
-              .form-group
-                label Retweets Per 15 Mins
-                select.form-control(name='price', required)
-                  option(value='10') 1 - $10/month
-                  option(value='20') 2 - $20/month
-                  option(value='25') 3 - $25/month
-              button.btn.btn-primary.form-control(type='submit') Create Account
-                  
-            .row
-            .col-lg-12
-             h3 Update Account
+                  input(name='price' value='10' hidden)
                   br
-              form(action='/signin' method="POST")
-                .form-group
-                  label Account Name
-                  input.form-control.new-account-field-1(placeholder='Please Enter A Unique Title For This Account')
-                .form-group
-                  label Username
-                  input.form-control.new-account-field-2(placeholder='Enter The Accounts Twitter Username')
-                .form-group
-                  label Password
-                  input.form-control.new-account-field-3(placeholder='Enter The Accounts Twitter Password')
-                  p.form-control-static *We need this to tweet on your behalf
+                  small
+                    b *All 4 of these are very important, make sure they're correct or the server will yell at you
 
-                .form-group
-                  label Retweets Per 15 Mins
-                  select.form-control
-                    option 1 - $10/month
-                    option 2 - $20/month
-                    option 3 - $25/month
-                button.btn.btn-primary(type='submit') Submit Button
-                br
-                br
+            .col-lg-12
+              button.btn.btn-primary.form-control(type='submit') Create Account
+              br
+              br
+              hr(style='border-color: black;')
             .row
             h2(style='color: darkred;') DANGER ZONE
             hr(style='border-color: darkred;')
             .col-lg-12
-             h3 Delete Account
-                  br
-              form(action='/signin' method="POST")
-                .form-group
-                  label Account Name
-                  input.form-control.new-account-field-1(placeholder='Please Enter A Unique Title For This Account')
-                .form-group
-                  label Username
-                  input.form-control.new-account-field-2(placeholder='Enter The Accounts Twitter Username')
-                .form-group
-                  label Password
-                  input.form-control.new-account-field-3(placeholder='Enter The Accounts Twitter Password')
-                  p.form-control-static *We need this to tweet on your behalf
-
-                .form-group
-                  label Retweets Per 15 Mins
-                  select.form-control
-                    option 1 - $10/month
-                    option 2 - $20/month
-                    option 3 - $25/month
-                button.btn.btn-primary(type='submit') Submit Button
-                br
-                br
+            h3 Delete Account
+          form(action='/deleteaccount' method="POST")
+            .form-group
+              label Select The Account You Want To Delete
+              select(name='accountId').form-control.delete-account-options
+              // account options go here
+            button.btn.btn-danger(type='submit') DELETE ACCOUNT
+            br
+            br
 
 
           // /.row
@@ -295,3 +256,4 @@ html(lang='en')
     script(src='javascripts/jquery.js')
     // Bootstrap Core JavaScript
     script(src='javascripts/bootstrap.min.js')
+    script(src='javascripts/ajax.js')

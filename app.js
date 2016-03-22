@@ -11,7 +11,7 @@ var Twit = require('twit');
 
 // Database configuration
 var pg = require('pg');
-var connectionString = process.env.DATABASE_URL || 'postgres://postgres:1j64z7@localhost:5432/twitterbot';
+var connectionString = process.env.DATABASE_URL || 'postgres://postgres:potato@localhost:5432/twitterbot';
 
 var client = new pg.Client(connectionString);
 

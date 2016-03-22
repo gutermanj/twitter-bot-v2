@@ -11,7 +11,7 @@ var Twit = require('twit');
 
 // Database configuration
 var pg = require('pg');
-var connectionString = process.env.DATABASE_URL || 'postgres://postgres:potato@localhost:5432/twitterbot';
+var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/twitterbot';
 
 var client = new pg.Client(connectionString);
 
@@ -152,7 +152,46 @@ function requireLogin(req, res, next) {
 
 
 
+function splitAccounts(res) {
+  
+  var even = [];
 
+  var odd = [];
+
+  pg.connect(connectionString, function(err, client, done) {
+
+    if(err) {
+      done();
+      console.log(err);
+      return res.status(500).json({ success: false, data: err });
+    }
+
+    var evenAccounts = client.query("SELECT * FROM accounts WHERE (ID % 2) = 0");
+
+    var oddAccounts = client.query("SELECT * FROM accounts WHERE (ID % 2) <> 0");
+
+    evenAccounts.on('row', function(row) {
+      even.push(row);
+    });
+
+    evenAccounts.on('end', function() {
+      var evenAccounts = JSON.stringify(even);
+      console.log("Even Accounts: " + evenAccounts);
+    });
+
+    oddAccounts.on('row', function(row) {
+      odd.push(row);
+    });
+
+    oddAccounts.on('end', function() {
+      var oddAccounts = JSON.stringify(odd);
+      console.log("Odd Accounts: " + oddAccounts);
+      done();
+    });
+
+
+  }); // pg.connect
+} // function
 
 
 
@@ -295,6 +334,8 @@ app.get('/', requireLogin, function(req, res, next) {
     // Get some info for the charts
     var userCount = [];
     var accountCount = [];
+
+    splitAccounts(res);
 
     // Get a Postgres client from the connection pool
     pg.connect(connectionString, function(err, client, done) {

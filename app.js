@@ -21,8 +21,8 @@ var client = new pg.Client(connectionString);
 
 // Creating tables
 // ----------------------------------------
-// var query = client.query('CREATE TABLE accounts(id SERIAL PRIMARY KEY, username VARCHAR(150) not null, email VARCHAR(150) not null, password VARCHAR(150) not null, consumer_key VARCHAR(150) not null, consumer_secret VARCHAR(150) not null, access_token VARCHAR(150) not null, access_token_secret VARCHAR(150) not null, price VARCHAR(150) not null, complete BOOLEAN)');
-// query.on('end', function() { client.end(); });
+ //var query = client.query('CREATE TABLE accounts(id SERIAL PRIMARY KEY, username VARCHAR(150) not null, email VARCHAR(150) not null, password VARCHAR(150) not null, consumer_key VARCHAR(150) not null, consumer_secret VARCHAR(150) not null, access_token VARCHAR(150) not null, access_token_secret VARCHAR(150) not null, price VARCHAR(150) not null, timestamp VARCHAR(150), complete BOOLEAN)');
+ // query.on('end', function() { client.end(); });
 
 // var query = client.query('CREATE TABLE users(id SERIAL PRIMARY KEY, username VARCHAR(150) not null, email VARCHAR(150) not null, password VARCHAR(150) not null, complete BOOLEAN)');
 // query.on('end', function() { client.end(); });
@@ -180,7 +180,9 @@ function splitAccounts(res) {
 
     evenAccounts.on('end', function() {
       var evenAccounts = JSON.stringify(even);
+      console.log("----------------------------------------------------------------");
       console.log("Even Accounts: " + evenAccounts);
+      console.log("----------------------------------------------------------------");
     });
 
     oddAccounts.on('row', function(row) {
@@ -189,7 +191,9 @@ function splitAccounts(res) {
 
     oddAccounts.on('end', function() {
       var oddAccounts = JSON.stringify(odd);
+      console.log("----------------------------------------------------------------");
       console.log("Odd Accounts: " + oddAccounts);
+      console.log("----------------------------------------------------------------");
       done();
     });
 
@@ -463,7 +467,7 @@ app.post('/newaccount', requireLogin,function(req, res) {
         // After all data is returned, close connection and return results
         query.on('end', function() {
             done();
-            return res.json(results);
+            res.redirect('/');
         });
 
 

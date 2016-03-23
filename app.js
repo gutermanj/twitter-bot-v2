@@ -32,7 +32,7 @@ client.connect(function(err, db) {
   if (err) {
     console.log('Something went wrong while connecting to the db');
   } else {
-    console.log('Connected to db');
+    console.log('Connected to db, sweeeet!');
   }
 });
 
@@ -49,10 +49,10 @@ var users = require('./routes/users');
 // So I don't really need this, but I'm gonna keep it for reference
 
 var T = new Twit({
-  consumer_key:         '1X8yoooqEevRWdhErqolMb4pE',
-  consumer_secret:      'BjxfK292LJnRxxwlMGeYnEyqanuKPvv25sTt8ULRZPum4HxUnC',
-  access_token:         '708512539303350272-Jf4rQFi4Iq3OLQS5C27xkIIxaZdJySd',
-  access_token_secret:  '1PxOSwkUxDB6ulw57o6ix5JKn20N6KiJlz4qpefnI2Cp3',
+  consumer_key:         '...',
+  consumer_secret:      '...',
+  access_token:         '...',
+  access_token_secret:  '...',
   timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests.
 });
 
@@ -156,7 +156,46 @@ function requireLogin(req, res, next) {
 
 
 
+function splitAccounts(res) {
+  
+  var even = [];
 
+  var odd = [];
+
+  pg.connect(connectionString, function(err, client, done) {
+
+    if(err) {
+      done();
+      console.log(err);
+      return res.status(500).json({ success: false, data: err });
+    }
+
+    var evenAccounts = client.query("SELECT * FROM accounts WHERE (ID % 2) = 0");
+
+    var oddAccounts = client.query("SELECT * FROM accounts WHERE (ID % 2) <> 0");
+
+    evenAccounts.on('row', function(row) {
+      even.push(row);
+    });
+
+    evenAccounts.on('end', function() {
+      var evenAccounts = JSON.stringify(even);
+      console.log("Even Accounts: " + evenAccounts);
+    });
+
+    oddAccounts.on('row', function(row) {
+      odd.push(row);
+    });
+
+    oddAccounts.on('end', function() {
+      var oddAccounts = JSON.stringify(odd);
+      console.log("Odd Accounts: " + oddAccounts);
+      done();
+    });
+
+
+  }); // pg.connect
+} // function
 
 
 
@@ -300,6 +339,8 @@ app.get('/', requireLogin, function(req, res, next) {
     var userCount = [];
     var accountCount = [];
 
+    splitAccounts(res);
+
     // Get a Postgres client from the connection pool
     pg.connect(connectionString, function(err, client, done) {
         // Handle connection errors
@@ -366,7 +407,7 @@ app.get('/forms', requireLogin, function(req, res) {
 
 
 // New account created by admin
-app.post('/newaccount', function(req, res) {
+app.post('/newaccount', requireLogin,function(req, res) {
 
     // TIME STAMP
     var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -435,7 +476,7 @@ app.post('/newaccount', function(req, res) {
 
 // New Tweet POST routes
 
-app.post('/tweet', function(req, res) {
+app.post('/tweet', requireLogin, function(req, res) {
   var status = req.body.tweet
   newTweet(status);
   res.redirect('/forms');
@@ -536,7 +577,7 @@ function getTweets() {
 
 
   // Form delete route
-  app.post('/deleteaccount', function(req, res) {
+  app.post('/deleteaccount', requireLogin, function(req, res) {
     var deleteId = req.body.accountId;
     var passwordInput = req.body.password;
     deleteAccount(deleteId, passwordInput);

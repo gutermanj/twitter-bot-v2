@@ -162,6 +162,8 @@ function splitAccounts(res) {
 
   var odd = [];
 
+  var all = [];
+
   pg.connect(connectionString, function(err, client, done) {
 
     if(err) {
@@ -173,6 +175,8 @@ function splitAccounts(res) {
     var evenAccounts = client.query("SELECT * FROM accounts WHERE (ID % 2) = 0");
 
     var oddAccounts = client.query("SELECT * FROM accounts WHERE (ID % 2) <> 0");
+
+    var allAccounts = client.query("SELECT * FROM accounts");
 
     evenAccounts.on('row', function(row) {
       even.push(row);
@@ -196,6 +200,20 @@ function splitAccounts(res) {
       console.log("----------------------------------------------------------------");
       done();
     });
+
+    allAccounts.on('row', function(row) {
+      all.push(row);
+    });
+
+    allAccounts.on('end', function(row) {
+      var allAccounts = JSON.stringify(all);
+      console.log("All Accounts: " + allAccounts);
+      res.locals.allAccounts = allAccounts;
+      res.render('index', { title: 'Twitter Bot | Dash' });
+      done();
+    });
+
+
 
 
   }); // pg.connect
@@ -343,7 +361,7 @@ app.get('/', requireLogin, function(req, res, next) {
     var userCount = [];
     var accountCount = [];
 
-    splitAccounts(res);
+    
 
     // Get a Postgres client from the connection pool
     pg.connect(connectionString, function(err, client, done) {
@@ -384,7 +402,7 @@ app.get('/', requireLogin, function(req, res, next) {
             done();
             console.log(accountCount);
             res.locals.accountCount = accountCount[0];
-            res.render('index', { title: 'Twitter Bot | Dash' });
+            splitAccounts(res);
         });
 
     });

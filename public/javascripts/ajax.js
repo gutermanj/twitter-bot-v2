@@ -7,7 +7,7 @@ $(document).on('ready', function() {
 
 		success: function(response) {
 			$('.delete-account-options').empty();
-
+			console.log(response);
 			loadAccounts(response);
 		},
 
@@ -25,11 +25,5 @@ $(document).on('ready', function() {
 				$('.delete-account-options').append(options);
 		});
 	}
-
-
-
-	$('.js-active-accounts').click(function() {
-		
-	});
 
 }); // Doc ready

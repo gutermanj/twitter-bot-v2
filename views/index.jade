@@ -1,5 +1,6 @@
 include index.html
 
+
 html
   head
     meta(charset='utf-8')
@@ -17,6 +18,10 @@ html
     // Custom Fonts
     link(href='font-awesome/css/font-awesome.min.css', rel='stylesheet', type='text/css')
     link(href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css', rel='stylesheet')
+
+    // My Styles
+    link(href='stylesheets/index-style.css', rel='stylesheet')
+
     // jQuery
     script(src='javascripts/jquery.js')
     // My JavaScript
@@ -26,6 +31,7 @@ html
     //if lt IE 9
       script(src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js')
       script(src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js')
+
   body
     #wrapper
       // Navigation
@@ -202,9 +208,9 @@ html
                     .col-xs-9.text-right
                       .huge #{accountCount.count}
                       div Active Accounts!
-                a(href='#').js-active-accounts
+                a(href='#' data-toggle="modal" data-target="#show-accounts-modal").js-active-accounts
                   .panel-footer
-                    a(href='#' data-toggle="modal" data-target="#show-accounts-modal").pull-left View Details
+                    span.pull-left.js-active-accounts View Details
                     span.pull-right
                       i.fa.fa-arrow-circle-right
                     .clearfix
@@ -364,12 +370,35 @@ html
                           td $943.45
                   .text-right
                     a(href='#')
-                      | View All Transactions 
+                      | View All Transactions #{allAccounts} 
                       i.fa.fa-arrow-circle-right
           // /.row
         // /.container-fluid
       // /#page-wrapper
     // /#wrapper
+
+
+
+    // Modal
+#show-accounts-modal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel')
+  .modal-dialog(role='document')
+    .modal-content
+      .modal-header
+        button.close(type='button', data-dismiss='modal', aria-label='Close')
+          span(aria-hidden='true') ×
+        h4#myModalLabel.modal-title Active Accounts
+      .modal-body
+        table.table.table-striped
+          thead
+            tr
+              th ID
+              th Username
+              th Email
+              th Completed Trades
+          tbody.js-accounts
+
+      .modal-footer
+        button.btn.btn-default(type='button', data-dismiss='modal') Close
 
     // Bootstrap Core JavaScript
     script(src='javascripts/bootstrap.min.js')
@@ -377,3 +406,10 @@ html
     script(src='javascripts/plugins/morris/raphael.min.js')
     script(src='javascripts/plugins/morris/morris.min.js')
     script(src='javascripts/plugins/morris/morris-data.js')
+    // jQuery
+    script(src='javascripts/jquery.js')
+    script(src='javascripts/account-ajax.js')
+
+
+
+

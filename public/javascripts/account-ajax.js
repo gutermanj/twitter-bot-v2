@@ -31,7 +31,7 @@ $(document).on('ready', function() {
 							<th scope='row'>${account.id}</th>
 							<td>${account.username}</td>
 							<td>${account.email}</td>
-							<td>18</td>
+							<td>${account.id}</td>
 						</tr>
 					`
 				$('.js-accounts').append(account);

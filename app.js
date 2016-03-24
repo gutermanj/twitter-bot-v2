@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcryptjs');
 var assert = require('assert');
 var Twit = require('twit');
+var flash = require('connect-flash');
 
 
 // Database configuration
@@ -119,6 +120,14 @@ function requireLogin(req, res, next) {
   }
 }
 
+// Flash Messages
+app.use(flash());
+app.use(function(req, res, next){
+    res.locals.success = req.flash('success');
+    res.locals.errors = req.flash('error');
+    next();
+});
+
 
 
 // Current Time, can be used for Timestamps
@@ -222,9 +231,105 @@ function splitAccounts(res) {
 
 
 
+app.get('/start', function(req, res, next) {
+
+function splitAccounts(res) {
+  
+  var even = [];
+
+  var odd = [];
+
+  var all = [];
+
+  pg.connect(connectionString, function(err, client, done) {
+
+    if(err) {
+      done();
+      console.log(err);
+      return res.status(500).json({ success: false, data: err });
+    }
+
+    var evenAccounts = client.query("SELECT * FROM accounts WHERE (ID % 2) = 0");
+
+    var oddAccounts = client.query("SELECT * FROM accounts WHERE (ID % 2) <> 0");
+
+    var allAccounts = client.query("SELECT * FROM accounts");
+
+    evenAccounts.on('row', function(row) {
+      even.push(row);
+    });
+
+    evenAccounts.on('end', function() {
+      var evenAccounts = JSON.stringify(even);
+    });
+
+    oddAccounts.on('row', function(row) {
+      odd.push(row);
+    });
+
+    oddAccounts.on('end', function() {
+      var oddAccounts = JSON.stringify(odd);
+      done();
+    });
+
+    allAccounts.on('row', function(row) {
+      all.push(row);
+    });
+
+    allAccounts.on('end', function() {
+      var allAccounts = JSON.stringify(all);
+      console.log("All Accounts: " + allAccounts);
+      startMarket(allAccounts);
+      done();
+    });
 
 
 
+
+  }); // pg.connect
+} // function
+
+});
+
+
+
+function startMarket(allAccounts) {
+
+console.log("Start Market on All Accounts: " + allAccounts);
+
+
+var odd = [];
+
+var even = [];
+
+function oddCounter(element, index, array) {
+
+  if (index % 2 !== 0) {
+    odd.push(element[index]);
+  } // Check if account is odd
+
+} // oddCounter
+
+function evenCounter(element, index, array) {
+  
+  if (index % 2 === 0) {
+    even.push(element[index]);
+  }
+
+}
+
+
+allAccounts.forEach(oddCounter);
+allAccounts.forEach(evenCounter);
+
+
+
+
+
+
+
+
+} // retweetMarket
 
 
 
@@ -410,6 +515,7 @@ app.get('/', requireLogin, function(req, res, next) {
 
   console.log("Current Session: " + req.session.user);
   res.locals.user = req.session.user;
+  
 
 });
 
@@ -490,6 +596,8 @@ app.post('/newaccount', requireLogin,function(req, res) {
 
 
     });
+
+    req.flash('success', 'Account was created!'); 
 });
 
 
@@ -522,7 +630,7 @@ function newTweet(status) {
 function getTweets() {
   T.get('search/tweets', { q: '@julianguterman since:2011-07-11', count: 10 }, function(err, data, response) {
     console.log(data)
-  })
+  });
 
 }
 

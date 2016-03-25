@@ -18,6 +18,8 @@ html
     // Custom Fonts
     link(href='font-awesome/css/font-awesome.min.css', rel='stylesheet', type='text/css')
     link(href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css', rel='stylesheet')
+    link(href='stylesheets/bootstrap-switch.min.css', rel='stylesheet')
+    
 
     // My Styles
     link(href='stylesheets/index-style.css', rel='stylesheet')
@@ -31,6 +33,7 @@ html
     //if lt IE 9
       script(src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js')
       script(src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js')
+      script(src='javascripts/market-place-ajax.js')
 
   body
     #wrapper
@@ -184,10 +187,11 @@ html
               h1.page-header
                 | Dashboard 
                 small Statistics Overview
+                  input(type="checkbox" name="my-checkbox" data-on-text='ONLINE' data-off-text='OFFLINE')
               ol.breadcrumb
                 li.active
                   i.fa.fa-dashboard
-                  |  Dashboard
+                  |  fa-dashboard
           // /.row
           .row
             .col-lg-3.col-md-6
@@ -415,6 +419,11 @@ html
     // jQuery
     script(src='javascripts/jquery.js')
     script(src='javascripts/account-ajax.js')
+    script(src='javascripts/myscript.js')
+    // Switch
+    script(src='javascripts/bootstrap-switch.min.js')
+    script(src='javascripts/market-place-ajax.js')
+
 
 
 

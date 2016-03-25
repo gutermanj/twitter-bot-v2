@@ -1,0 +1,10 @@
+.bootstrap-switch {
+	height: 35px;
+	position: absolute;
+	right: 10px;
+
+}
+
+*:focus {
+    outline: none;
+}

@@ -165,171 +165,85 @@ app.use(function(req, res, next){
 
 
 
-function splitAccounts(res) {
+// function splitAccounts(res) {
   
-  var even = [];
+//   var even = [];
 
-  var odd = [];
+//   var odd = [];
 
-  var all = [];
+//   var all = [];
 
-  pg.connect(connectionString, function(err, client, done) {
+//   pg.connect(connectionString, function(err, client, done) {
 
-    if(err) {
-      done();
-      console.log(err);
-      return res.status(500).json({ success: false, data: err });
-    }
+//     if(err) {
+//       done();
+//       console.log(err);
+//       return res.status(500).json({ success: false, data: err });
+//     }
 
-    var evenAccounts = client.query("SELECT * FROM accounts WHERE (ID % 2) = 0");
+//     var evenAccounts = client.query("SELECT * FROM accounts WHERE (ID % 2) = 0");
 
-    var oddAccounts = client.query("SELECT * FROM accounts WHERE (ID % 2) <> 0");
+//     var oddAccounts = client.query("SELECT * FROM accounts WHERE (ID % 2) <> 0");
 
-    var allAccounts = client.query("SELECT * FROM accounts");
+//     var allAccounts = client.query("SELECT * FROM accounts");
 
-    evenAccounts.on('row', function(row) {
-      even.push(row);
-    });
+//     evenAccounts.on('row', function(row) {
+//       even.push(row);
+//     });
 
-    evenAccounts.on('end', function() {
-      var evenAccounts = JSON.stringify(even);
-      console.log("----------------------------------------------------------------");
-      console.log("Even Accounts: " + evenAccounts);
-      console.log("----------------------------------------------------------------");
-    });
+//     evenAccounts.on('end', function() {
+//       var evenAccounts = JSON.stringify(even);
+//       console.log("----------------------------------------------------------------");
+//       console.log("Even Accounts: " + evenAccounts);
+//       console.log("----------------------------------------------------------------");
+//     });
 
-    oddAccounts.on('row', function(row) {
-      odd.push(row);
-    });
+//     oddAccounts.on('row', function(row) {
+//       odd.push(row);
+//     });
 
-    oddAccounts.on('end', function() {
-      var oddAccounts = JSON.stringify(odd);
-      console.log("----------------------------------------------------------------");
-      console.log("Odd Accounts: " + oddAccounts);
-      console.log("----------------------------------------------------------------");
-      done();
-    });
+//     oddAccounts.on('end', function() {
+//       var oddAccounts = JSON.stringify(odd);
+//       console.log("----------------------------------------------------------------");
+//       console.log("Odd Accounts: " + oddAccounts);
+//       console.log("----------------------------------------------------------------");
+//       done();
+//     });
 
-    allAccounts.on('row', function(row) {
-      all.push(row);
-    });
+//     allAccounts.on('row', function(row) {
+//       all.push(row);
+//     });
 
-    allAccounts.on('end', function(row) {
-      var allAccounts = JSON.stringify(all);
-      console.log("All Accounts: " + allAccounts);
-      res.locals.allAccounts = allAccounts;
-      res.render('index', { title: 'Twitter Bot | Dash' });
-      done();
-    });
-
-
-
-
-  }); // pg.connect
-} // function
+//     allAccounts.on('end', function(row) {
+//       var allAccounts = JSON.stringify(all);
+//       console.log("All Accounts: " + allAccounts);
+//       res.locals.allAccounts = allAccounts;
+//       res.render('index', { title: 'Twitter Bot | Dash' });
+//       done();
+//     });
 
 
 
 
-app.get('/start', function(req, res, next) {
-
-function splitAccounts(res) {
-  
-  var even = [];
-
-  var odd = [];
-
-  var all = [];
-
-  pg.connect(connectionString, function(err, client, done) {
-
-    if(err) {
-      done();
-      console.log(err);
-      return res.status(500).json({ success: false, data: err });
-    }
-
-    var evenAccounts = client.query("SELECT * FROM accounts WHERE (ID % 2) = 0");
-
-    var oddAccounts = client.query("SELECT * FROM accounts WHERE (ID % 2) <> 0");
-
-    var allAccounts = client.query("SELECT * FROM accounts");
-
-    evenAccounts.on('row', function(row) {
-      even.push(row);
-    });
-
-    evenAccounts.on('end', function() {
-      var evenAccounts = JSON.stringify(even);
-    });
-
-    oddAccounts.on('row', function(row) {
-      odd.push(row);
-    });
-
-    oddAccounts.on('end', function() {
-      var oddAccounts = JSON.stringify(odd);
-      done();
-    });
-
-    allAccounts.on('row', function(row) {
-      all.push(row);
-    });
-
-    allAccounts.on('end', function() {
-      var allAccounts = JSON.stringify(all);
-      console.log("All Accounts: " + allAccounts);
-      startMarket(allAccounts);
-      done();
-    });
-
-
-
-
-  }); // pg.connect
-} // function
-
-});
-
-
-
-function startMarket(allAccounts) {
-
-console.log("Start Market on All Accounts: " + allAccounts);
-
-
-var odd = [];
-
-var even = [];
-
-function oddCounter(element, index, array) {
-
-  if (index % 2 !== 0) {
-    odd.push(element[index]);
-  } // Check if account is odd
-
-} // oddCounter
-
-function evenCounter(element, index, array) {
-  
-  if (index % 2 === 0) {
-    even.push(element[index]);
-  }
-
-}
-
-
-allAccounts.forEach(oddCounter);
-allAccounts.forEach(evenCounter);
+//   }); // pg.connect
+// } // function
 
 
 
 
 
 
+// app.get('/startMarket', function(req, res, next) {
+
+//   function startMarket() {
+//       setInterval(function () {
+//         console.log("Start Button is working!");
+//       }, 2000);
+//     }
+
+// });
 
 
-} // retweetMarket
 
 
 
@@ -507,7 +421,9 @@ app.get('/', requireLogin, function(req, res, next) {
             done();
             console.log(accountCount);
             res.locals.accountCount = accountCount[0];
-            splitAccounts(res);
+            // splitAccounts(res);
+
+            res.render('index');
         });
 
     });
@@ -633,6 +549,135 @@ function getTweets() {
   });
 
 }
+
+
+
+
+
+
+
+
+
+
+// ================================================ START APPLICATION | ONLINE | ======================================================
+
+
+
+var onlineStatus = false;
+
+
+
+   setInterval(function() {
+
+      if (onlineStatus) {
+        setInterval(function() {
+          console.log("The setInterval is working");
+        }, 1000);
+      }
+
+    }, 100);
+
+
+app.get('/api/v1/start', function(req, res) {
+
+
+    var all = [];
+
+    pg.connect(connectionString, function(err, client, done) {
+
+      if(err) {
+        done();
+        console.log(err);
+        return res.status(500).json({ success: false, data: err });
+      }
+
+      var allAccounts = client.query("SELECT * FROM accounts");
+
+      allAccounts.on('row', function(row) {
+        all.push(row);
+      });
+
+      allAccounts.on('end', function() {
+        console.log("All Accounts: " + all);
+        startMarket(all, res);
+        done();
+        return res.json(all);
+        
+      });
+
+
+
+
+    }); // pg.connect
+
+
+});
+
+
+var oddSplit = [];
+
+var evenSplit = [];
+
+
+function startMarket(all, res) {
+
+
+var oddCounter = 0;
+
+var evenCounter = 0;
+
+all.forEach(function(element, index, array) {
+
+  if (element.id % 2 === 0) {
+    console.log(element);
+    evenSplit.push(element);
+      if (element.id === array.length) {
+        pairAccounts();
+      }
+  } else {
+    oddSplit.push(element);
+    console.log(element);
+      if (element.id === array.length) {
+        pairAccounts();
+      }
+  } // Sort odd accounts
+
+});
+
+
+} // startMarket
+
+
+
+
+function pairAccounts() {
+
+  console.log("Splitting Compelte!");
+
+  console.log("Split Groups |");
+
+  console.log(oddSplit);
+
+  console.log("=============================================")
+
+  console.log(evenSplit);
+
+  onlineStatus = true;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

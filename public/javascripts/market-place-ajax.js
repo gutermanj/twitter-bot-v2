@@ -1,28 +1,29 @@
 $(document).on('ready', function() {
 
 	$('input[name="my-checkbox"]').on('switchChange.bootstrapSwitch', function(event, state) {
+			disabled:true
+			console.log("ifwjeifjwpfio");
+			console.log("This: " + this);
+			console.log("Event: " + event);
+			console.log("State: " + state);
 
-		console.log("ifwjeifjwpfio");
-		console.log("This: " + this);
-		console.log("Event: " + event);
-		console.log("State: " + state);
+			$.ajax({
 
-		$.ajax({
+				url: '/api/v1/toggle',
 
-			url: '/api/v1/start',
+				type: 'GET',
 
-			type: 'GET',
+				success: function(response) {
+					console.log("Market Started!");
+					console.log(response);
+					stability();
+				},
 
-			success: function(response) {
-				console.log("Market Started!");
-				console.log(response);
-			},
+				error: function() {
+					console.log("Something went wrong");
+				}
 
-			error: function() {
-				console.log("Something went wrong");
-			}
-
-		});
+			});
 
 	});
 

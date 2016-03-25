@@ -187,7 +187,10 @@ html
               h1.page-header
                 | Dashboard 
                 small Statistics Overview
-                  input(type="checkbox" name="my-checkbox" data-on-text='ONLINE' data-off-text='OFFLINE')
+                if running
+                  input(id='input-disabled' type="checkbox" name="my-checkbox" data-on-text='ONLINE' data-off-text='OFFLINE' checked)
+                else
+                  input(id='input-disabled' type="checkbox" name="my-checkbox" data-on-text='ONLINE' data-off-text='OFFLINE')
               ol.breadcrumb
                 li.active
                   i.fa.fa-dashboard

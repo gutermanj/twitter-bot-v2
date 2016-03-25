@@ -420,6 +420,7 @@ app.get('/', requireLogin, function(req, res, next) {
         accounts.on('end', function() {
             done();
             console.log(accountCount);
+            res.locals.running = running;
             res.locals.accountCount = accountCount[0];
             // splitAccounts(res);
 
@@ -563,23 +564,63 @@ function getTweets() {
 
 
 
+var stable = true;
+
 var onlineStatus = false;
 
+var running = false;
 
+  setInterval(function() {
+    if (onlineStatus === false && running === false) {
+      console.log("Offline...");
+    } else {
+      if (running === false) {
 
-   setInterval(function() {
+           setInterval(function() {
 
-      if (onlineStatus) {
-        setInterval(function() {
-          console.log("The setInterval is working");
-        }, 1000);
+              if (onlineStatus && running) {
+                console.log("Running...");
+              } else if (onlineStatus) {
+                  
+                  console.log(running);
+                  resetInterval();
+
+                  running = true;
+              }
+
+            }, 2500);
+          }
+
+      console.log(onlineStatus);
+      console.log(running);
+
       }
 
-    }, 100);
+  }, 1000);
 
 
-app.get('/api/v1/start', function(req, res) {
+  function resetInterval() {
 
+    timer = setInterval(function() {
+           console.log("The setInterval is working");
+        }, 1000);
+    } // resetInterval
+
+
+app.get('/api/v1/toggle', function(req, res) {
+    console.log("Toggled");
+
+    if (running) {
+
+      onlineStatus = false;
+      running = false;
+
+      console.log("Shutting down......");
+      clearInterval(timer);
+
+      res.redirect('/');
+
+    } else {
 
     var all = [];
 
@@ -610,6 +651,7 @@ app.get('/api/v1/start', function(req, res) {
 
     }); // pg.connect
 
+  }
 
 });
 
@@ -665,17 +707,6 @@ function pairAccounts() {
   onlineStatus = true;
 
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 

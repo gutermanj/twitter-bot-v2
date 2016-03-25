@@ -579,20 +579,17 @@ var running = false;
            setInterval(function() {
 
               if (onlineStatus && running) {
-                console.log("Running...");
+                console.log(".");
               } else if (onlineStatus) {
                   
-                  console.log(running);
+                  console.log("...");
                   resetInterval();
 
                   running = true;
               }
 
-            }, 2500);
+            }, 1000);
           }
-
-      console.log(onlineStatus);
-      console.log(running);
 
       }
 
@@ -608,7 +605,7 @@ var running = false;
 
 
 app.get('/api/v1/toggle', function(req, res) {
-    console.log("Toggled");
+
 
     if (running) {
 

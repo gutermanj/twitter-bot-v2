@@ -636,7 +636,7 @@ var evenSplit = [];
 
       // Use oddSplit and evenSplit as the original arrays
       oddSplit.forEach(function(element, index, array) {
-        var randIndex = Math.floor(Math.random() * (max_length - 0));
+        var randIndex = Math.floor(Math.random() * max_length);
         var oddAccount = element;
         var evenAccount = evenSplit[randIndex];
 

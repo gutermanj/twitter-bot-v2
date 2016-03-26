@@ -22,11 +22,11 @@ var client = new pg.Client(connectionString);
 
 // Creating tables
 // ----------------------------------------
-  var query = client.query('CREATE TABLE accounts(id SERIAL PRIMARY KEY, username VARCHAR(150) not null, email VARCHAR(150) not null, password VARCHAR(150) not null, consumer_key VARCHAR(150) not null, consumer_secret VARCHAR(150) not null, access_token VARCHAR(150) not null, access_token_secret VARCHAR(150) not null, price VARCHAR(150) not null, timestamp VARCHAR(150), complete BOOLEAN)');
-  query.on('end', function() { client.end(); });
+ //var query = client.query('CREATE TABLE accounts(id SERIAL PRIMARY KEY, username VARCHAR(150) not null, email VARCHAR(150) not null, password VARCHAR(150) not null, consumer_key VARCHAR(150) not null, consumer_secret VARCHAR(150) not null, access_token VARCHAR(150) not null, access_token_secret VARCHAR(150) not null, price VARCHAR(150) not null, timestamp VARCHAR(150), complete BOOLEAN)');
+ // query.on('end', function() { client.end(); });
 
-  var query = client.query('CREATE TABLE users(id SERIAL PRIMARY KEY, username VARCHAR(150) not null, email VARCHAR(150) not null, password VARCHAR(150) not null, complete BOOLEAN)');
-  query.on('end', function() { client.end(); });
+// var query = client.query('CREATE TABLE users(id SERIAL PRIMARY KEY, username VARCHAR(150) not null, email VARCHAR(150) not null, password VARCHAR(150) not null, complete BOOLEAN)');
+// query.on('end', function() { client.end(); });
 
 // Connect to the database
 client.connect(function(err, db) {
@@ -638,12 +638,6 @@ var arrayFull = false;
 
       if (finishedPairing) {
         console.log("Idle...");
-        console.log(pairs);
-
-
-
-
-
 
 
 
@@ -664,12 +658,17 @@ var arrayFull = false;
             } else {
               pairs.push(currentPair);
               console.log(pairs.indexOf(currentPair));
-              console.log("Pair Retweeted!");
+              console.log("Pair Found!");
 
               pairingCounter++;
               if (pairingCounter >= oddSplit.length * 2) {
                 console.log("Retweeting Started...");
                 finishedPairing = true;
+
+                // Start 20 Minute Retweet Timer
+
+                toggleTimer(pairs);
+
               } else {
                 finishedPairing = false;
               }
@@ -713,6 +712,7 @@ app.get('/api/v1/toggle', function(req, res) {
 
       console.log("Shutting down......");
       clearInterval(timer);
+      clearInterval(executeTimer);
 
       res.redirect('/');
 
@@ -795,6 +795,62 @@ function pairAccounts() {
   onlineStatus = true;
 
 }
+
+
+
+
+
+// =============================== IF STATUS IS RUNNING EVERY 20 MINUTES THIS EXECUTES =======================================
+
+
+
+
+
+
+function toggleTimer(pairs) {
+
+  console.log("Timer Started: ");
+
+  var accountPairs = [];
+
+  pairs.forEach(function(pair) {
+
+    var splitPair = pair.split(" ");
+
+    accountPairs.push(splitPair);
+
+    if (accountPairs.length === pairs.length) {
+
+    }
+
+  });
+
+  executeTimer =  setInterval(function() {
+
+                    accountPairs.forEach(function(pair) {
+
+                      var oddPair = pair[0];
+
+                      var evenPair = pair[1];
+
+                      console.log("ODD PAIR: ");
+                      console.log(oddSplit[oddPair]);
+
+                      console.log("EVEN PAIR: ");
+                      console.log(evenSplit[evenPair]);
+
+                      console.log("=============================")
+
+                    });
+
+
+
+                  }, 2000);
+}
+
+
+
+
 
 
 

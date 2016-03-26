@@ -607,7 +607,7 @@ var running = false;
 
 // Check presence of element
   function isInArray(value, array) {
-    console.log(array.indexOf(value) > -1);
+    return array.indexOf(value) > -1;
   }
 
 
@@ -640,23 +640,16 @@ var evenSplit = [];
         var oddAccount = element;
         var evenAccount = evenSplit[randIndex];
 
-        var currentPair = ["" + index + " " + randIndex + ""];
+        var currentPair = "" + index + " " + randIndex + "";
 
-        
-
-
-
-        for (i = 0; i < oddSplit.length; i++) {
-          if (currentPair === pairs[i]) {
-            console.log("Pair already exists");
-            console.log(currentPair);
-            console.log(pairs[i]);
+          if (pairs.indexOf(currentPair) > -1) {
+            console.log("Pair Already Exists...");
+            console.log(pairs);
           } else {
-            console.log("Pair added!");
-            console.log(currentPair);
             pairs.push(currentPair);
+            console.log(pairs.indexOf(currentPair));
+            console.log("Pair Added!");
           }
-        }
 
         
 

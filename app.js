@@ -596,12 +596,91 @@ var running = false;
   }, 1000);
 
 
+
+
+
+
+
+
+
+
+
+// Check presence of element
+  function isInArray(value, array) {
+    console.log(array.indexOf(value) > -1);
+  }
+
+
+
+
+var oddSplit = [];
+
+var evenSplit = [];
+
+
+
+
+  // THE MAGIC
+
   function resetInterval() {
 
+    var max_length = oddSplit.length;
+
+    var index = 0;
+
+    var pairs = [];
+
+    var slicedPairs = [];
+
     timer = setInterval(function() {
-           console.log("The setInterval is working");
-        }, 1000);
+
+      // Use oddSplit and evenSplit as the original arrays
+      oddSplit.forEach(function(element, index, array) {
+        var randIndex = Math.floor(Math.random() * (max_length - 0));
+        var oddAccount = element;
+        var evenAccount = evenSplit[randIndex];
+
+        var currentPair = ["" + index + " " + randIndex + ""];
+
+        
+
+
+
+        for (i = 0; i < oddSplit.length; i++) {
+          if (currentPair === pairs[i]) {
+            console.log("Pair already exists");
+            console.log(currentPair);
+            console.log(pairs[i]);
+          } else {
+            console.log("Pair added!");
+            console.log(currentPair);
+            pairs.push(currentPair);
+          }
+        }
+
+        
+
+        
+
+
+
+
+
+      }); // forEach loop
+
+
+
+      }, 2000); // setInterval
+
     } // resetInterval
+
+
+
+
+
+
+
+
 
 
 app.get('/api/v1/toggle', function(req, res) {
@@ -636,7 +715,6 @@ app.get('/api/v1/toggle', function(req, res) {
       });
 
       allAccounts.on('end', function() {
-        console.log("All Accounts: " + all);
         startMarket(all, res);
         done();
         return res.json(all);
@@ -653,9 +731,6 @@ app.get('/api/v1/toggle', function(req, res) {
 });
 
 
-var oddSplit = [];
-
-var evenSplit = [];
 
 
 function startMarket(all, res) {
@@ -668,14 +743,12 @@ var evenCounter = 0;
 all.forEach(function(element, index, array) {
 
   if (element.id % 2 === 0) {
-    console.log(element);
     evenSplit.push(element);
       if (element.id === array.length) {
         pairAccounts();
       }
   } else {
     oddSplit.push(element);
-    console.log(element);
       if (element.id === array.length) {
         pairAccounts();
       }
@@ -692,14 +765,6 @@ all.forEach(function(element, index, array) {
 function pairAccounts() {
 
   console.log("Splitting Compelte!");
-
-  console.log("Split Groups |");
-
-  console.log(oddSplit);
-
-  console.log("=============================================")
-
-  console.log(evenSplit);
 
   onlineStatus = true;
 

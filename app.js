@@ -16,13 +16,13 @@ var pg = require('pg');
 
 pg.defaults.ssl = true;
 
-var connectionString = process.env.DATABASE_URL || 'postgres://zqjwdkhttstwfx:ykFbgDKz8eTpXM3CCyim6Zyw-m@ec2-54-235-246-67.compute-1.amazonaws.com:5432/d43r3ued3buhe1';
+// var connectionString = process.env.DATABASE_URL || 'postgres://zqjwdkhttstwfx:ykFbgDKz8eTpXM3CCyim6Zyw-m@ec2-54-235-246-67.compute-1.amazonaws.com:5432/d43r3ued3buhe1';
 
  // || 'postgres://localhost:5432/twitterbot'
 
-// var connectionString = process.env.DATABASE_URL || 'postgres://127.0.0.1:5432/twitterbot';
+// var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/twitterbot';
 
-// var connectionString = process.env.DATABASE_URL || 'postgres://postgres:potato@localhost:5432/twitterbot';
+var connectionString = process.env.DATABASE_URL || 'postgres://postgres:potato@localhost:5432/twitterbot';
 
 
 var client = new pg.Client(connectionString);
@@ -258,9 +258,13 @@ app.use(function(req, res, next){
 // --------------- Mostly Routes ---------------------
 
 // Signup route, I'm probably gonna remove this when I deploy
-app.get('/signup', function(req, res, next) {
-  res.render('signup');
-});
+// app.get('/signup', function(req, res, next) {
+//   res.render('signup');
+// });
+// REMOVED FOR PRODUCTION
+
+
+
 
 app.post('/signup', function(req, res, next) {
   
@@ -629,6 +633,10 @@ var arrayFull = false;
 
     var slicedPairs = [];
 
+    var checkEven = [];
+
+    var checkOdd = [];
+
     var pairingCounter = 0;
 
     var finishedPairing = false;
@@ -645,7 +653,7 @@ var arrayFull = false;
 
       if (finishedPairing) {
         console.log("Idle...");
-
+        console.log(pairs);
 
 
 
@@ -663,12 +671,19 @@ var arrayFull = false;
               console.log("Pair Already Exists...");
               console.log(pairs);
             } else {
+              if (checkEven.indexOf(randIndex) > -1 || checkOdd.indexOf(index) > -1) {
+                console.log("One Account Has Already Been Paired...");
+              } else {
 
-              pairs.push(currentPair);
-              console.log(pairs.indexOf(currentPair));
-              console.log("Pair Found!");
+                checkOdd.push(index);
+                checkEven.push(randIndex);
+                pairs.push(currentPair);
+                console.log(pairs.indexOf(currentPair));
+                console.log("Pair Found!");
+                pairingCounter++;
+              }
 
-              pairingCounter++;
+              
               if (pairingCounter >= oddSplit.length) {
                 console.log("Retweeting Started...");
                 finishedPairing = true;

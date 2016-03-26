@@ -602,21 +602,11 @@ var running = false;
 
 
 
-
-
-
-// Check presence of element
-  function isInArray(value, array) {
-    return array.indexOf(value) > -1;
-  }
-
-
-
-
 var oddSplit = [];
 
 var evenSplit = [];
 
+var arrayFull = false;
 
 
 
@@ -632,24 +622,59 @@ var evenSplit = [];
 
     var slicedPairs = [];
 
+    var pairingCounter = 0;
+
+    var finishedPairing = false;
+
+
+    console.log("CURRENT ARRAYS: ");
+
+    console.log(oddSplit);
+
+    console.log(evenSplit);
+
+
     timer = setInterval(function() {
 
-      // Use oddSplit and evenSplit as the original arrays
-      oddSplit.forEach(function(element, index, array) {
-        var randIndex = Math.floor(Math.random() * max_length);
-        var oddAccount = element;
-        var evenAccount = evenSplit[randIndex];
+      if (finishedPairing) {
+        console.log("Idle...");
+        console.log(pairs);
 
-        var currentPair = "" + index + " " + randIndex + "";
 
-          if (pairs.indexOf(currentPair) > -1) {
-            console.log("Pair Already Exists...");
-            console.log(pairs);
-          } else {
-            pairs.push(currentPair);
-            console.log(pairs.indexOf(currentPair));
-            console.log("Pair Added!");
-          }
+
+
+
+
+
+
+
+
+      } else {
+        // Use oddSplit and evenSplit as the original arrays
+        oddSplit.forEach(function(element, index, array) {
+          var randIndex = Math.floor(Math.random() * max_length);
+          var oddAccount = element;
+          var evenAccount = evenSplit[randIndex];
+
+          var currentPair = "" + index + " " + randIndex + "";
+
+            if (pairs.indexOf(currentPair) > -1 || pairs === []) {
+              console.log("Pair Already Exists...");
+              console.log(pairs);
+            } else {
+              pairs.push(currentPair);
+              console.log(pairs.indexOf(currentPair));
+              console.log("Pair Retweeted!");
+
+              pairingCounter++;
+              if (pairingCounter >= oddSplit.length * 2) {
+                console.log("Retweeting Started...");
+                finishedPairing = true;
+              } else {
+                finishedPairing = false;
+              }
+
+            }
 
         
 
@@ -659,9 +684,9 @@ var evenSplit = [];
 
 
 
-      }); // forEach loop
+        }); // forEach loop
 
-
+      }
 
       }, 2000); // setInterval
 
@@ -683,6 +708,8 @@ app.get('/api/v1/toggle', function(req, res) {
 
       onlineStatus = false;
       running = false;
+
+      arrayFull = true;
 
       console.log("Shutting down......");
       clearInterval(timer);
@@ -735,17 +762,23 @@ var evenCounter = 0;
 
 all.forEach(function(element, index, array) {
 
-  if (element.id % 2 === 0) {
-    evenSplit.push(element);
-      if (element.id === array.length) {
-        pairAccounts();
-      }
+
+  if (arrayFull) {
+    pairAccounts();
   } else {
-    oddSplit.push(element);
-      if (element.id === array.length) {
-        pairAccounts();
-      }
-  } // Sort odd accounts
+    if (element.id % 2 === 0) {
+      evenSplit.push(element);
+        if (element.id === array.length) {
+          pairAccounts();
+        }
+    } else {
+      oddSplit.push(element);
+        if (element.id === array.length) {
+          pairAccounts();
+        }
+    } // Sort odd accounts
+
+  }
 
 });
 

@@ -7,6 +7,7 @@ var bodyParser = require('body-parser');
 var bcrypt = require('bcryptjs');
 var assert = require('assert');
 var Twit = require('twit');
+var Twitter = require('twitter');
 var flash = require('connect-flash');
 
 
@@ -656,12 +657,13 @@ var arrayFull = false;
               console.log("Pair Already Exists...");
               console.log(pairs);
             } else {
+
               pairs.push(currentPair);
               console.log(pairs.indexOf(currentPair));
               console.log("Pair Found!");
 
               pairingCounter++;
-              if (pairingCounter >= oddSplit.length * 2) {
+              if (pairingCounter >= oddSplit.length) {
                 console.log("Retweeting Started...");
                 finishedPairing = true;
 
@@ -813,15 +815,13 @@ function toggleTimer(pairs) {
 
   var accountPairs = [];
 
+  console.log(pairs);
+
   pairs.forEach(function(pair) {
 
     var splitPair = pair.split(" ");
 
     accountPairs.push(splitPair);
-
-    if (accountPairs.length === pairs.length) {
-
-    }
 
   });
 
@@ -829,29 +829,114 @@ function toggleTimer(pairs) {
 
                     accountPairs.forEach(function(pair) {
 
-                      var oddPair = pair[0];
+                      var tweetIds = [];
 
-                      var evenPair = pair[1];
+                      var oddPair = pair[0]; // Variable to find odd account with index of pair[0]
+                      var evenPair = pair[1]; // Variable to find even account with index of pair[1]
 
-                      console.log("ODD PAIR: ");
-                      console.log(oddSplit[oddPair]);
+                      // Create temp Twit object with current accounts info
+                      var oddTwit = new Twitter({
+                        consumer_key:         oddSplit[oddPair].consumer_key,
+                        consumer_secret:      oddSplit[oddPair].consumer_secret,
+                        access_token_key:         oddSplit[oddPair].access_token,
+                        access_token_secret:  oddSplit[oddPair].access_token_secret,
+                        timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests. 
+                      });
 
-                      console.log("EVEN PAIR: ");
-                      console.log(evenSplit[evenPair]);
+                      var evenTwit = new Twitter({
+                        consumer_key:         evenSplit[evenPair].consumer_key,
+                        consumer_secret:      evenSplit[evenPair].consumer_secret,
+                        access_token_key:         evenSplit[evenPair].access_token,
+                        access_token_secret:  evenSplit[evenPair].access_token_secret,
+                        timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests. 
+                      });
 
-                      console.log("=============================")
 
-                    });
+                      // Utilize those Twit objects!
+                      // -----------------------------------------------------------------
 
 
 
-                  }, 2000);
+                      // Get the pair's last favorited tweet
+
+
+                        oddTwit.get('favorites/list', { count: 1 }, function(err, tweets, response) {
+
+                          if (err) {
+                            console.log(err);
+                          } else {
+                            
+                            if (typeof tweets[0] !== 'undefined') {
+                              evenTwit.post('statuses/retweet/' + tweets[0].id_str, function(err, tweet, response) {
+                                if (err) {
+                                  console.log(err);
+                                } else {
+                                  console.log(tweet);
+
+                                  setTimeout(function() {
+
+                                    evenTwit.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
+                                      
+                                      if (err) {
+                                        console.log(err);
+                                      } else {
+                                        console.log(tweet);
+                                      }
+
+                                    });
+
+                                  }, 1000 * 60 * 1);
+
+                                }
+                              });
+                            } else {
+
+                              console.log("Tweet not there");
+
+                            }
+                          }
+
+                        });
+
+                        evenTwit.get('favorites/list', { count: 1 }, function(err, tweets, response) {
+                          if (err) {
+                            console.log(err);
+                          } else {
+
+                            if (typeof tweets[0] !== 'undefined') {
+                              oddTwit.post('statuses/retweet/' + tweets[0].id_str, function(err, tweet, response) {
+                                if (err) {
+                                  console.log(err);
+                                } else {
+                                  console.log(tweet);
+
+                                  setTimeout(function() {
+
+                                    evenTwit.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
+                                      
+                                      if (err) {
+                                        console.log(err);
+                                      } else {
+                                        console.log(tweet);
+                                      }
+
+                                    });
+
+                                  }, 30000);
+
+                                }
+                              });
+                            }
+
+                          }
+                        });                 
+
+                    }); // forEach
+
+
+
+                  }, 60000);
 }
-
-
-
-
-
 
 
 

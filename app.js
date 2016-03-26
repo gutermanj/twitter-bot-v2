@@ -16,7 +16,7 @@ var pg = require('pg');
 
 pg.defaults.ssl = true;
 
-var connectionString = process.env.DATABASE_URL;
+var connectionString = process.env.DATABASE_URL || 'postgres://zqjwdkhttstwfx:ykFbgDKz8eTpXM3CCyim6Zyw-m@ec2-54-235-246-67.compute-1.amazonaws.com:5432/d43r3ued3buhe1';
 
  // || 'postgres://localhost:5432/twitterbot'
 

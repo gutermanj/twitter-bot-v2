@@ -881,35 +881,39 @@ function toggleTimer(pairs) {
                       // Get the pair's last favorited tweet
 
 
-                        oddTwit.get('favorites/list', { count: 1 }, function(err, tweets, response) {
+                        oddTwit.get('favorites/list', { count: 3 }, function(err, tweets, response) {
 
                           if (err) {
                             console.log(err);
                           } else {
-                            
-                            if (typeof tweets[0] !== 'undefined') {
-                              evenTwit.post('statuses/retweet/' + tweets[0].id_str, function(err, tweet, response) {
-                                if (err) {
-                                  console.log(err);
-                                } else {
-                                  console.log(tweet);
+                            var currentTweetCounter = 0;
+                            if (typeof tweets[currentTweetCounter] !== 'undefined') {
+                              
 
-                                  setTimeout(function() {
+                              tweets.forEach(function(tweet) {
+                                evenTwit.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
+                                  if (err) {
+                                    console.log(err);
+                                  } else {
+                                    console.log(tweet);
+                                    currentTweetCounter++;
+                                    setTimeout(function() {
 
-                                    evenTwit.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
-                                      
-                                      if (err) {
-                                        console.log(err);
-                                      } else {
-                                        console.log(tweet);
-                                      }
+                                      evenTwit.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
+                                        
+                                        if (err) {
+                                          console.log(err);
+                                        } else {
+                                          console.log(tweet);
+                                        }
 
-                                    });
+                                      });
 
-                                  }, 1000 * 60 * 19.5);
+                                    }, 1000 * 60 * 19.5);
 
-                                }
-                              });
+                                  }
+                                }); // retweet post
+                              }); // tweets for each
                             } else {
 
                               console.log("Tweet not there");
@@ -919,33 +923,39 @@ function toggleTimer(pairs) {
 
                         });
 
-                        evenTwit.get('favorites/list', { count: 1 }, function(err, tweets, response) {
+                        evenTwit.get('favorites/list', { count: 3 }, function(err, tweets, response) {
                           if (err) {
                             console.log(err);
                           } else {
+                            var currentTweetCounter = 0;
 
-                            if (typeof tweets[0] !== 'undefined') {
-                              oddTwit.post('statuses/retweet/' + tweets[0].id_str, function(err, tweet, response) {
-                                if (err) {
-                                  console.log(err);
-                                } else {
-                                  console.log(tweet);
+                            if (typeof tweets[currentTweetCounter] !== 'undefined') {
 
-                                  setTimeout(function() {
+                             
 
-                                    evenTwit.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
-                                      
-                                      if (err) {
-                                        console.log(err);
-                                      } else {
-                                        console.log(tweet);
-                                      }
+                              tweets.forEach(function(tweet) {
+                                oddTwit.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
+                                  if (err) {
+                                    console.log(err);
+                                  } else {
+                                    console.log(tweet);
+                                    currentTweetCounter++;
+                                    setTimeout(function() {
 
-                                    });
+                                      evenTwit.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
+                                        
+                                        if (err) {
+                                          console.log(err);
+                                        } else {
+                                          console.log(tweet);
+                                        }
 
-                                  }, 1000 * 60 * 19.5);
+                                      });
 
-                                }
+                                    }, 1000 * 60 * 19.5);
+
+                                  }
+                                });
                               });
                             }
 

@@ -710,7 +710,7 @@ var arrayFull = false;
 
       }
 
-      }, 2000); // setInterval
+      }, 500); // setInterval
 
     } // resetInterval
 
@@ -906,7 +906,7 @@ function toggleTimer(pairs) {
 
                                     });
 
-                                  }, 1000 * 60 * 1);
+                                  }, 1000 * 60 * 19.5);
 
                                 }
                               });
@@ -943,7 +943,7 @@ function toggleTimer(pairs) {
 
                                     });
 
-                                  }, 30000);
+                                  }, 1000 * 60 * 19.5);
 
                                 }
                               });
@@ -955,8 +955,13 @@ function toggleTimer(pairs) {
                     }); // forEach
 
 
+                    clearInterval(timer);
+                    clearInterval(executeTimer);
 
-                  }, 60000);
+                    resetInterval();
+
+
+                  }, 1000 * 60 * 20);
 }
 
 

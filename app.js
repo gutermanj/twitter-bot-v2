@@ -16,13 +16,13 @@ var pg = require('pg');
 
 pg.defaults.ssl = true;
 
-var connectionString = process.env.DATABASE_URL || 'postgres://zqjwdkhttstwfx:ykFbgDKz8eTpXM3CCyim6Zyw-m@ec2-54-235-246-67.compute-1.amazonaws.com:5432/d43r3ued3buhe1';
+// var connectionString = process.env.DATABASE_URL || 'postgres://zqjwdkhttstwfx:ykFbgDKz8eTpXM3CCyim6Zyw-m@ec2-54-235-246-67.compute-1.amazonaws.com:5432/d43r3ued3buhe1';
 
  // || 'postgres://localhost:5432/twitterbot'
 
 // var connectionString = process.env.DATABASE_URL || 'postgres://localhost:5432/twitterbot';
 
-// var connectionString = process.env.DATABASE_URL || 'postgres://postgres:potato@localhost:5432/twitterbot';
+var connectionString = process.env.DATABASE_URL || 'postgres://postgres:potato@localhost:5432/twitterbot';
 
 
 var client = new pg.Client(connectionString);
@@ -492,7 +492,8 @@ app.post('/newaccount', requireLogin,function(req, res) {
       access_token_secret: req.body.access_token_secret,
       price: req.body.price,
       timestamp: timestamp,
-      complete: false
+      complete: false,
+      type: req.body.type
     };
 
     // Get a Postgres client from the connection pool
@@ -505,7 +506,7 @@ app.post('/newaccount', requireLogin,function(req, res) {
         }
 
         // SQL Query > Create new row for an account
-        client.query("INSERT INTO accounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, price, timestamp, complete) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.price, data.timestamp, data.complete]);
+        client.query("INSERT INTO accounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, price, timestamp, complete, type) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.price, data.timestamp, data.complete, data.type]);
 
 
         // SQL Query > Last account created
@@ -674,13 +675,16 @@ var arrayFull = false;
               if (checkEven.indexOf(randIndex) > -1 || checkOdd.indexOf(index) > -1) {
                 console.log("One Account Has Already Been Paired...");
               } else {
-
-                checkOdd.push(index);
-                checkEven.push(randIndex);
-                pairs.push(currentPair);
-                console.log(pairs.indexOf(currentPair));
-                console.log("Pair Found!");
-                pairingCounter++;
+                if (oddAccount.type !== evenAccount.type) {
+                  console.log("Account Type Not Equal!");
+                } else {
+                  checkOdd.push(index);
+                  checkEven.push(randIndex);
+                  pairs.push(currentPair);
+                  console.log(pairs.indexOf(currentPair));
+                  console.log("Pair Found!");
+                  pairingCounter++;
+                }
               }
 
               

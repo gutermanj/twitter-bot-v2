@@ -223,6 +223,12 @@ html(lang='en')
                 .form-group
                   label Access Token Secret
                   input.form-control(placeholder='Access Token Secret - from Twitter', name='access_token_secret', required)
+                .form-group
+                  label Impression Type
+                  select.form-control(name='type')
+                    option(value='low') Low
+                    option(value='medium') Medium
+                    option(value='high') High
                   input(name='price' value='10' hidden)
                   br
                   small

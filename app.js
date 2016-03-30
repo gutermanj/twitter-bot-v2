@@ -642,6 +642,8 @@ var arrayFull = false;
 
     var finishedPairing = false;
 
+    var attemptCounter = 0;
+
 
     console.log("CURRENT ARRAYS: ");
 
@@ -674,9 +676,11 @@ var arrayFull = false;
             } else {
               if (checkEven.indexOf(randIndex) > -1 || checkOdd.indexOf(index) > -1) {
                 console.log("One Account Has Already Been Paired...");
+                attemptCounter++;
               } else {
                 if (oddAccount.type !== evenAccount.type) {
                   console.log("Account Type Not Equal!");
+                  attemptCounter++;
                 } else {
                   checkOdd.push(index);
                   checkEven.push(randIndex);
@@ -688,7 +692,7 @@ var arrayFull = false;
               }
 
               
-              if (pairingCounter >= oddSplit.length) {
+              if (pairingCounter >= oddSplit.length || attemptCounter > oddSplit.length * 20) {
                 console.log("Retweeting Started...");
                 finishedPairing = true;
 
@@ -714,7 +718,7 @@ var arrayFull = false;
 
       }
 
-      }, 500); // setInterval
+      }, 100); // setInterval
 
     } // resetInterval
 

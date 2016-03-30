@@ -671,22 +671,22 @@ var arrayFull = false;
           var currentPair = "" + index + " " + randIndex + "";
 
             if (pairs.indexOf(currentPair) > -1 || pairs === []) {
-              console.log("Pair Already Exists...");
-              console.log(pairs);
+              // console.log("Pair Already Exists...");
+              // console.log(pairs);
             } else {
               if (checkEven.indexOf(randIndex) > -1 || checkOdd.indexOf(index) > -1) {
-                console.log("One Account Has Already Been Paired...");
+                // console.log("One Account Has Already Been Paired...");
                 attemptCounter++;
               } else {
                 if (oddAccount.type !== evenAccount.type) {
-                  console.log("Account Type Not Equal!");
+                  // console.log("Account Type Not Equal!");
                   attemptCounter++;
                 } else {
                   checkOdd.push(index);
                   checkEven.push(randIndex);
                   pairs.push(currentPair);
-                  console.log(pairs.indexOf(currentPair));
-                  console.log("Pair Found!");
+                  // console.log(pairs.indexOf(currentPair));
+                  // console.log("Pair Found!");
                   pairingCounter++;
                 }
               }
@@ -694,6 +694,7 @@ var arrayFull = false;
               
               if (pairingCounter >= oddSplit.length || attemptCounter > oddSplit.length * 20) {
                 console.log("Retweeting Started...");
+                console.log(pairs);
                 finishedPairing = true;
 
                 // Start 20 Minute Retweet Timer

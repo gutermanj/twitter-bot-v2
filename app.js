@@ -655,11 +655,7 @@ var arrayFull = false;
     timer = setInterval(function() {
 
       if (finishedPairing) {
-        console.log("Idle...");
-        console.log(pairs);
-
-
-
+        console.log("..");
 
       } else {
         // Use oddSplit and evenSplit as the original arrays

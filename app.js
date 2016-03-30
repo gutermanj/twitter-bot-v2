@@ -655,8 +655,7 @@ var arrayFull = false;
     timer = setInterval(function() {
 
       if (finishedPairing) {
-        console.log("..");
-
+        // Idling
       } else {
         // Use oddSplit and evenSplit as the original arrays
         oddSplit.forEach(function(element, index, array) {

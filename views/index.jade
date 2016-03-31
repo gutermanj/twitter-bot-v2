@@ -234,9 +234,9 @@ html
                     .col-xs-3
                       i.fa.fa-hourglass.fa-5x
                     .col-xs-9.text-right
-                      .huge 0
-                      div Pending Accounts!
-                a(href='#').js-pending-accounts
+                      .huge.js-total-records
+                      div Recent Records!
+                a(href='#' data-toggle="modal" data-target="#show-records-modal").js-get-records
                   div(data-toggle="tooltip" data-placement="bottom" title="Feature Disabled!").panel-footer
                     span.pull-left View Details
                     span.pull-right
@@ -413,6 +413,28 @@ html
       .modal-footer
         button.btn.btn-default(type='button', data-dismiss='modal') Close
 
+
+
+    // Modal
+#show-records-modal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel')
+  .modal-dialog(role='document')
+    .modal-content
+      .modal-header
+        button.close(type='button', data-dismiss='modal', aria-label='Close')
+          span(aria-hidden='true') ×
+        h4#myModalLabel.modal-title Active Records
+      .modal-body
+        table.table.table-striped
+          thead
+            tr
+              th Username
+              th Trades Completed
+              th TimeStamp
+          tbody.js-records
+
+      .modal-footer
+        button.btn.btn-default(type='button', data-dismiss='modal') Close
+
     // Bootstrap Core JavaScript
     script(src='javascripts/bootstrap.min.js')
     // Morris Charts JavaScript
@@ -422,6 +444,8 @@ html
     // jQuery
     script(src='javascripts/jquery.js')
     script(src='javascripts/account-ajax.js')
+    script(src='javascripts/records-ajax.js')
+    script(src='javascripts/total-records-ajax.js')
     script(src='javascripts/myscript.js')
     // Switch
     script(src='javascripts/bootstrap-switch.min.js')

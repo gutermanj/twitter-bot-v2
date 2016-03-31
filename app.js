@@ -901,6 +901,34 @@ function toggleTimer(pairs) {
                                   } else {
                                     console.log(tweet);
                                     currentTweetCounter++;
+
+                                     client.query('SELECT * FROM records WHERE username =' + '\'' + evenSplit[evenPair].username + '\'', function(err, results) {
+                                      if (err) {
+                                        console.log(err);
+                                      } else {
+                                        console.log(results);
+                                        var recordExists = results.rows.length;
+                                        updateRecord(recordExists, results);
+                                      }
+
+                                    });
+
+                                    function updateRecord(recordExists, results) {
+
+                                      if (recordExists > 0) {
+                                        
+                                        
+                                        console.log(results.rows[0].trades);
+                                        console.log(tradeCount);
+                                        var tradeCount = results.rows[0].trades + 1;
+
+                                        client.query('UPDATE records SET trades = ' + '\'' + tradeCount + '\'' + 'WHERE username = ' + '\'' + evenSplit[evenPair].username + '\'')
+
+                                      } else {
+                                        client.query("INSERT INTO records(username, trades, timestamp) values($1, $2, $3)", [evenSplit[evenPair].username, 1, timestamp]);
+                                      }
+
+                                    }
                                     setTimeout(function() {
 
                                       evenTwit.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
@@ -941,9 +969,39 @@ function toggleTimer(pairs) {
                                 oddTwit.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
                                   if (err) {
                                     console.log(err);
+
                                   } else {
                                     console.log(tweet);
                                     currentTweetCounter++;
+
+                                     client.query('SELECT * FROM records WHERE username =' + '\'' + oddSplit[oddPair].username + '\'', function(err, results) {
+                                      if (err) {
+                                        console.log(err);
+                                      } else {
+                                        console.log(results);
+                                        var recordExists = results.rows.length;
+                                        updateRecord(recordExists, results);
+                                      }
+
+                                    });
+
+                                    function updateRecord(recordExists, results) {
+
+                                      if (recordExists > 0) {
+                                        
+                                        
+                                        console.log(results.rows[0].trades);
+                                        console.log(tradeCount);
+                                        var tradeCount = results.rows[0].trades + 1;
+
+                                        client.query('UPDATE records SET trades = ' + '\'' + tradeCount + '\'' + 'WHERE username = ' + '\'' + oddSplit[oddPair].username + '\'')
+
+                                      } else {
+                                        client.query("INSERT INTO records(username, trades, timestamp) values($1, $2, $3)", [oddSplit[oddPair].username, 1, timestamp]);
+                                      }
+
+                                    }
+
                                     setTimeout(function() {
 
                                       evenTwit.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
@@ -1049,6 +1107,56 @@ function toggleTimer(pairs) {
         });
       }
   });
+
+
+
+
+app.get('/api/v1/records', function(req, res) {
+  if (!req.session.user) {
+    res.redirect('/signin');
+  } else {
+    var results = [];
+
+    var records = client.query('SELECT * FROM records');
+
+    records.on('row', function(row) {
+      results.push(row);
+    });
+
+    records.on('end', function() {
+      console.log(results);
+      return res.json(results);
+    });
+
+  }
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   // Form delete route

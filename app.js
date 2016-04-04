@@ -458,6 +458,7 @@ app.get('/logout', function(req, res) {
 
 
 app.get('/me', function(req, res) {
+  res.locals.user = req.session.user;
   res.render('me');
 });
 

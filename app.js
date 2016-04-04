@@ -119,6 +119,7 @@ app.use(session({
 //   }
 // });
 
+// Require someone to be logged in
 function requireLogin(req, res, next) {
   if (!req.session.user) {
     res.redirect('/signin');
@@ -126,6 +127,22 @@ function requireLogin(req, res, next) {
     next();
   }
 }
+
+
+
+// Filter Admin vs. User
+function requireAdmin(req, res, next) {
+  if (!req.session.user.admin) {
+    res.redirect('/profile');
+  } else {
+    next();
+  }
+}
+
+
+
+
+
 
 // Flash Messages
 app.use(flash());
@@ -306,7 +323,7 @@ app.post('/signup', function(req, res, next) {
         // After all data is returned, close connection and return results
         query.on('end', function() {
             done();
-            res.redirect('/');
+            res.redirect('/me');
         });
       });
 
@@ -317,14 +334,16 @@ app.post('/signup', function(req, res, next) {
 app.get('/signin', function(req, res) {
   if(!req.session.user) {
     res.render('signin');
+  } else if (req.session.user.admin) {
+    res.redirect('/dashboard');
   } else {
-    res.redirect('/');
+    res.redirect('/me')
   }
 });
 
 
 // Signin route
-app.post('/signin', function(req, res) {
+app.post('/admin/signin', function(req, res) {
 
     var results = [];
 
@@ -362,7 +381,7 @@ app.post('/signin', function(req, res) {
                 req.session.user = user; // Set the session
                 res.locals.user = user;
                 console.log("LOGIN QUERY RESULTS: " + user);
-                res.redirect('/');
+                res.redirect('/dashboard');
               } else {
                 // If they don't match
                 res.redirect('/signin');
@@ -372,9 +391,63 @@ app.post('/signin', function(req, res) {
             } // For some reason I have to check if it's undefined as well as 
               // null or SQL will yell at us
           }
-        });
-      });
+        }); // query on end
+      }); //pg connect
   });
+
+
+app.post('/user/signin', function(req, res) {
+
+    var results = [];
+
+    // Get a Postgres client from the connection pool
+    pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+          done();
+          console.log(err);
+          return res.status(500).json({ success: false, data: err});
+        }
+
+        // SQL Query > Grab user input
+        var emailInput = req.body.email;
+        var passwordInput = req.body.password;
+        // See if the email exists
+        var query = client.query('SELECT * FROM users WHERE email =' + '\'' + emailInput + '\'');
+
+        // Stream results back one row at a time
+        query.on('row', function(row) {
+            results.push(row);
+        });
+
+        // After all data is returned, close connection and return results
+        query.on('end', function() {
+          console.log(results[0]);
+            done(); // If the email doesn't exist - get out of here
+            if (results === null) {
+              res.redirect('/signin');
+            } else { // If it does exist
+              if (results[0] !== undefined) {
+              var user = results[0];
+              // Check bcrypted password to see if they match
+              if (bcrypt.compareSync(req.body.password, user.password)) {
+                req.session.user = user; // Set the session
+                res.locals.user = user;
+                console.log("LOGIN QUERY RESULTS: " + user);
+                res.redirect('/me');
+              } else {
+                // If they don't match
+                res.redirect('/signin');
+              }
+            } else {
+              res.redirect('/signin');
+            } // For some reason I have to check if it's undefined as well as 
+              // null or SQL will yell at us
+          }
+        }); // query on end
+      }); //pg connect
+
+});
 
 
 // Logout route
@@ -384,8 +457,21 @@ app.get('/logout', function(req, res) {
 });
 
 
+app.get('/me', function(req, res) {
+  res.render('me');
+});
+
+
+
+app.get('/', function(req, res) {
+  res.render('land');
+});
+
+
+
+
 // Dashboard route
-app.get('/', requireLogin, function(req, res, next) {
+app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
 
     // Get some info for the charts
     var userCount = [];
@@ -449,21 +535,21 @@ app.get('/', requireLogin, function(req, res, next) {
 
 
 // Charts route
-app.get('/charts', requireLogin, function(req, res) {
+app.get('/charts', requireLogin, requireAdmin, function(req, res) {
   res.locals.user = req.session.user;
   res.render('charts', { title: 'Twitter Bot | Charts' });
 });
 
 
 // Forms route
-app.get('/forms', requireLogin, function(req, res) {
+app.get('/forms', requireLogin, requireAdmin, function(req, res) {
   res.locals.user = req.session.user;
   res.render('forms', { title: 'Twitter Bot | Forms' });
 });
 
 
 // New account created by admin
-app.post('/newaccount', requireLogin,function(req, res) {
+app.post('/newaccount', requireLogin, requireAdmin, function(req, res) {
 
     // TIME STAMP
     var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -520,7 +606,7 @@ app.post('/newaccount', requireLogin,function(req, res) {
         // After all data is returned, close connection and return results
         query.on('end', function() {
             done();
-            res.redirect('/');
+            res.redirect('/dashboard');
         });
 
 
@@ -535,7 +621,7 @@ app.post('/newaccount', requireLogin,function(req, res) {
 
 // New Tweet POST routes
 
-app.post('/tweet', requireLogin, function(req, res) {
+app.post('/tweet', requireLogin, requireAdmin, function(req, res) {
   var status = req.body.tweet
   newTweet(status);
   res.redirect('/forms');
@@ -727,7 +813,7 @@ var arrayFull = false;
 
 
 
-app.get('/api/v1/toggle', function(req, res) {
+app.get('/api/v1/toggle', requireAdmin, function(req, res) {
 
 
     if (running) {
@@ -741,7 +827,7 @@ app.get('/api/v1/toggle', function(req, res) {
       clearInterval(timer);
       clearInterval(executeTimer);
 
-      res.redirect('/');
+      res.redirect('/dashboard');
 
     } else {
 
@@ -1049,7 +1135,7 @@ function toggleTimer(pairs) {
 // DELETE AN ACCOUNT ---------------------------------------------------------------------
   
   //Ajax route to grab the users
-  app.get('/api/v1/users', requireLogin, function(req, res) {
+  app.get('/api/v1/users', requireLogin, requireAdmin, function(req, res) {
       var results = [];
 
       pg.connect(connectionString, function(err, client, done) {
@@ -1077,7 +1163,7 @@ function toggleTimer(pairs) {
   });
 
   //Ajax route to grab the accounts
-  app.get('/api/v1/accounts', requireLogin, function(req, res) {
+  app.get('/api/v1/accounts', requireLogin, requireAdmin, function(req, res) {
     if (!req.session.user) {
       res.redirect('/signin');
     } else {
@@ -1111,7 +1197,7 @@ function toggleTimer(pairs) {
 
 
 
-app.get('/api/v1/records', function(req, res) {
+app.get('/api/v1/records', requireAdmin, function(req, res) {
   if (!req.session.user) {
     res.redirect('/signin');
   } else {
@@ -1160,7 +1246,7 @@ app.get('/api/v1/records', function(req, res) {
 
 
   // Form delete route
-  app.post('/deleteaccount', requireLogin, function(req, res) {
+  app.post('/deleteaccount', requireLogin, requireAdmin, function(req, res) {
     var deleteId = req.body.accountId;
     var passwordInput = req.body.password;
     deleteAccount(deleteId, passwordInput);

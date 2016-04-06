@@ -486,7 +486,7 @@ app.get('/me', requireLogin, function(req, res) {
 
 
 app.get('/', function(req, res) {
-  res.render('land' { title: "Phenomenal" });
+  res.render('land', { title: "Phenomenal" });
 });
 
 

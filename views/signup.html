@@ -21,21 +21,13 @@
             
             <fieldset class="clearfix">
                 
-                <p><span class="fontawesome-user"></span><input type="text" value="Username" name='username' onBlur="if(this.value == '') this.value = 'Username'" onFocus="if(this.value == 'Username') this.value = ''" required></p> <!-- JS because of IE support; better: placeholder="Username" -->
+                <p><span class="fontawesome-user"></span><input type="text" placeholder="Username" name='username' onBlur="if(this.value == '') this.placeholder = 'Username'" onFocus="if(this.placeholder == 'Username') this.placeholder = ''" required></p> <!-- JS because of IE support; better: placeholder="Username" -->
 
-                <p><span class="fontawesome-envelope"></span><input type="text"  value="Email" name='email' onBlur="if(this.value == '') this.value = 'Email'" onFocus="if(this.value == 'Email') this.value = ''" required></p> <!-- JS because of IE support; better: placeholder="Password" -->
+                <p><span class="fontawesome-envelope"></span><input type="text"  placeholder="Email" name='email' onBlur="if(this.value == '') this.placeholder = 'Email'" onFocus="if(this.placeholder == 'Email') this.placeholder = ''" required></p> <!-- JS because of IE support; better: placeholder="Password" -->
 
-                <p><span class="fontawesome-lock"></span><input type="password"  value="Password" name='password' onBlur="if(this.value == '') this.value = 'Password'" onFocus="if(this.value == 'Password') this.value = ''" required></p> <!-- JS because of IE support; better: placeholder="Password" -->
+                <p><span class="fontawesome-lock"></span><input type="password"  placeholder="Password" name='password' onBlur="if(this.value == '') this.placeholder = 'Password'" onFocus="if(this.placeholder == 'Password') this.placeholder = ''" required></p> <!-- JS because of IE support; better: placeholder="Password" -->
 
-                <p><span class="fontawesome-key"></span><input type="text"  value="Consumer Key" name='consumer_key' onBlur="if(this.value == '') this.value = 'Consumer Key'" onFocus="if(this.value == 'Consumer Key') this.value = ''"></p> <!-- JS because of IE support; better: placeholder="Password" -->
-
-                <p><span class="fontawesome-key"></span><input type="text"  value="Consumer Secret" name='consumer_secret' onBlur="if(this.value == '') this.value = 'Consumer Secret'" onFocus="if(this.value == 'Consumer Secret') this.value = ''"></p> <!-- JS because of IE support; better: placeholder="Password" -->
-
-                <p><span class="fontawesome-key"></span><input type="text"  value="Access Token" name='access_token' onBlur="if(this.value == '') this.value = 'Access Token'" onFocus="if(this.value == 'Access Token') this.value = ''"></p> <!-- JS because of IE support; better: placeholder="Password" -->
-
-                <p><span class="fontawesome-key"></span><input type="text"  value="Access Token Secret" name='access_token_secret' onBlur="if(this.value == '') this.value = 'Access Token Secret'" onFocus="if(this.value == 'Access Token Secret') this.value = ''"></p> <!-- JS because of IE support; better: placeholder="Password" -->
-
-                <small>* The last 4 are optional, <a href='#'>click here</a> if you don't know what these are.</small>
+                <p><span class="fontawesome-lock"></span><input type="password"  placeholder="Password Confirmation" name='password_confirmation' onBlur="if(this.value == '') this.placeholder = 'Password Confirmation'" onFocus="if(this.placeholder == 'Password Confirmation') this.placeholder = ''" required></p> <!-- JS because of IE support; better: placeholder="Password" -->
 
                 <br><br>
 

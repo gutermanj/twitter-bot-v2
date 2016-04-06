@@ -132,7 +132,7 @@ function requireLogin(req, res, next) {
 
 // Filter Admin vs. User
 function requireAdmin(req, res, next) {
-  if (req.session.user.type !== 'admin') {
+  if (!req.session.user.admin) {
     res.redirect('/me');
   } else {
     next();
@@ -303,7 +303,7 @@ app.post('/signup', function(req, res, next) {
       access_token_secret: req.body.access_token_secret,
       complete: false,
       timestamp: timestamp,
-      type: 'user'
+      admin: false
     };
 
     // Get a Postgres client from the connection pool
@@ -392,7 +392,7 @@ app.post('/signin', function(req, res) {
                 req.session.user = user; // Set the session
                 res.locals.user = user;
                 console.log("LOGIN QUERY RESULTS: " + user);
-                res.redirect('/dashboard');
+                res.redirect('/me');
               } else {
                 // If they don't match
                 res.redirect('/signin');
@@ -407,7 +407,17 @@ app.post('/signin', function(req, res) {
   });
 
 
-app.post('/user/signin', function(req, res) {
+app.get('/admin/signin', function(req, res) {
+  
+  if (req.session.user) {
+    res.redirect('/dashboard');
+  }   else {
+    res.render('admin-signin');
+  }
+
+});
+
+app.post('/admin/signin', function(req, res) {
 
     var results = [];
 
@@ -421,10 +431,11 @@ app.post('/user/signin', function(req, res) {
         }
 
         // SQL Query > Grab user input
-        var emailInput = req.body.email;
+        var usernameInput = req.body.username;
         var passwordInput = req.body.password;
+
         // See if the email exists
-        var query = client.query('SELECT * FROM users WHERE email =' + '\'' + emailInput + '\'');
+        var query = client.query('SELECT * FROM users WHERE username =' + '\'' + usernameInput + '\'');
 
         // Stream results back one row at a time
         query.on('row', function(row) {
@@ -445,7 +456,7 @@ app.post('/user/signin', function(req, res) {
                 req.session.user = user; // Set the session
                 res.locals.user = user;
                 console.log("LOGIN QUERY RESULTS: " + user);
-                res.redirect('/me');
+                res.redirect('/dashboard');
               } else {
                 // If they don't match
                 res.redirect('/signin');
@@ -457,8 +468,7 @@ app.post('/user/signin', function(req, res) {
           }
         }); // query on end
       }); //pg connect
-
-});
+  });
 
 
 // Logout route

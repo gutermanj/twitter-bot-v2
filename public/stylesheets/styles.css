@@ -411,9 +411,10 @@ select {
   padding-right: 30px;
 }
 .promo .overview h2 {
-  font-size: 30px;
+  font-size: 27px;
   margin-bottom: 35px;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+  margin-left: 10px;
 }
 .promo .overview .summary {
   margin-bottom: 60px;
@@ -781,7 +782,7 @@ select {
 }
 .features .content .title {
   color: #56bc94;
-  font-size: 18px;
+  font-size: 14px;
   margin-top: 0;
 }
 .features .content p {
@@ -1684,3 +1685,8 @@ select {
   }
 }
 /* Large devices (large desktops, 1200px and up) */
+
+
+
+
+

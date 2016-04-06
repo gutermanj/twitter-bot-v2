@@ -7,8 +7,6 @@
 
     <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:400,700">
 
-    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js'></script>
-
     <!--[if lt IE 9]>
         <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -25,29 +23,29 @@
                 
                 <p><span class="fontawesome-user"></span><input type="text" value="Username" name='username' onBlur="if(this.value == '') this.value = 'Username'" onFocus="if(this.value == 'Username') this.value = ''" required></p> <!-- JS because of IE support; better: placeholder="Username" -->
 
-                <p><span class="fontawesome-user"></span><input type="text"  value="Email" name='email' onBlur="if(this.value == '') this.value = 'Email'" onFocus="if(this.value == 'Email') this.value = ''" required></p> <!-- JS because of IE support; better: placeholder="Password" -->
+                <p><span class="fontawesome-envelope"></span><input type="text"  value="Email" name='email' onBlur="if(this.value == '') this.value = 'Email'" onFocus="if(this.value == 'Email') this.value = ''" required></p> <!-- JS because of IE support; better: placeholder="Password" -->
 
                 <p><span class="fontawesome-lock"></span><input type="password"  value="Password" name='password' onBlur="if(this.value == '') this.value = 'Password'" onFocus="if(this.value == 'Password') this.value = ''" required></p> <!-- JS because of IE support; better: placeholder="Password" -->
 
-                <p><span class="fontawesome-lock"></span><input type="text"  value="Consumer Key" name='consumer_key' onBlur="if(this.value == '') this.value = 'Consumer Key'" onFocus="if(this.value == 'Consumer Key') this.value = ''"></p> <!-- JS because of IE support; better: placeholder="Password" -->
+                <p><span class="fontawesome-key"></span><input type="text"  value="Consumer Key" name='consumer_key' onBlur="if(this.value == '') this.value = 'Consumer Key'" onFocus="if(this.value == 'Consumer Key') this.value = ''"></p> <!-- JS because of IE support; better: placeholder="Password" -->
 
-                <p><span class="fontawesome-lock"></span><input type="text"  value="Consumer Secret" name='consumer_secret' onBlur="if(this.value == '') this.value = 'Consumer Secret'" onFocus="if(this.value == 'Consumer Secret') this.value = ''"></p> <!-- JS because of IE support; better: placeholder="Password" -->
+                <p><span class="fontawesome-key"></span><input type="text"  value="Consumer Secret" name='consumer_secret' onBlur="if(this.value == '') this.value = 'Consumer Secret'" onFocus="if(this.value == 'Consumer Secret') this.value = ''"></p> <!-- JS because of IE support; better: placeholder="Password" -->
 
-                <p><span class="fontawesome-lock"></span><input type="text"  value="Access Token" name='access_token' onBlur="if(this.value == '') this.value = 'Access Token'" onFocus="if(this.value == 'Access Token') this.value = ''"></p> <!-- JS because of IE support; better: placeholder="Password" -->
+                <p><span class="fontawesome-key"></span><input type="text"  value="Access Token" name='access_token' onBlur="if(this.value == '') this.value = 'Access Token'" onFocus="if(this.value == 'Access Token') this.value = ''"></p> <!-- JS because of IE support; better: placeholder="Password" -->
 
-                <p><span class="fontawesome-lock"></span><input type="text"  value="Access Token Secret" name='access_token_secret' onBlur="if(this.value == '') this.value = 'Access Token Secret'" onFocus="if(this.value == 'Access Token Secret') this.value = ''"></p> <!-- JS because of IE support; better: placeholder="Password" -->
+                <p><span class="fontawesome-key"></span><input type="text"  value="Access Token Secret" name='access_token_secret' onBlur="if(this.value == '') this.value = 'Access Token Secret'" onFocus="if(this.value == 'Access Token Secret') this.value = ''"></p> <!-- JS because of IE support; better: placeholder="Password" -->
 
-                <small>* These last 4 are optional, <a href='#'>click here</a> if you don't know what these are.</small>
+                <small>* The last 4 are optional, <a href='#'>click here</a> if you don't know what these are.</small>
 
                 <br><br>
 
-                <p><input type="submit" value="Sign In"></p>
+                <p><input type="submit" value="Sign Up"></p>
 
             </fieldset>
 
         </form>
         
-        <p>Not a member? <a href="/signup">Sign up now</a><span class="fontawesome-arrow-right"></span></p>
+        <p>Already a member? <a href="/signin">Sign in now</a><span class="fontawesome-arrow-right"></span></p>
 
     </div> <!-- end login -->
 

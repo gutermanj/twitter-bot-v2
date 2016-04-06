@@ -316,7 +316,7 @@ app.post('/signup', function(req, res, next) {
         }
 
         // SQL Query > Create new row for an account
-        client.query("INSERT INTO accounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, price, timestamp, complete, type) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.price, data.timestamp, data.complete, data.type]);
+        client.query("INSERT INTO accounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, price, timestamp, complete, admin) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.price, data.timestamp, data.complete, data.admin]);
 
 
         // SQL Query > Last account created
@@ -480,13 +480,13 @@ app.get('/logout', function(req, res) {
 
 app.get('/me', requireLogin, function(req, res) {
   res.locals.user = req.session.user;
-  res.render('me');
+  res.render('user-index');
 });
 
 
 
 app.get('/', function(req, res) {
-  res.render('land');
+  res.render('land' { title: "Phenomenal" });
 });
 
 
@@ -601,7 +601,7 @@ app.post('/newaccount', requireLogin, requireAdmin, function(req, res) {
       price: req.body.price,
       timestamp: timestamp,
       complete: false,
-      type: req.body.type
+      admin: false
     };
 
     // Get a Postgres client from the connection pool
@@ -614,7 +614,7 @@ app.post('/newaccount', requireLogin, requireAdmin, function(req, res) {
         }
 
         // SQL Query > Create new row for an account
-        client.query("INSERT INTO accounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, price, timestamp, complete, type) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.price, data.timestamp, data.complete, data.type]);
+        client.query("INSERT INTO accounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, price, timestamp, complete, admin) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.price, data.timestamp, data.complete, data.admin]);
 
 
         // SQL Query > Last account created

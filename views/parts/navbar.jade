@@ -1,0 +1,54 @@
+nav.navbar.navbar-static-top.header-navbar
+    .header-navbar-mobile
+        .header-navbar-mobile__menu
+            button.btn(type="button")
+                i.fa.fa-bars
+        .header-navbar-mobile__title
+            span= page
+        .header-navbar-mobile__settings.dropdown
+                a.btn.dropdown-toggle(href='', data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false")
+                    i.fa.fa-power-off
+                ul.dropdown-menu.dropdown-menu-right
+                    li
+                        a(href="/logout") Log Out
+    .navbar-header
+        a.navbar-brand(href="/me")
+            .logo.text-nowrap
+                .logo__img
+                    i.fa.fa-chevron-right
+                span.logo__text Right
+
+    .topnavbar
+        ul.nav.navbar-nav.navbar-left
+            li(class=page=='Dashboard' ? 'active' : '')
+                a(href="/me")
+                    span Dashboard
+            li(class=page=='Inbox' || page=='Sent' || page=='Compose' ? 'active' : '')
+                a(href="inbox.html")
+                    span Mailbox
+            li.dropdown(class=page=='Products' || page=='Orders' || page=='Users' || page=='Blank' ? 'active' : '')
+                a.dropdown-toggle(href="#", data-toggle="dropdown", role="button", aria-haspopup="true", aria-expanded="false")
+                    span Pages&nbsp;
+                        i.caret
+                ul.dropdown-menu
+                    li(class=page=='Products' ? 'active' : '')
+                        a(href="products.html")
+                            span Products
+                    li(class=page=='Orders' ? 'active' : '')
+                        a(href="orders.html")
+                            span Orders
+                    li(class=page=='Users' ? 'active' : '')
+                        a(href="users.html")
+                            span Users
+                    li.divider(role="separator")
+                    li
+                        a(href="login.html") Login
+                    li(class=page=='Blank' ? 'active' : '')
+                        a(href="blank.html") Blank
+        ul.userbar.nav.navbar-nav
+            li.dropdown
+                a.userbar__settings.dropdown-toggle(href='', data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false")
+                    i.fa.fa-power-off
+                ul.dropdown-menu.dropdown-menu-right
+                    li
+                        a(href="/logout") Log Out

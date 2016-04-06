@@ -56,11 +56,11 @@ var users = require('./routes/users');
 // This will be set as a variable per request...
 // So I don't really need this, but I'm gonna keep it for reference
 
-var T = new Twit({
-  consumer_key:         '...',
-  consumer_secret:      '...',
-  access_token:         '...',
-  access_token_secret:  '...',
+var T = new Twitter({
+  consumer_key:         '1X8yoooqEevRWdhErqolMb4pE',
+  consumer_secret:      'BjxfK292LJnRxxwlMGeYnEyqanuKPvv25sTt8ULRZPum4HxUnC',
+  access_token_key:         '708512539303350272-Jf4rQFi4Iq3OLQS5C27xkIIxaZdJySd',
+  access_token_secret:  '1PxOSwkUxDB6ulw57o6ix5JKn20N6KiJlz4qpefnI2Cp3',
   timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests.
 });
 
@@ -132,8 +132,8 @@ function requireLogin(req, res, next) {
 
 // Filter Admin vs. User
 function requireAdmin(req, res, next) {
-  if (!req.session.user.admin) {
-    res.redirect('/profile');
+  if (req.session.user.type !== 'admin') {
+    res.redirect('/me');
   } else {
     next();
   }
@@ -275,9 +275,9 @@ app.use(function(req, res, next){
 // --------------- Mostly Routes ---------------------
 
 // Signup route, I'm probably gonna remove this when I deploy
-// app.get('/signup', function(req, res, next) {
-//   res.render('signup');
-// });
+app.get('/signup', function(req, res, next) {
+  res.render('signup');
+});
 // REMOVED FOR PRODUCTION
 
 
@@ -285,8 +285,10 @@ app.use(function(req, res, next){
 
 app.post('/signup', function(req, res, next) {
   
-  // Turn that password into some funkyness
-  var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
+   // Turning that password into something funky
+    var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
+
+
 
     var results = [];
 
@@ -295,10 +297,14 @@ app.post('/signup', function(req, res, next) {
       username: req.body.username,
       email: req.body.email,
       password: hash,
-      complete: false
+      consumer_key: req.body.consumer_key,
+      consumer_secret: req.body.consumer_secret,
+      access_token: req.body.access_token,
+      access_token_secret: req.body.access_token_secret,
+      complete: false,
+      timestamp: timestamp,
+      type: 'user'
     };
-
-    req.session.user = data; // Set session from user just created
 
     // Get a Postgres client from the connection pool
     pg.connect(connectionString, function(err, client, done) {
@@ -309,11 +315,12 @@ app.post('/signup', function(req, res, next) {
           return res.status(500).json({ success: false, data: err});
         }
 
-        // SQL Query > Create the row with new user
-        client.query("INSERT INTO users(username, email, password, complete) values($1, $2, $3, $4)", [data.username, data.email, data.password, data.complete]);
+        // SQL Query > Create new row for an account
+        client.query("INSERT INTO accounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, price, timestamp, complete, type) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.price, data.timestamp, data.complete, data.type]);
 
-        // SQL Query > Grab last user created for session
-        var query = client.query("SELECT * FROM users ORDER BY id DESC LIMIT 1");
+
+        // SQL Query > Last account created
+        var query = client.query("SELECT * FROM accounts ORDER BY id DESC LIMIT 1");
 
         // Stream results back one row at a time
         query.on('row', function(row) {
@@ -323,9 +330,12 @@ app.post('/signup', function(req, res, next) {
         // After all data is returned, close connection and return results
         query.on('end', function() {
             done();
+            req.session.user = data;
             res.redirect('/me');
         });
-      });
+
+
+    }); // pg connect
 
   });
 
@@ -343,7 +353,7 @@ app.get('/signin', function(req, res) {
 
 
 // Signin route
-app.post('/admin/signin', function(req, res) {
+app.post('/signin', function(req, res) {
 
     var results = [];
 
@@ -357,10 +367,11 @@ app.post('/admin/signin', function(req, res) {
         }
 
         // SQL Query > Grab user input
-        var emailInput = req.body.email;
+        var usernameInput = req.body.username;
         var passwordInput = req.body.password;
+
         // See if the email exists
-        var query = client.query('SELECT * FROM users WHERE email =' + '\'' + emailInput + '\'');
+        var query = client.query('SELECT * FROM accounts WHERE username =' + '\'' + usernameInput + '\'');
 
         // Stream results back one row at a time
         query.on('row', function(row) {
@@ -457,7 +468,7 @@ app.get('/logout', function(req, res) {
 });
 
 
-app.get('/me', function(req, res) {
+app.get('/me', requireLogin, function(req, res) {
   res.locals.user = req.session.user;
   res.render('me');
 });
@@ -611,7 +622,7 @@ app.post('/newaccount', requireLogin, requireAdmin, function(req, res) {
         });
 
 
-    });
+    }); // pg connect
 
     req.flash('success', 'Account was created!'); 
 });
@@ -644,7 +655,7 @@ function newTweet(status) {
 }
 
 function getTweets() {
-  T.get('search/tweets', { q: '@julianguterman since:2011-07-11', count: 10 }, function(err, data, response) {
+  T.get('search/tweets', { q: '@julianguterman since:2015-01-01', count: 1 }, function(err, data, response) {
     console.log(data)
   });
 

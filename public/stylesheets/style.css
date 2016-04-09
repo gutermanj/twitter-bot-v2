@@ -111,3 +111,8 @@ p {
 #login > p span {
   padding-left: 5px;
 }
+
+
+.phenomenal {
+  background: url("images/favicon.png");
+}

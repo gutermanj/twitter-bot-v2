@@ -864,7 +864,7 @@ function startManualMarket() {
 
 var manualInterval = setInterval(function() {
 
-    console.log("Manual Interval");
+    
 
 }, 1000);
 

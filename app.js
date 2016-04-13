@@ -25,6 +25,8 @@ var connectionString = 'postgres://zqjwdkhttstwfx:ykFbgDKz8eTpXM3CCyim6Zyw-m@ec2
 // var connectionString = process.env.DATABASE_URL || 'postgres://postgres:potato@localhost:5432/twitterbot';
 
 
+console.log("Change supervisor back to forever for production and remove me!");
+
 var client = new pg.Client(connectionString);
 
 // Creating tables
@@ -540,6 +542,7 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
             done();
             console.log(accountCount);
             res.locals.running = running;
+            res.locals.manualRunning = manualRunning;
             res.locals.accountCount = accountCount[0];
             // splitAccounts(res);
 
@@ -692,7 +695,7 @@ var running = false;
 
   setInterval(function() {
     if (onlineStatus === false && running === false) {
-      console.log("Offline...");
+      // Offline...
     } else {
       if (running === false) {
 
@@ -828,9 +831,42 @@ var arrayFull = false;
 
 
 
+var manualRunning = false;
+
+app.get('/api/v1/manual', requireAdmin, function(req, res) {
+  
+  if (manualRunning) {
+
+    clearInterval(manualInterval);
+    
+    return res.json("Manual Proccess Stopped!");
+    manualRunning = false;
+    res.redirect('/dashboard');
 
 
+  } else {
 
+    startManualMarket();
+    return res.json("Manual Proccess Started!");
+
+    res.redirect('/dashboard');
+
+  }
+
+
+});
+
+function startManualMarket() {
+  manualRunning = true;
+  manualInterval;
+}
+
+
+var manualInterval = setInterval(function() {
+
+    console.log("Manual Interval");
+
+}, 1000);
 
 
 

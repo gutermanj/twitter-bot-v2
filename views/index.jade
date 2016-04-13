@@ -188,10 +188,16 @@ html
               h1.page-header
                 | Dashboard 
                 small Statistics Overview
-                if running
-                  input(id='input-disabled' type="checkbox" name="my-checkbox" data-on-text='ONLINE' data-off-text='OFFLINE' checked)
-                else
-                  input(id='input-disabled' type="checkbox" name="my-checkbox" data-on-text='ONLINE' data-off-text='OFFLINE')
+                .col-lg-2.pull-right
+                  if running
+                    input(id='auto-switch' type="checkbox" name="my-checkbox" data-on-text='ONLINE' data-off-text='OFFLINE' checked data-label-text='Auto')
+                  else
+                    input(id='auto-switch' type="checkbox" name="my-checkbox" data-on-text='ONLINE' data-off-text='OFFLINE' data-label-text='Auto')
+                .col-lg-3.pull-right
+                  if manualRunning
+                    input(id='manual-switch' type="checkbox" name="my-checkbox" data-on-text='ONLINE' data-off-text='OFFLINE' checked data-label-text='Manual')
+                  else
+                    input(id='manual-switch' type="checkbox" name="my-checkbox" data-on-text='ONLINE' data-off-text='OFFLINE' data-label-text='Manual')
               ol.breadcrumb
                 li.active
                   i.fa.fa-dashboard
@@ -238,7 +244,7 @@ html
                       .huge.js-total-records
                       div Recent Records!
                 a(href='#' data-toggle="modal" data-target="#show-records-modal").js-get-records
-                  div(data-toggle="tooltip" data-placement="bottom" title="Feature Disabled!").panel-footer
+                  .panel-footer
                     span.pull-left View Details
                     span.pull-right
                       i.fa.fa-arrow-circle-right
@@ -248,10 +254,10 @@ html
                 .panel-heading
                   .row
                     .col-xs-3
-                      i.fa.fa-user-times.fa-5x
+                      i.fa.fa-users.fa-5x
                     .col-xs-9.text-right
-                      .huge 0
-                      div Inactive!
+                      .huge.js-total-manual-accounts
+                      div Manual Accounts!
                 a(href='#').js-disabled-accounts
                   div(data-toggle="tooltip" data-placement="bottom" title="Feature Disabled!").panel-footer
                     span.pull-left View Details

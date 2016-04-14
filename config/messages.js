@@ -61,7 +61,13 @@ module.exports = {
 
 	    				messages.forEach(function(message) {
 
-	    					console.log(message.text);
+	    					var splitMessage = message.text.split(" ");
+   
+						    if (filter(splitMessage)) {
+						    	console.log("FILTERED MESSAGE: ");
+						        console.log(message.sender.id);
+						        console.log("--------------------------------------");
+						    }
 
 	    				});
 
@@ -74,6 +80,19 @@ module.exports = {
 
 
 	    }
+
+	    function filter(splitMessage) {
+   
+		    var filters = ["fav", "favs", "rts", "rt\'s"];
+		   
+		    for (i = 0; i < filters.length; i++) {
+		   
+		        if (splitMessage.indexOf(filters[i]) > -1) {
+		            return true;
+		        }
+		   
+		    }
+		}
 
 
 

@@ -9,6 +9,8 @@ var assert = require('assert');
 var Twit = require('twit');
 var Twitter = require('twitter');
 var flash = require('connect-flash');
+var manual = require('./config/manual.js'); // Include manual config file 
+var messages = require('./config/messages.js');
 
 
 // Database configuration
@@ -838,15 +840,17 @@ app.get('/api/v1/manual', requireAdmin, function(req, res) {
   if (manualRunning) {
 
     clearInterval(manualInterval);
-    
-    return res.json("Manual Proccess Stopped!");
     manualRunning = false;
+    console.log("False");
+    return res.json("Manual Proccess Stopped!");
+
     res.redirect('/dashboard');
 
 
   } else {
 
     startManualMarket();
+    console.log("True")
     return res.json("Manual Proccess Started!");
 
     res.redirect('/dashboard');
@@ -863,10 +867,17 @@ function startManualMarket() {
 
 
 var manualInterval = setInterval(function() {
+  
+  if (manualRunning) {
 
+    messages.read(); // ./config/messages
+
+  } else {
+    console.log("Offline");
+  }
     
 
-}, 1000);
+}, 5000);
 
 
 

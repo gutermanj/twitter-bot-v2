@@ -309,7 +309,7 @@ app.post('/newaccount/manual', requireAdmin, function(req, res) {
         }
 
         // SQL Query > Create new row for an account
-        client.query("INSERT INTO manualaccounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin) values($1, $2, $3, $4, $5, $6, $7, $8, $9)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.timestamp, data.admin]);
+        var query = client.query("INSERT INTO manualaccounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin) values($1, $2, $3, $4, $5, $6, $7, $8, $9)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.timestamp, data.admin]);
 
         // After all data is returned, close connection and return results
         query.on('end', function() {
@@ -332,14 +332,14 @@ app.post('/newaccount/manual', requireAdmin, function(req, res) {
         var collection = db.collection('accounts');
 
         //Create que for new account
-        var accounts = { _id: req.body.username, children: [] };
+        var account = { _id: req.body.username, children: [] };
 
         // Insert some users
         collection.insert([account], function (err, result) {
           if (err) {
             console.log(err);
           } else {
-            console.log('Created que for: ', account.name);
+            console.log('Created que for: ', account.username);
           }
           //Close connection
           db.close();
@@ -885,7 +885,7 @@ var manualInterval = setInterval(function() {
   }
     
 
-}, 5000);
+}, 1000 * 60 * 3);
 
 
 

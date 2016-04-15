@@ -45,6 +45,22 @@ module.exports = {
 
 	    }); // pg connect
 
+
+
+
+	    function filter(splitMessage) {
+   
+		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS"];
+		   
+		    for (i = 0; i < filters.length; i++) {
+		   
+		        if (splitMessage.indexOf(filters[i]) > -1) {
+		            return true;
+		        }
+		   
+		    }
+		}
+
 	    function pullMessages() {
 
 	    	console.log("Function pullMessages Started");
@@ -71,7 +87,7 @@ module.exports = {
 
 	    				messages.forEach(function(message) {
 
-	    					var splitMessage = message.text.split(" ");
+	    					var splitMessage = message.text.toUpperCase().split(" ");
 
 	    					
    
@@ -96,18 +112,7 @@ module.exports = {
 
 	    }
 
-	    function filter(splitMessage) {
-   
-		    var filters = ["fav", "favs", "rts", "rt\'s", "retweets"];
-		   
-		    for (i = 0; i < filters.length; i++) {
-		   
-		        if (splitMessage.indexOf(filters[i]) > -1) {
-		            return true;
-		        }
-		   
-		    }
-		}
+
 
 
 		function pushSender(sender, account) {
@@ -120,22 +125,74 @@ module.exports = {
 
 					var collection = db.collection('accounts');
 
-					collection.update(
-						{ _id:  account.username },
-						{ $push: { children: sender } }
-					) // Add sender to que
+					MongoClient.connect(url, function(err, db) {
 
-					initiateTrade(sender, account);
+					collection.find( { _id: account.username } ).toArray(function(err, result) {
+						if (err) {
+							console.log(err);
+						} else {
+							var query = result[0].children;
 
-					console.log("initiateTrade Started");
+							if (query.indexOf(sender) > -1) {
+						console.log("Sender already qued!");
+							} else {
+								collection.update(
+									{ _id:  account.username },
+									{ $push: { children: sender } }
+								) // Add sender to que
 
-				}
+								console.log("New Senders Added To Que!");
+							} // else 138
+						}
+					});
+
+					});
+
+					
+
+				} // else 124 
 
 			}); // MongoClient
 
 		} // pushSender
 
-		function initiateTrade(sender, account) {
+		setInterval(function() {
+
+			accounts.forEach(function(account) {
+
+				MongoClient.connect(url, function(err, db) {
+
+				if (err) {
+					console.log("Unable to connect to Mongo. Error: ", err);
+				} else {
+
+					var collection = db.collection('accounts');
+
+					collection.find( { _id:  account.username } ).toArray(function(err, result) {
+						
+						if (err) {
+							console.log(err);
+						} else {
+							console.log(result);
+
+							var currentTrader = result[0].children[0];
+
+							initiateTrade(account, currentTrader);
+						}
+
+					}) // Grab current trader from que
+
+				}
+
+			}); // MongoClient
+
+			});
+
+		}, 1000 * 60 * 20);
+
+
+
+		function initiateTrade(account, currentTrader) {
 
 			var client = new Twitter ({
 
@@ -147,8 +204,17 @@ module.exports = {
 
 	    	});
 
+	    	var messageParams = { screen_name: currentTrader, text: 'D20' };
 
-			var params = {screen_name: sender, count: 4};
+			client.post('direct_messages/new', messageParams, function(err, message, response) {
+				if (err) {
+					console.log(err);
+				} else {
+					console.log("Message \'D20\' Sent!");
+				}
+			});
+
+			var params = {screen_name: currentTrader, count: 3};
 
 			client.get('favorites/list', params, function(err, tweets, response) {
 
@@ -163,21 +229,40 @@ module.exports = {
                                   if (err) {
                                     console.log("Statuses/retweet", err);
                                   } else {
-                                    console.log(tweet);
+                                    console.log("Trade Started...");
+
+                                    MongoClient.connect(url, function(err, db) {
+
+											if (err) {
+												console.log("Unable to connect to Mongo. Error: ", err);
+											} else {
+
+												var collection = db.collection('accounts');
+
+												collection.update(
+													{ _id:  account.username },
+													{ $pull: { children: currentTrader } }
+												) // Remove current trader from que upon completion
+
+												console.log("Trade Complete.");
+
+											}
+
+									}); // MongoClient
 
                                     setTimeout(function() {
 
-                                      evenTwit.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
+                                      client.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
                                         
                                         if (err) {
                                           console.log("statuses/destroy: ", err);
                                         } else {
-                                          console.log(tweet);
+                                          console.log("Trade Complete.");
                                         }
 
                                       });
 
-                                    }, 30000);
+                                    }, 1000 * 60 * 19.7); // Destroy retweet
 
                                   }
                                 }); // retweet post

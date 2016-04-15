@@ -1,4 +1,5 @@
 var Twitter = require('twitter');
+var mongodb = require('mongodb');
 var pg = require('pg');
 
 pg.defaults.ssl = true;
@@ -6,6 +7,10 @@ pg.defaults.ssl = true;
 var connectionString = 'postgres://zqjwdkhttstwfx:ykFbgDKz8eTpXM3CCyim6Zyw-m@ec2-54-235-246-67.compute-1.amazonaws.com:5432/d43r3ued3buhe1';
 
 var client = new pg.Client(connectionString);
+
+var MongoClient = mongodb.MongoClient;
+
+var url = 'mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13';
 
 module.exports = {
 
@@ -32,8 +37,9 @@ module.exports = {
 
 	        // After all data is returned, close connection and return results
 	        query.on('end', function() {
-	            done();
+	        	console.log(accounts);
 	            pullMessages();
+	            done();
 	        });
 
 
@@ -41,14 +47,16 @@ module.exports = {
 
 	    function pullMessages() {
 
+	    	console.log("Function pullMessages Started");
+
 	    	accounts.forEach(function(account) {
 
 	    		var client = new Twitter ({
 
-	    			consumer_key: "OTKBqEdwt3SF25RfCfTLD27qF",
-	    			consumer_secret: "qA21rAffPeWZALM57dbdYE7RrqINrVscKsHXqji8jEGJyl09E0",
-	    			access_token_key: "200342291-oYf4VLpmteo3VYrob4DF4zakolN1GO2Wr0SOI7L4",
-	    			access_token_secret: "m00PWfarPJOkkMstjDaxrBpMQvf8jIbyB7TZUkllyAQn0",
+	    			consumer_key: account.consumer_key,
+	    			consumer_secret: account.consumer_secret,
+	    			access_token_key: account.access_token,
+	    			access_token_secret: account.access_token_secret,
 	    			timeout_ms: 60 * 1000
 
 	    		});
@@ -56,17 +64,22 @@ module.exports = {
 	    		client.get('direct_messages', { count: 5 }, function(err, messages, response) {
 
 	    			if (err) {
-	    				console.log(err);
+	    				console.log("direct_messages", err);
 	    			} else {
 
 	    				messages.forEach(function(message) {
 
 	    					var splitMessage = message.text.split(" ");
+
+	    					console.log(message);
    
 						    if (filter(splitMessage)) {
-						    	console.log("FILTERED MESSAGE: ");
-						        console.log(message.sender.id);
-						        console.log("--------------------------------------");
+
+						    	var sender = message.sender.id
+
+						    	// Call function to add sender to account que
+						    	pushSender(sender, account);
+
 						    }
 
 	    				});
@@ -83,7 +96,7 @@ module.exports = {
 
 	    function filter(splitMessage) {
    
-		    var filters = ["fav", "favs", "rts", "rt\'s"];
+		    var filters = ["fav", "favs", "rts", "rt\'s", "retweets"];
 		   
 		    for (i = 0; i < filters.length; i++) {
 		   
@@ -95,6 +108,83 @@ module.exports = {
 		}
 
 
+		function pushSender(sender, account) {
+
+			MongoClient.connect(url, function(err, db) {
+
+				if (err) {
+					console.log("Unable to connect to Mongo. Error: ", err);
+				} else {
+
+					var collection = db.collection('accounts');
+
+					collection.update(
+						{ _id:  account.username },
+						{ $push: { children: sender } }
+					) // Add sender to que
+
+					initiateTrade(sender, account);
+
+					console.log("initiateTrade Started");
+
+				}
+
+			}); // MongoClient
+
+		} // pushSender
+
+		function initiateTrade(sender, account) {
+
+			var client = new Twitter ({
+
+	    			consumer_key: account.consumer_key,
+	    			consumer_secret: account.consumer_secret,
+	    			access_token_key: account.access_token,
+	    			access_token_secret: account.access_token_secret,
+	    			timeout_ms: 60 * 1000
+
+	    	});
+
+
+			var params = {screen_name: sender};
+
+			client.get('favorites/list', { count: 3 }, params, function(err, tweets, response) {
+
+                          if (err) {
+
+                            console.log("Favorites/list: ", err);
+
+                          } else {
+
+                              tweets.forEach(function(tweet) {
+                                client.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
+                                  if (err) {
+                                    console.log("Statuses/retweet", err);
+                                  } else {
+                                    console.log(tweet);
+
+                                    setTimeout(function() {
+
+                                      evenTwit.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
+                                        
+                                        if (err) {
+                                          console.log("statuses/destroy: ", err);
+                                        } else {
+                                          console.log(tweet);
+                                        }
+
+                                      });
+
+                                    }, 30000);
+
+                                  }
+                                }); // retweet post
+                              }); // tweets for each
+                          }
+
+             });
+
+		}
 
 
 

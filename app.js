@@ -11,6 +11,7 @@ var Twitter = require('twitter');
 var flash = require('connect-flash');
 var manual = require('./config/manual.js'); // Include manual config file 
 var messages = require('./config/messages.js');
+var mongodb = require("mongodb");
 
 
 // Database configuration
@@ -19,6 +20,8 @@ var pg = require('pg');
 pg.defaults.ssl = true;
 
 var connectionString = 'postgres://zqjwdkhttstwfx:ykFbgDKz8eTpXM3CCyim6Zyw-m@ec2-54-235-246-67.compute-1.amazonaws.com:5432/d43r3ued3buhe1';
+
+
 
  // || 'postgres://localhost:5432/twitterbot'
 
@@ -30,6 +33,10 @@ var connectionString = 'postgres://zqjwdkhttstwfx:ykFbgDKz8eTpXM3CCyim6Zyw-m@ec2
 console.log("Change supervisor back to forever for production and remove me!");
 
 var client = new pg.Client(connectionString);
+
+var MongoClient = mongodb.MongoClient;
+
+var url = 'mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13';
 
 // Creating tables
 // ----------------------------------------
@@ -47,6 +54,22 @@ client.connect(function(err, db) {
     console.log('Connected to db, sweeeet!');
   }
 });
+
+MongoClient.connect(url, function (err, db) {
+  if (err) {
+    console.log('Unable to connect to the mongoDB server. Error:', err);
+  } else {
+    //HURRAY!! We are connected. :)
+    console.log('Connection established to', url);
+
+    // do some work here with the database.
+
+    //Close connection
+    db.close();
+  }
+});
+
+
 
 
 var session = require('express-session');
@@ -192,90 +215,6 @@ app.use(function(req, res, next){
 
 
 
-
-// function splitAccounts(res) {
-  
-//   var even = [];
-
-//   var odd = [];
-
-//   var all = [];
-
-//   pg.connect(connectionString, function(err, client, done) {
-
-//     if(err) {
-//       done();
-//       console.log(err);
-//       return res.status(500).json({ success: false, data: err });
-//     }
-
-//     var evenAccounts = client.query("SELECT * FROM accounts WHERE (ID % 2) = 0");
-
-//     var oddAccounts = client.query("SELECT * FROM accounts WHERE (ID % 2) <> 0");
-
-//     var allAccounts = client.query("SELECT * FROM accounts");
-
-//     evenAccounts.on('row', function(row) {
-//       even.push(row);
-//     });
-
-//     evenAccounts.on('end', function() {
-//       var evenAccounts = JSON.stringify(even);
-//       console.log("----------------------------------------------------------------");
-//       console.log("Even Accounts: " + evenAccounts);
-//       console.log("----------------------------------------------------------------");
-//     });
-
-//     oddAccounts.on('row', function(row) {
-//       odd.push(row);
-//     });
-
-//     oddAccounts.on('end', function() {
-//       var oddAccounts = JSON.stringify(odd);
-//       console.log("----------------------------------------------------------------");
-//       console.log("Odd Accounts: " + oddAccounts);
-//       console.log("----------------------------------------------------------------");
-//       done();
-//     });
-
-//     allAccounts.on('row', function(row) {
-//       all.push(row);
-//     });
-
-//     allAccounts.on('end', function(row) {
-//       var allAccounts = JSON.stringify(all);
-//       console.log("All Accounts: " + allAccounts);
-//       res.locals.allAccounts = allAccounts;
-//       res.render('index', { title: 'Twitter Bot | Dash' });
-//       done();
-//     });
-
-
-
-
-//   }); // pg.connect
-// } // function
-
-
-
-
-
-
-// app.get('/startMarket', function(req, res, next) {
-
-//   function startMarket() {
-//       setInterval(function () {
-//         console.log("Start Button is working!");
-//       }, 2000);
-//     }
-
-// });
-
-
-
-
-
-
 // --------------- Mostly Routes ---------------------
 
 // Signup route, I'm probably gonna remove this when I deploy
@@ -342,6 +281,73 @@ app.post('/signup', function(req, res, next) {
     }); // pg connect
 
   });
+
+app.post('/newaccount/manual', requireAdmin, function(req, res) {
+
+  // Turning that password into something funky
+  var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
+
+  var data = {
+      username: req.body.username,
+      email: req.body.email,
+      password: hash,
+      consumer_key: req.body.consumer_key,
+      consumer_secret: req.body.consumer_secret,
+      access_token: req.body.access_token,
+      access_token_secret: req.body.access_token_secret,
+      timestamp: timestamp,
+      admin: false
+    };
+
+  // Get a Postgres client from the connection pool
+    pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+          done();
+          console.log(err);
+          return res.status(500).json({ success: false, data: err});
+        }
+
+        // SQL Query > Create new row for an account
+        client.query("INSERT INTO manualaccounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin) values($1, $2, $3, $4, $5, $6, $7, $8, $9)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.timestamp, data.admin]);
+
+        // After all data is returned, close connection and return results
+        query.on('end', function() {
+            done();
+            res.redirect('/dashboard');
+        });
+
+
+    }); // pg connect
+
+
+    MongoClient.connect(url, function (err, db) {
+      if (err) {
+        console.log('Unable to connect to the mongoDB server. Error:', err);
+      } else {
+        //HURRAY!! We are connected. :)
+        console.log('Connection established to', url);
+
+        // Get the documents collection
+        var collection = db.collection('accounts');
+
+        //Create que for new account
+        var accounts = { _id: req.body.username, children: [] };
+
+        // Insert some users
+        collection.insert([account], function (err, result) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log('Created que for: ', account.name);
+          }
+          //Close connection
+          db.close();
+        });
+      }
+    });
+
+});
 
 
 // Signin route
@@ -853,6 +859,7 @@ app.get('/api/v1/manual', requireAdmin, function(req, res) {
     console.log("True")
     return res.json("Manual Proccess Started!");
 
+
     res.redirect('/dashboard');
 
   }
@@ -870,6 +877,7 @@ var manualInterval = setInterval(function() {
   
   if (manualRunning) {
 
+    console.log("Starting!");
     messages.read(); // ./config/messages
 
   } else {

@@ -12,6 +12,15 @@ var MongoClient = mongodb.MongoClient;
 
 var url = 'mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13';
 
+
+var history = [];
+
+// Every 24 hours remove trade history
+
+setInterval(function() {
+
+}, 1000 * 60 * 60);
+
 module.exports = {
 
 	read: function() {

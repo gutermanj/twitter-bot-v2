@@ -943,16 +943,17 @@ app.get('/api/v1/manual', requireAdmin, function(req, res) {
   }
 
 
-});
+}); // app.get manual
 
 function startManualMarket() {
+  console.log("startManualMarket called.");
   manualRunning = true;
   manualInterval;
 }
 
 
-var manualInterval = setInterval(function() {
-  
+  manualInterval = setInterval(function() {
+  console.log("manualInterval");
   if (manualRunning) {
 
     console.log("Starting!");

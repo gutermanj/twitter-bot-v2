@@ -355,7 +355,7 @@ module.exports = {
                                 }); // retweet post
                               }); // tweets for each
 
-                             function() {
+                             (function() {
 	                              var client = new Twitter ({
 
 						    			consumer_key: account.consumer_key,
@@ -375,7 +375,7 @@ module.exports = {
 											console.log("Message \'D20\' Sent!");
 										}
 									});
-								}
+								});
 
 
 	                          }

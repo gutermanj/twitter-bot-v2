@@ -962,7 +962,7 @@ function startManualMarket() {
     }
       
 
-  }, 5000);
+  }, 1000 * 60 * 3);
   }
 
 

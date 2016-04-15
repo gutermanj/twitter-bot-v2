@@ -924,11 +924,8 @@ app.get('/api/v1/manual', requireAdmin, function(req, res) {
   if (manualRunning) {
 
     clearInterval(manualInterval);
-    clearInterval(currentQue);
     manualRunning = false;
     console.log("False");
-    return res.json("Manual Proccess Stopped!");
-
     res.redirect('/dashboard');
 
 
@@ -950,25 +947,25 @@ function startManualMarket() {
   console.log("startManualMarket called.");
   manualRunning = true;
   start();
-  manualInterval;
 }
 
-function start() {
-  manualInterval = setInterval(function() {
-  console.log("manualInterval");
-  if (manualRunning) {
+  function start() {
+    manualInterval = setInterval(function() {
+    console.log("manualInterval");
+    if (manualRunning) {
 
-    console.log("Starting!");
-    messages.read(); // ./config/messages
+      console.log("Starting!");
+      messages.read(manualRunning); // ./config/messages
 
-  } else {
-    console.log("Offline");
+    } else {
+      console.log("Offline");
+    }
+      
+
+  }, 5000);
   }
-    
 
-}, 1000 * 60 * 2);
 
-}
 
 
 

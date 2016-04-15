@@ -12,8 +12,6 @@ var MongoClient = mongodb.MongoClient;
 
 var url = 'mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13';
 
-var firstTrade = 0;
-
 var history = [];
 
 // Every 24 hours remove trade history
@@ -22,7 +20,21 @@ var c = 0;
 setInterval(function() {
 
 	if (c > 23) {
-		history = [];
+		pg.connect(connectionString, function(err, client, done) {
+
+	      if(err) {
+	        done();
+	        console.log(err);
+	        return res.status(500).json({ success: false, data: err });
+	      }
+
+	      var deleteHistory = client.query("DELETE FROM history");
+
+	      deleteHistory.on('end', function() {
+	        done();
+	        
+	      });
+	  	});
 		console.log("Cleared Trader History.");
 	} else {
 		c++;
@@ -30,9 +42,25 @@ setInterval(function() {
 
 }, 1000 * 60 * 60);
 
+var running = false;
+
+console.log("RUNNING: ", running);
+
 module.exports = {
 
 	read: function() {
+
+		var currentQueCounter = 0;
+
+
+		if (running === true && currentQueCounter > 0) {
+			
+			clearInterval(currentQue);
+
+		} else {
+
+		running = true;
+		console.log("STATUS: ", running);
 
 		var accounts = [];
 
@@ -154,47 +182,41 @@ module.exports = {
 							if (query.indexOf(sender) > -1) {
 						console.log("Sender already qued!");
 							} else {
-								if (history.indexOf(sender) > -1) {
-									console.log("Sender traded with within 24 hours.");
-								} else {
-									collection.update(
-										{ _id:  account.username },
-										{ $push: { children: sender } }
-									) // Add sender to que
 
-									if (firstTrade === 0) {
-										MongoClient.connect(url, function(err, db) {
+								var history = [];
 
-											if (err) {
-												console.log("Unable to connect to Mongo. Error: ", err);
-											} else {
+								 pg.connect(connectionString, function(err, client, done) {
 
-												var collection = db.collection('accounts');
+								      if(err) {
+								        done();
+								        console.log(err);
+								        return res.status(500).json({ success: false, data: err });
+								      }
 
-												collection.find( { _id:  account.username } ).toArray(function(err, result) {
-													
-													if (err) {
-														console.log(err);
-													} else {
-														
+								      var usernames = client.query("SELECT * FROM history");
 
-														var currentTrader = result[0].children[0];
+								      usernames.on('row', function(row) {
+								        history.push(row);
+								      });
 
-														firstCall(account, currentTrader);
+								      usernames.on('end', function() {
+								      	checkHistory(history);
+								        done();
+								        return res.json(history);
+								      });
 
-														history.push(currentTrader);
+								 }); // pg.connect
+								function checkHistory(history) {
+									if (history.indexOf(sender) > -1) {
+										console.log("Sender traded with within 24 hours.");
+									} else {
+										collection.update(
+											{ _id:  account.username },
+											{ $push: { children: sender } }
+										) // Add sender to que
 
-													} // else
-
-												}) // Grab current trader from que
-
-											}
-
-										}); // MongoClient
+										console.log("New Senders Added To Que!");
 									}
-
-
-									console.log("New Senders Added To Que!");
 								}
 
 							} // else
@@ -211,46 +233,47 @@ module.exports = {
 
 		} // pushSender
 
-		function firstCall(account, current) {
+		// function firstCall(account, current) {
 
-			accounts.forEach(function(account) {
+		// 	accounts.forEach(function(account) {
 
-					MongoClient.connect(url, function(err, db) {
+		// 			MongoClient.connect(url, function(err, db) {
 
-					if (err) {
-						console.log("Unable to connect to Mongo. Error: ", err);
-					} else {
+		// 			if (err) {
+		// 				console.log("Unable to connect to Mongo. Error: ", err);
+		// 			} else {
 
-						var collection = db.collection('accounts');
+		// 				var collection = db.collection('accounts');
 
-						collection.find( { _id:  account.username } ).toArray(function(err, result) {
+		// 				collection.find( { _id:  account.username } ).toArray(function(err, result) {
 							
-							if (err) {
-								console.log(err);
-							} else {
-								console.log(result);
+		// 					if (err) {
+		// 						console.log(err);
+		// 					} else {
+		// 						console.log(result);
 
-								var currentTrader = result[0].children[0];
+		// 						var currentTrader = result[0].children[0];
 
-								initiateTrade(account, currentTrader);
+		// 						initiateTrade(account, currentTrader);
 
-								firstTrade++;
+		// 						firstTrade++;
 
-								currentQue;
-							}
+		// 						currentQue;
+		// 					}
 
-						}) // Grab current trader from que
+		// 				}) // Grab current trader from que
 
-					}
+		// 			}
 
-				}); // MongoClient
+		// 		}); // MongoClient
 
-				});
-		}
+		// 		});
 
-
+		// } // firstCall
 
 		currentQue = setInterval(function() {
+
+			currentQueCounter++;
 
 			accounts.forEach(function(account) {
 
@@ -375,8 +398,7 @@ module.exports = {
 			});
 
 		}
-
-
+	}
 
 	} // read: function()
 

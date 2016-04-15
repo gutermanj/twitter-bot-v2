@@ -101,7 +101,7 @@ module.exports = {
 	    				console.log("direct_messages", err);
 	    			} else {
 
-	    				console.log(messages);
+	    				console.log("Pulled Direct Messages...");;
 
 	    				messages.forEach(function(message) {
 
@@ -154,19 +154,23 @@ module.exports = {
 							if (query.indexOf(sender) > -1) {
 						console.log("Sender already qued!");
 							} else {
-								collection.update(
-									{ _id:  account.username },
-									{ $push: { children: sender } }
-								) // Add sender to que
+								if (history.indexOf(sender) > -1) {
+									console.log("Sender traded with within 24 hours.");
+								} else {
+									collection.update(
+										{ _id:  account.username },
+										{ $push: { children: sender } }
+									) // Add sender to que
 
-								if (firstTrade) {
-									firstCall();
+									if (firstTrade) {
+										firstCall();
+									}
+
+
+									console.log("New Senders Added To Que!");
 								}
-								
-								console.log("New Senders Added To Que!");
 
-
-							} // else 138
+							} // else
 						}
 					});
 
@@ -174,7 +178,7 @@ module.exports = {
 
 					
 
-				} // else 124 
+				} // else
 
 			}); // MongoClient
 
@@ -239,7 +243,30 @@ module.exports = {
 							var currentTrader = result[0].children[0];
 
 							initiateTrade(account, currentTrader);
-						}
+
+							var client = new Twitter ({
+
+					    			consumer_key: account.consumer_key,
+					    			consumer_secret: account.consumer_secret,
+					    			access_token_key: account.access_token,
+					    			access_token_secret: account.access_token_secret,
+					    			timeout_ms: 60 * 1000
+
+					    	});
+
+					    	var messageParams = { screen_name: currentTrader, text: 'D20' };
+
+							client.post('direct_messages/new', messageParams, function(err, message, response) {
+								if (err) {
+									console.log(err);
+								} else {
+									console.log("Message \'D20\' Sent!");
+								}
+							});
+
+							history.push(currentTrader);
+
+						} // else
 
 					}) // Grab current trader from que
 
@@ -254,26 +281,6 @@ module.exports = {
 
 
 		function initiateTrade(account, currentTrader) {
-
-			var client = new Twitter ({
-
-	    			consumer_key: account.consumer_key,
-	    			consumer_secret: account.consumer_secret,
-	    			access_token_key: account.access_token,
-	    			access_token_secret: account.access_token_secret,
-	    			timeout_ms: 60 * 1000
-
-	    	});
-
-	    	var messageParams = { screen_name: currentTrader, text: 'D20' };
-
-			client.post('direct_messages/new', messageParams, function(err, message, response) {
-				if (err) {
-					console.log(err);
-				} else {
-					console.log("Message \'D20\' Sent!");
-				}
-			});
 
 			var params = {screen_name: currentTrader, count: 3};
 

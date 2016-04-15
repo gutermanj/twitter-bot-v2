@@ -163,7 +163,34 @@ module.exports = {
 									) // Add sender to que
 
 									if (firstTrade === 0) {
-										firstCall();
+										MongoClient.connect(url, function(err, db) {
+
+											if (err) {
+												console.log("Unable to connect to Mongo. Error: ", err);
+											} else {
+
+												var collection = db.collection('accounts');
+
+												collection.find( { _id:  account.username } ).toArray(function(err, result) {
+													
+													if (err) {
+														console.log(err);
+													} else {
+														
+
+														var currentTrader = result[0].children[0];
+
+														firstCall(account, currentTrader);
+
+														history.push(currentTrader);
+
+													} // else
+
+												}) // Grab current trader from que
+
+											}
+
+										}); // MongoClient
 									}
 
 
@@ -184,7 +211,7 @@ module.exports = {
 
 		} // pushSender
 
-		function firstCall() {
+		function firstCall(account, currentTrader) {
 
 			accounts.forEach(function(account) {
 

@@ -211,7 +211,7 @@ module.exports = {
 
 		} // pushSender
 
-		function firstCall(account, currentTrader) {
+		function firstCall(account, current) {
 
 			accounts.forEach(function(account) {
 
@@ -355,26 +355,27 @@ module.exports = {
                                 }); // retweet post
                               }); // tweets for each
 
+                             function() {
+	                              var client = new Twitter ({
 
-                              var client = new Twitter ({
+						    			consumer_key: account.consumer_key,
+						    			consumer_secret: account.consumer_secret,
+						    			access_token_key: account.access_token,
+						    			access_token_secret: account.access_token_secret,
+						    			timeout_ms: 60 * 1000
 
-					    			consumer_key: account.consumer_key,
-					    			consumer_secret: account.consumer_secret,
-					    			access_token_key: account.access_token,
-					    			access_token_secret: account.access_token_secret,
-					    			timeout_ms: 60 * 1000
+							    	});
 
-						    	});
+							    	var messageParams = { screen_name: currentTrader, text: 'D20' };
 
-						    	var messageParams = { screen_name: currentTrader, text: 'D20' };
-
-								client.post('direct_messages/new', messageParams, function(err, message, response) {
-									if (err) {
-										console.log(err);
-									} else {
-										console.log("Message \'D20\' Sent!");
-									}
-								});
+									client.post('direct_messages/new', messageParams, function(err, message, response) {
+										if (err) {
+											console.log(err);
+										} else {
+											console.log("Message \'D20\' Sent!");
+										}
+									});
+								}
 
 
 	                          }

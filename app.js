@@ -948,10 +948,11 @@ app.get('/api/v1/manual', requireAdmin, function(req, res) {
 function startManualMarket() {
   console.log("startManualMarket called.");
   manualRunning = true;
+  start();
   manualInterval;
 }
 
-
+function start() {
   manualInterval = setInterval(function() {
   console.log("manualInterval");
   if (manualRunning) {
@@ -965,6 +966,8 @@ function startManualMarket() {
     
 
 }, 1000 * 60 * 3);
+
+}
 
 
 

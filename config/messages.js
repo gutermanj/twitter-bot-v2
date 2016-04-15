@@ -202,7 +202,6 @@ module.exports = {
 								      usernames.on('end', function() {
 								      	checkHistory(history);
 								        done();
-								        return res.json(history);
 								      });
 
 								 }); // pg.connect

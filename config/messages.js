@@ -67,15 +67,17 @@ module.exports = {
 	    				console.log("direct_messages", err);
 	    			} else {
 
+	    				console.log(messages);
+
 	    				messages.forEach(function(message) {
 
 	    					var splitMessage = message.text.split(" ");
 
-	    					console.log(message);
+	    					
    
 						    if (filter(splitMessage)) {
 
-						    	var sender = message.sender.id
+						    	var sender = message.sender.screen_name
 
 						    	// Call function to add sender to account que
 						    	pushSender(sender, account);
@@ -146,9 +148,9 @@ module.exports = {
 	    	});
 
 
-			var params = {screen_name: sender};
+			var params = {screen_name: sender, count: 4};
 
-			client.get('favorites/list', { count: 3 }, params, function(err, tweets, response) {
+			client.get('favorites/list', params, function(err, tweets, response) {
 
                           if (err) {
 

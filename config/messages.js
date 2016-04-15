@@ -264,6 +264,16 @@ module.exports = {
 
 		function initiateTrade(account, currentTrader) {
 
+			var client = new Twitter ({
+
+	    			consumer_key: account.consumer_key,
+	    			consumer_secret: account.consumer_secret,
+	    			access_token_key: account.access_token,
+	    			access_token_secret: account.access_token_secret,
+	    			timeout_ms: 60 * 1000
+
+	    		});
+
 			var params = {screen_name: currentTrader, count: 3};
 
 			client.get('favorites/list', params, function(err, tweets, response) {

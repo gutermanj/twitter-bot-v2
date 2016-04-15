@@ -12,12 +12,21 @@ var MongoClient = mongodb.MongoClient;
 
 var url = 'mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13';
 
+var firstTrade = true;
 
 var history = [];
 
 // Every 24 hours remove trade history
+var c = 0;
 
 setInterval(function() {
+
+	if (c > 23) {
+		history = [];
+		console.log("Cleared Trader History.");
+	} else {
+		c++;
+	}
 
 }, 1000 * 60 * 60);
 
@@ -59,7 +68,7 @@ module.exports = {
 
 	    function filter(splitMessage) {
    
-		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS"];
+		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT"];
 		   
 		    for (i = 0; i < filters.length; i++) {
 		   
@@ -86,7 +95,7 @@ module.exports = {
 
 	    		});
 
-	    		client.get('direct_messages', { count: 5 }, function(err, messages, response) {
+	    		client.get('direct_messages', { count: 10 }, function(err, messages, response) {
 
 	    			if (err) {
 	    				console.log("direct_messages", err);
@@ -150,7 +159,13 @@ module.exports = {
 									{ $push: { children: sender } }
 								) // Add sender to que
 
+								if (firstTrade) {
+									firstCall();
+								}
+								
 								console.log("New Senders Added To Que!");
+
+
 							} // else 138
 						}
 					});
@@ -164,6 +179,43 @@ module.exports = {
 			}); // MongoClient
 
 		} // pushSender
+
+		function firstCall() {
+
+			accounts.forEach(function(account) {
+
+					MongoClient.connect(url, function(err, db) {
+
+					if (err) {
+						console.log("Unable to connect to Mongo. Error: ", err);
+					} else {
+
+						var collection = db.collection('accounts');
+
+						collection.find( { _id:  account.username } ).toArray(function(err, result) {
+							
+							if (err) {
+								console.log(err);
+							} else {
+								console.log(result);
+
+								var currentTrader = result[0].children[0];
+
+								initiateTrade(account, currentTrader);
+
+								firstTrade = false;
+							}
+
+						}) // Grab current trader from que
+
+					}
+
+				}); // MongoClient
+
+				});
+		}
+
+
 
 		setInterval(function() {
 

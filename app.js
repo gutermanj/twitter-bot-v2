@@ -924,6 +924,7 @@ app.get('/api/v1/manual', requireAdmin, function(req, res) {
   if (manualRunning) {
 
     clearInterval(manualInterval);
+    clearInterval(currentQue);
     manualRunning = false;
     console.log("False");
     return res.json("Manual Proccess Stopped!");

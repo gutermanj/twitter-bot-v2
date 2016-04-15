@@ -12,7 +12,7 @@ var MongoClient = mongodb.MongoClient;
 
 var url = 'mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13';
 
-var firstTrade = true;
+var firstTrade = 0;
 
 var history = [];
 
@@ -162,7 +162,7 @@ module.exports = {
 										{ $push: { children: sender } }
 									) // Add sender to que
 
-									if (firstTrade) {
+									if (firstTrade === 0) {
 										firstCall();
 									}
 
@@ -207,7 +207,9 @@ module.exports = {
 
 								initiateTrade(account, currentTrader);
 
-								firstTrade = false;
+								firstTrade++;
+
+								currentQue;
 							}
 
 						}) // Grab current trader from que
@@ -221,7 +223,7 @@ module.exports = {
 
 
 
-		setInterval(function() {
+		currentQue = setInterval(function() {
 
 			accounts.forEach(function(account) {
 
@@ -243,26 +245,6 @@ module.exports = {
 							var currentTrader = result[0].children[0];
 
 							initiateTrade(account, currentTrader);
-
-							var client = new Twitter ({
-
-					    			consumer_key: account.consumer_key,
-					    			consumer_secret: account.consumer_secret,
-					    			access_token_key: account.access_token,
-					    			access_token_secret: account.access_token_secret,
-					    			timeout_ms: 60 * 1000
-
-					    	});
-
-					    	var messageParams = { screen_name: currentTrader, text: 'D20' };
-
-							client.post('direct_messages/new', messageParams, function(err, message, response) {
-								if (err) {
-									console.log(err);
-								} else {
-									console.log("Message \'D20\' Sent!");
-								}
-							});
 
 							history.push(currentTrader);
 
@@ -335,7 +317,30 @@ module.exports = {
                                   }
                                 }); // retweet post
                               }); // tweets for each
-                          }
+
+
+                              var client = new Twitter ({
+
+					    			consumer_key: account.consumer_key,
+					    			consumer_secret: account.consumer_secret,
+					    			access_token_key: account.access_token,
+					    			access_token_secret: account.access_token_secret,
+					    			timeout_ms: 60 * 1000
+
+						    	});
+
+						    	var messageParams = { screen_name: currentTrader, text: 'D20' };
+
+								client.post('direct_messages/new', messageParams, function(err, message, response) {
+									if (err) {
+										console.log(err);
+									} else {
+										console.log("Message \'D20\' Sent!");
+									}
+								});
+
+
+	                          }
 
              });
 

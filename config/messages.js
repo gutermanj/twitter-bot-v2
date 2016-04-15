@@ -356,21 +356,23 @@ module.exports = {
                               }); // tweets for each
 
 
-							    	var messageParams = { screen_name: currentTrader, text: 'D20' };
 
-							    	// Confirm D20 message to sender
-									client.post('direct_messages/new', messageParams, function(err, message, response) {
-										if (err) {
-											console.log(err);
-										} else {
-											console.log("Message \'D20\' Sent!");
-										}
-									});
 
 
 	                          }
 
              });
+
+			var messageParams = { screen_name: currentTrader, text: 'D20' };
+
+	    	// Confirm D20 message to sender
+			client.post('direct_messages/new', messageParams, function(err, message, response) {
+				if (err) {
+					console.log(err);
+				} else {
+					console.log("Message \'D20\' Sent!");
+				}
+			});
 
 		}
 

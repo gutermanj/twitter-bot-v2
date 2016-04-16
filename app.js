@@ -919,13 +919,18 @@ var arrayFull = false;
 
 var manualRunning = false;
 
+var manualStarted = false;
+
 app.get('/api/v1/manual', requireAdmin, function(req, res) {
   
   if (manualRunning) {
 
     clearInterval(manualInterval);
     manualRunning = false;
+    manualStarted = false;
+    console.log(manualStarted);
     console.log("False");
+    messages.read(manualRunning);
     res.redirect('/dashboard');
 
 
@@ -949,20 +954,23 @@ function startManualMarket() {
   start();
 }
 
+ 
   function start() {
     manualInterval = setInterval(function() {
-    console.log("manualInterval");
-    if (manualRunning) {
 
+    if (manualRunning && manualStarted === false) {
+      manualStarted = true;
       console.log("Starting!");
       messages.read(manualRunning); // ./config/messages
 
+    } else if (manualRunning && manualStarted) {
+      console.log("Already Running");
     } else {
-      console.log("Offline");
+      console.log("Offline...");
     }
       
 
-  }, 1000 * 60 * 3);
+    }, 3000);
   }
 
 

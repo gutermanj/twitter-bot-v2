@@ -48,19 +48,26 @@ console.log("RUNNING: ", running);
 
 module.exports = {
 
-	read: function() {
+	read: function(manualRunning) {
 
 		var currentQueCounter = 0;
 
 
-		if (running === true && currentQueCounter > 0) {
+		if (manualRunning === false) {
 			
+			running = false;
 			clearInterval(currentQue);
+			clearInterval(messagePull);
+
+			console.log("Proccess Stopped!");
 
 		} else {
 
 		running = true;
+
 		console.log("STATUS: ", running);
+
+		messagePull = setInterval(function() {
 
 		var accounts = [];
 
@@ -232,47 +239,13 @@ module.exports = {
 
 		} // pushSender
 
-		// function firstCall(account, current) {
+	}, 1000 * 60 * 3);
 
-		// 	accounts.forEach(function(account) {
-
-		// 			MongoClient.connect(url, function(err, db) {
-
-		// 			if (err) {
-		// 				console.log("Unable to connect to Mongo. Error: ", err);
-		// 			} else {
-
-		// 				var collection = db.collection('accounts');
-
-		// 				collection.find( { _id:  account.username } ).toArray(function(err, result) {
-							
-		// 					if (err) {
-		// 						console.log(err);
-		// 					} else {
-		// 						console.log(result);
-
-		// 						var currentTrader = result[0].children[0];
-
-		// 						initiateTrade(account, currentTrader);
-
-		// 						firstTrade++;
-
-		// 						currentQue;
-		// 					}
-
-		// 				}) // Grab current trader from que
-
-		// 			}
-
-		// 		}); // MongoClient
-
-		// 		});
-
-		// } // firstCall
+		currentQueCounter++;
 
 		currentQue = setInterval(function() {
 
-			currentQueCounter++;
+			
 
 			accounts.forEach(function(account) {
 

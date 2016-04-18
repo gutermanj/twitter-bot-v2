@@ -428,18 +428,18 @@ module.exports = {
 
 									// REMOVED FOR TESTING
 
-									function letEmKnow(currentTrader) {
+									// function letEmKnow(currentTrader) {
 
-										var messageParams = { screen_name: currentTrader, text: 'lmkwd' };
+									// 	var messageParams = { screen_name: currentTrader, text: 'lmkwd' };
 
-										client.post('direct_messages/new', messageParams, function(err, message, response) {
-											if (err) {
-												console.log(err);
-											} else {
-												console.log("We let em know...");
-											}
-										});
-									}
+									// 	client.post('direct_messages/new', messageParams, function(err, message, response) {
+									// 		if (err) {
+									// 			console.log(err);
+									// 		} else {
+									// 			console.log("We let em know...");
+									// 		}
+									// 	});
+									// }
 
                                     // Start coutdown to undo the trade
                                     setTimeout(function() {
@@ -468,18 +468,16 @@ module.exports = {
 
              });
 
-			// var messageParams = { screen_name: currentTrader, text: 'D20' };
+			var messageParams = { screen_name: currentTrader, text: 'D20' };
 
-	  //   	// Confirm D20 message to sender
-			// client.post('direct_messages/new', messageParams, function(err, message, response) {
-			// 	if (err) {
-			// 		console.log(err);
-			// 	} else {
-			// 		console.log("Message \'D20\' Sent!");
-			// 	}
-			// });
-
-			// COMMENTED OUT FOR TESTING
+	    	// Confirm D20 message to sender
+			client.post('direct_messages/new', messageParams, function(err, message, response) {
+				if (err) {
+					console.log(err);
+				} else {
+					console.log("Message \'D20\' Sent!");
+				}
+			});
 
 		}
 	}

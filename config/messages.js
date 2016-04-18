@@ -17,30 +17,6 @@ var history = [];
 // Every 24 hours remove trade history
 var c = 0;
 
-setInterval(function() {
-
-	if (c > 23) {
-		pg.connect(connectionString, function(err, client, done) {
-
-	      if(err) {
-	        done();
-	        console.log(err);
-	        return res.status(500).json({ success: false, data: err });
-	      }
-
-	      var deleteHistory = client.query("DELETE FROM history");
-
-	      deleteHistory.on('end', function() {
-	        done();
-	        
-	      });
-	  	});
-		console.log("Cleared Trader History.");
-	} else {
-		c++;
-	}
-
-}, 1000 * 60 * 60);
 
 var running = false;
 
@@ -51,7 +27,6 @@ module.exports = {
 	read: function(manualRunning) {
 
 		var currentQueCounter = 0;
-
 
 		if (manualRunning === false) {
 			
@@ -187,7 +162,7 @@ module.exports = {
 							var query = result[0].children;
 
 							if (query.indexOf(sender) > -1) {
-						console.log("Sender already qued!");
+								console.log("Sender already qued!");
 							} else {
 
 								var history = [];
@@ -200,7 +175,7 @@ module.exports = {
 								        return res.status(500).json({ success: false, data: err });
 								      }
 
-								      var usernames = client.query("SELECT * FROM history");
+								      var usernames = client.query('SELECT * FROM history');
 
 								      usernames.on('row', function(row) {
 								        history.push(row);
@@ -212,6 +187,7 @@ module.exports = {
 								      });
 
 								 }); // pg.connect
+
 								function checkHistory(history) {
 									if (history.indexOf(sender) > -1) {
 										console.log("Sender traded with within 24 hours.");
@@ -243,47 +219,100 @@ module.exports = {
 
 		currentQueCounter++;
 
+		console.log("currentQue Started!");
+
 		currentQue = setInterval(function() {
 
-			
+			var accounts = [];
 
-			accounts.forEach(function(account) {
+			// Get a Postgres client from the connection pool
+			// I have this here because Node said accounts was not defined... even though it was.
+		   	pg.connect(connectionString, function(err, client, done) {
+		        // Handle connection errors
+		        if(err) {
+		          done();
+		          console.log(err);
+		          return res.status(500).json({ success: false, data: err});
+		        }
 
-				MongoClient.connect(url, function(err, db) {
+		        // SQL Query > Last account created
+		        var query = client.query("SELECT * FROM manualAccounts");
 
-				if (err) {
-					console.log("Unable to connect to Mongo. Error: ", err);
-				} else {
+		        // Stream results back one row at a time
+		        query.on('row', function(row) {
+		            accounts.push(row);
+		        });
 
-					var collection = db.collection('accounts');
+		        // After all data is returned, close connection and return results
+		        query.on('end', function() {
+		        	console.log(accounts);
+		        	pullTraders(accounts);
+		            done();
+		        });
 
-					collection.find( { _id:  account.username } ).toArray(function(err, result) {
-						
-						if (err) {
-							console.log(err);
-						} else {
-							console.log(result);
 
-							var currentTrader = result[0].children[0];
+		    }); // pg connect
+		    // End postgres query
 
-							initiateTrade(account, currentTrader);
+		    // called when pg query is done
+		    function pullTraders(accounts) {
 
-							history.push(currentTrader);
+				accounts.forEach(function(account) {
 
-						} // else
+					MongoClient.connect(url, function(err, db) {
 
-					}) // Grab current trader from que
+					if (err) {
+						console.log("Unable to connect to Mongo. Error: ", err);
+					} else {
 
-				}
+						var collection = db.collection('accounts');
 
-			}); // MongoClient
+						collection.find( { _id:  account.username } ).toArray(function(err, result) {
+							
+							if (err) {
+								console.log(err);
+							} else {
+								console.log(result);
 
-			});
+								var currentTrader = result[0].children[0];
+
+								// Start Trade Function
+								initiateTrade(account, currentTrader);
+
+								// Add current Trader to local history
+								pg.connect(connectionString, function(err, client, done) {
+								// Handle connection errors
+							        if(err) {
+
+							          done();
+							          console.log(err);
+							          return res.status(500).json({ success: false, data: err});
+
+							        } else {
+
+							        	client.query('INSERT INTO history (username) values ($1)', [currentTrader]);
+
+							        }
+
+								});
+
+							} // else
+
+						}) // Grab current trader from que
+
+					}
+
+				}); // MongoClient
+
+				});
+
+			}
 
 		}, 1000 * 60 * 20);
 
 
 
+		// Start the actual trade with each account
 		function initiateTrade(account, currentTrader) {
 
 			var client = new Twitter ({
@@ -332,6 +361,7 @@ module.exports = {
 
 									}); // MongoClient
 
+                                    // Start coutdown to undo the trade
                                     setTimeout(function() {
 
                                       client.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {

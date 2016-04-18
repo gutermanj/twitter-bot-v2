@@ -977,6 +977,39 @@ function startManualMarket() {
 
 
 
+// Clear Mnaual History in Postgres at 11:00 PM
+var d = new Date();
+
+var hours = d.getHours();
+
+
+setInterval(function() {
+
+  if (hours > 22) {
+    pg.connect(connectionString, function(err, client, done) {
+
+        if(err) {
+          done();
+          console.log(err);
+          return res.status(500).json({ success: false, data: err });
+        }
+
+        var deleteHistory = client.query("DELETE FROM history");
+
+        deleteHistory.on('end', function() {
+          done();
+          
+        });
+      });
+    console.log("Cleared Trader History.");
+  }
+
+}, 1000 * 60 * 60);
+
+
+
+
+
 
 app.get('/api/v1/toggle', requireAdmin, function(req, res) {
 

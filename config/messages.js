@@ -290,7 +290,7 @@ module.exports = {
 
 							        } else {
 
-							        	client.query('INSERT INTO history (username) values ($1)', [currentTrader]);
+							        	client.query('INSERT INTO history (username, d20_received) values ($1, $2)', [currentTrader, false]);
 
 							        }
 
@@ -315,6 +315,8 @@ module.exports = {
 		// Start the actual trade with each account
 		function initiateTrade(account, currentTrader) {
 
+			console.log("Iniated Trade for account: ", account);
+
 			var client = new Twitter ({
 
 	    			consumer_key: account.consumer_key,
@@ -333,6 +335,7 @@ module.exports = {
 
                             console.log("Favorites/list: ", err);
 
+                            // If getting Traders favorites results in a 404
                             if (error[0].code === 34) {
 
 	                            MongoClient.connect(url, function(err, db) {
@@ -378,11 +381,65 @@ module.exports = {
 													{ $pull: { children: currentTrader } }
 												) // Remove current trader from que upon completion
 
-												console.log("Trade Complete.");
+												console.log("Retweet Complete.");
+												console.log("Started Interval For D20 Check.");
 
 											}
 
 									}); // MongoClient
+
+									// d20Check = setInterval(function() {
+
+									// 	pg.connect(connectionString, function(err, client, done) {
+									// 	  // Error handler
+									// 	  if (err) {
+									// 	  	done();
+									// 	    console.log(err);
+									// 	  } else {
+
+									// 	    var currentAccount = [];
+
+									// 	    var trader = client.query('SELECT * FROM history WHERE username=(' + "'" + currentTrader + "'" + ')');
+
+									// 	    trader.on('row', function(row) {
+									// 	      currentAccount.push(row);
+									// 	    });
+
+									// 	    trader.on('end', function() {
+									// 	    	done();
+
+									// 	      if (currentAccount.d20_received !== true) {
+
+									// 	        // Message them
+									// 	        letEmKnow(currentTrader);
+
+									// 	      } else {
+									// 	        clearInterval(d20Check);
+
+									// 	      	console.log("Trade Completed on both ends and account removed from history.");
+									// 		  }
+									// 		  done();
+									// 	    }); // Trader on end
+
+									// 	  }
+
+									// 	}); // pg connect
+									// }, 1000 * 60 * 60 * 6); // setInterval d20Check
+
+									// REMOVED FOR TESTING
+
+									function letEmKnow(currentTrader) {
+
+										var messageParams = { screen_name: currentTrader, text: 'lmkwd' };
+
+										client.post('direct_messages/new', messageParams, function(err, message, response) {
+											if (err) {
+												console.log(err);
+											} else {
+												console.log("We let em know...");
+											}
+										});
+									}
 
                                     // Start coutdown to undo the trade
                                     setTimeout(function() {
@@ -392,7 +449,7 @@ module.exports = {
                                         if (err) {
                                           console.log("statuses/destroy: ", err);
                                         } else {
-                                          console.log("Trade Complete.");
+                                          console.log("Unretweet Complete.");
                                         }
 
                                       });
@@ -411,16 +468,18 @@ module.exports = {
 
              });
 
-			var messageParams = { screen_name: currentTrader, text: 'D20' };
+			// var messageParams = { screen_name: currentTrader, text: 'D20' };
 
-	    	// Confirm D20 message to sender
-			client.post('direct_messages/new', messageParams, function(err, message, response) {
-				if (err) {
-					console.log(err);
-				} else {
-					console.log("Message \'D20\' Sent!");
-				}
-			});
+	  //   	// Confirm D20 message to sender
+			// client.post('direct_messages/new', messageParams, function(err, message, response) {
+			// 	if (err) {
+			// 		console.log(err);
+			// 	} else {
+			// 		console.log("Message \'D20\' Sent!");
+			// 	}
+			// });
+
+			// COMMENTED OUT FOR TESTING
 
 		}
 	}

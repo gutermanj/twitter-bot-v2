@@ -975,42 +975,6 @@ function startManualMarket() {
 
 
 
-
-
-// Clear Mnaual History in Postgres at 11:00 PM
-var d = new Date();
-
-var hours = d.getHours();
-
-
-setInterval(function() {
-
-  if (hours > 22) {
-    pg.connect(connectionString, function(err, client, done) {
-
-        if(err) {
-          done();
-          console.log(err);
-          return res.status(500).json({ success: false, data: err });
-        }
-
-        var deleteHistory = client.query("DELETE FROM history");
-
-        deleteHistory.on('end', function() {
-          done();
-          
-        });
-      });
-    console.log("Cleared Trader History.");
-  }
-
-}, 1000 * 60 * 60);
-
-
-
-
-
-
 app.get('/api/v1/toggle', requireAdmin, function(req, res) {
 
 
@@ -1493,8 +1457,71 @@ app.get('/api/v1/records', requireAdmin, function(req, res) {
 // END SQL FUNCTIONS that I might need sometimes
 
 
+// TEST AREA ------------------------------------------------------------------------------------------------
+
+// var potatoes = [];
+
+//        // Get a Postgres client from the connection pool
+//       pg.connect(connectionString, function(err, client, done) {
+//           // Handle connection errors
+//           if(err) {
+//             done();
+//             console.log(err);
+//             return res.status(500).json({ success: false, data: err});
+//           }
+
+//           // SQL Query > Last account created
+//           var query = client.query("SELECT * FROM manualAccounts");
+
+//           // Stream results back one row at a time
+//           query.on('row', function(row) {
+//               potatoes.push(row);
+//           });
+
+//           // After all data is returned, close connection and return results
+//           query.on('end', function() {
+//             var potato = new Twitter({
+//               consumer_key: potatoes[0].consumer_key,
+//               consumer_secret: potatoes[0].consumer_secret,
+//               access_token_key: potatoes[0].access_token,
+//               access_token_secret: potatoes[0].access_token_secret,
+//             });
 
 
+//             potato.stream('user', {with: 'D20'}, function(stream) {
+//               stream.on('data', function(tweet) {
+//                 console.log(tweet);
+//               });
+             
+//               stream.on('error', function(error) {
+//                 throw error;
+//               });
+//             });
+
+//             done();
+//           });
+
+
+//       }); // pg connect
+
+
+
+
+
+
+
+
+// // TEST AREA -----------------------------------------END-------------------------------------------------------
+
+
+// NOTES
+
+// Removed 24 hour DELETE function from history
+//----
+// WHen a user is traded with, app uses stream to to watch for messages received that include D20
+
+// If we receive that message user gets removed from history and are eligable to trade with again..
+// If we don't receive that message for 48 hours, they are black listed
 
 
 

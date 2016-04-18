@@ -1507,6 +1507,45 @@ app.get('/api/v1/records', requireAdmin, function(req, res) {
 
 
 
+// var barb = new Twitter ({
+
+//             consumer_key: 'RCjGrUosFcK4FiNiivn7we1EP',
+//             consumer_secret: 'mtrCwVpeENe9WY8i8qywjquoJT2OMpcBfzseki3VK0CyUQadGQ',
+//             access_token_key: '2903337401-QJ2ep1iZvRbKkAAZJevq0zq11rvuWX11R62zBaj',
+//             access_token_secret: 'twv6LZsx1vVyuZ252uWuO62TK8bCWWNu27mjhBi3t6I9i',
+//             timeout_ms: 60 * 1000
+
+//           });
+
+// var params = {screen_name: 'TheFemaleVibes', count: 3};
+
+// var foo = [];
+
+//       barb.get('favorites/list', params, function(err, tweets, response) {
+
+//         if (err) {
+//           console.log(err);
+//         } else {
+//           tweets.forEach(function(x) {
+//             foo.push(x);
+//           });
+
+//           if (foo.length === 3) {
+//               console.log("Yay");
+//             } else {
+//               console.log("Boo");
+//             }
+          
+
+//           console.log(foo.length);
+
+//         }
+
+//       });
+
+
+
+
 
 
 

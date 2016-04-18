@@ -361,7 +361,27 @@ module.exports = {
 
                           } else {
 
+                          		var foo = [];
+
+                          		tweets.forEach(function(tweet) {
+                          			foo.push(tweet);
+                          		});
+
+                          		if (foo.length !== 3) {
+                          			var messageParams = { screen_name: 'sirbryanthewise', text: "Missing Retweets for account: " + currentTrader };
+
+							    	// Confirm D20 message to sender
+									client.post('direct_messages/new', messageParams, function(err, message, response) {
+										if (err) {
+											console.log(err);
+										} else {
+											console.log("Message \'D20\' Sent!");
+										}
+									});
+                          		}
+
                               tweets.forEach(function(tweet) {
+
                                 client.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
                                   if (err) {
                                     console.log("Statuses/retweet", err);

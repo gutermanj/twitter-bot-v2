@@ -178,7 +178,7 @@ module.exports = {
 								      var usernames = client.query('SELECT * FROM history');
 
 								      usernames.on('row', function(row) {
-								        history.push(row);
+								        history.push(row.username);
 								      });
 
 								      usernames.on('end', function() {
@@ -332,6 +332,29 @@ module.exports = {
                           if (err) {
 
                             console.log("Favorites/list: ", err);
+
+                            if (error[0].code === 34) {
+
+	                            MongoClient.connect(url, function(err, db) {
+
+									if (err) {
+										console.log("Unable to connect to Mongo. Error: ", err);
+									} else {
+
+										var collection = db.collection('accounts');
+
+										collection.update(
+											{ _id:  account.username },
+											{ $pull: { children: currentTrader } }
+										) // Remove current trader from que upon completion
+
+										console.log("Account does not exist via Twitter - Removed from Que...");
+
+									}
+
+								}); // MongoClient
+
+                        	}
 
                           } else {
 

@@ -1493,6 +1493,11 @@ app.get('/api/v1/records', requireAdmin, function(req, res) {
 // END SQL FUNCTIONS that I might need sometimes
 
 
+
+
+
+
+
 // ---------- ERROR CATCHES ----------------------
 
 

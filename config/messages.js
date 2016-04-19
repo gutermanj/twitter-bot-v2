@@ -105,7 +105,7 @@ module.exports = {
 
 	    		});
 
-	    		client.get('direct_messages', { count: 10 }, function(err, messages, response) {
+	    		client.get('direct_messages', { count: 25 }, function(err, messages, response) {
 
 	    			if (err) {
 	    				console.log("direct_messages", err);

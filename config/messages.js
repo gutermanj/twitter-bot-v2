@@ -276,8 +276,12 @@ module.exports = {
 								console.log(result);
 
 								var currentTrader = result[0].children[0];
-								
-									initiateTrade(account, currentTrader);
+									
+									if (result.length < 1) {
+										console.log("No accounts currently in que for: " + account)
+									} else {
+										initiateTrade(account, currentTrader);
+									}
 
 								// Add current Trader to local history
 								pg.connect(connectionString, function(err, client, done) {
@@ -290,9 +294,15 @@ module.exports = {
 
 							        } else {
 
-							        	client.query('INSERT INTO history (username, d20_received) values ($1, $2)', [currentTrader, false]);
+							        	var addToHistory = client.query('INSERT INTO history (username, d20_received) values ($1, $2)', [currentTrader, false]);
 
 							        }
+
+							        addToHistory.on('end', function() {
+							        	done();
+							        	console.log("Account Added To History");
+							        });
+
 
 								});
 
@@ -499,7 +509,7 @@ module.exports = {
 				}
 			});
 
-		}
+		} // Initiate Trade
 	}
 
 	} // read: function()

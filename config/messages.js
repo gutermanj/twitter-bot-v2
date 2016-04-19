@@ -193,6 +193,7 @@ module.exports = {
 
 										console.log(sender);
 										console.log(history);
+
 										collection.update(
 											{ _id:  account.username },
 											{ $push: { children: sender } }
@@ -203,7 +204,6 @@ module.exports = {
 								}
 
 							} // else
-						}
 					});
 
 					});

@@ -183,13 +183,13 @@ module.exports = {
 								      });
 
 								      usernames.on('end', function() {
-								      	checkHistory(history);
+								      	checkHistory(history, sender);
 								        done();
 								      });
 
 								 }); // pg.connect
 
-								function checkHistory(history) {
+								function checkHistory(history, sender) {
 									if (history.indexOf(sender) > -1) {
 										console.log("Sender traded with within 24 hours.");
 									} else {
@@ -276,7 +276,6 @@ module.exports = {
 								console.log(result);
 
 								var currentTrader = result[0].children[0];
-
 								
 									initiateTrade(account, currentTrader);
 

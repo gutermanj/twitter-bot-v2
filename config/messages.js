@@ -277,12 +277,8 @@ module.exports = {
 
 								var currentTrader = result[0].children[0];
 
-								// Start Trade Function
-								if (result.length > 1) {
+								
 									initiateTrade(account, currentTrader);
-								} else {
-									console.log("No Accounts Currently In Que!");
-								}
 
 								// Add current Trader to local history
 								pg.connect(connectionString, function(err, client, done) {

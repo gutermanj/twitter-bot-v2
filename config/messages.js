@@ -192,6 +192,7 @@ module.exports = {
 								function checkHistory(history, sender) {
 
 										console.log(sender);
+										console.log(history);
 										collection.update(
 											{ _id:  account.username },
 											{ $push: { children: sender } }

@@ -111,7 +111,8 @@ module.exports = {
 	    				console.log("direct_messages", err);
 	    			} else {
 
-	    				console.log("Pulled Direct Messages...");;
+	    				console.log("Pulled Direct Messages...");
+
 
 	    				messages.forEach(function(message) {
 

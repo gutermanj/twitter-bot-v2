@@ -78,7 +78,7 @@ module.exports = {
 
 	    function filter(splitMessage) {
    
-		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS? 15 NS", "RTS?FAVS! NS 15", "RT TOP 3 LIKES! NS 15"];
+		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT"];
 		   
 		    for (i = 0; i < filters.length; i++) {
 		   
@@ -192,14 +192,18 @@ module.exports = {
 								function checkHistory(history, sender) {
 
 										console.log(sender);
-										console.log(history);
+										console.log(history.indexOf(sender));
 
-										collection.update(
-											{ _id:  account.username },
-											{ $push: { children: sender } }
-										) // Add sender to que
+										if (history.indexOf(sender) > -1) {
+											console.log("Sender already in 24 hour history");
+										} else {
+											collection.update(
+												{ _id:  account.username },
+												{ $push: { children: sender } }
+											) // Add sender to que
 
-										console.log("New Senders Added To Que!");
+											console.log("New Senders Added To Que!");
+										}
 									}
 								}
 

@@ -78,7 +78,7 @@ module.exports = {
 
 	    function filter(splitMessage) {
    
-		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT"];
+		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS? 15 NS", "RTS?FAVS! NS 15", "RT TOP 3 LIKES! NS 15"];
 		   
 		    for (i = 0; i < filters.length; i++) {
 		   

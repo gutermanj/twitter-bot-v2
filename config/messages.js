@@ -190,9 +190,8 @@ module.exports = {
 								 }); // pg.connect
 
 								function checkHistory(history, sender) {
-									if (history.indexOf(sender) > -1) {
-										console.log("Sender traded with within 24 hours.");
-									} else {
+
+										console.log(sender);
 										collection.update(
 											{ _id:  account.username },
 											{ $push: { children: sender } }

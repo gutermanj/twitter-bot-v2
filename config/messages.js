@@ -78,7 +78,7 @@ module.exports = {
 
 	    function filter(splitMessage) {
    
-		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS? 15 NS", "RTS?FAVS! NS 15", "RT TOP 3 LIKES! NS 15"];
+		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT"];
 		   
 		    for (i = 0; i < filters.length; i++) {
 		   
@@ -190,20 +190,24 @@ module.exports = {
 								 }); // pg.connect
 
 								function checkHistory(history, sender) {
-									if (history.indexOf(sender) > -1) {
-										console.log("Sender traded with within 24 hours.");
-									} else {
-										collection.update(
-											{ _id:  account.username },
-											{ $push: { children: sender } }
-										) // Add sender to que
 
-										console.log("New Senders Added To Que!");
+										console.log(sender);
+										console.log(history.indexOf(sender));
+
+										if (history.indexOf(sender) > -1) {
+											console.log("Sender already in 24 hour history");
+										} else {
+											collection.update(
+												{ _id:  account.username },
+												{ $push: { children: sender } }
+											) // Add sender to que
+
+											console.log("New Senders Added To Que!");
+										}
 									}
 								}
 
 							} // else
-						}
 					});
 
 					});
@@ -276,8 +280,12 @@ module.exports = {
 								console.log(result);
 
 								var currentTrader = result[0].children[0];
-								
-									initiateTrade(account, currentTrader);
+									
+									if (result.length < 1) {
+										console.log("No accounts currently in que for: " + account)
+									} else {
+										initiateTrade(account, currentTrader);
+									}
 
 								// Add current Trader to local history
 								pg.connect(connectionString, function(err, client, done) {
@@ -290,9 +298,15 @@ module.exports = {
 
 							        } else {
 
-							        	client.query('INSERT INTO history (username, d20_received) values ($1, $2)', [currentTrader, false]);
+							        	var addToHistory = client.query('INSERT INTO history (username, d20_received) values ($1, $2)', [currentTrader, false]);
 
 							        }
+
+							        addToHistory.on('end', function() {
+							        	done();
+							        	console.log("Account Added To History");
+							        });
+
 
 								});
 
@@ -499,7 +513,7 @@ module.exports = {
 				}
 			});
 
-		}
+		} // Initiate Trade
 	}
 
 	} // read: function()

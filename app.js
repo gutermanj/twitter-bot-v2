@@ -631,12 +631,36 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
           res.locals.manualAccountCount = manualAccountCount[0];
           console.log("MANUAL ACCOUNT COUNT: " + manualAccountCount[0].count);
           done();
-
-          res.render('index');
         });
 
     });
 
+
+
+    MongoClient.connect('mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13', function (err, db) {
+      if (err) {
+        console.log('Unable to connect to the mongoDB server. Error:', err);
+      } else {
+
+        var collection = db.collection('accounts');
+
+        collection.find({}).toArray(function(err, result) {
+              if (err) {
+                console.log(err);
+              } else {
+                console.log(result);
+                res.locals.que = result;
+                db.close();
+
+                res.render('index');
+              }
+        });
+
+        //Close connection
+        
+      }
+    });
+    
 
   console.log("Current Session: " + req.session.user);
   res.locals.user = req.session.user;

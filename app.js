@@ -631,38 +631,40 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
           res.locals.manualAccountCount = manualAccountCount[0];
           console.log("MANUAL ACCOUNT COUNT: " + manualAccountCount[0].count);
           done();
+          mongoquery();
         });
 
     });
 
 
+    function mongoquery() {
+      MongoClient.connect('mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13', function (err, db) {
+        if (err) {
+          console.log('Unable to connect to the mongoDB server. Error:', err);
+        } else {
 
-    MongoClient.connect('mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13', function (err, db) {
-      if (err) {
-        console.log('Unable to connect to the mongoDB server. Error:', err);
-      } else {
+          var collection = db.collection('accounts');
 
-        var collection = db.collection('accounts');
+          collection.find({}).toArray(function(err, result) {
+                if (err) {
+                  console.log(err);
+                } else {
+                  console.log(result);
+                  res.locals.main = JSON.stringify(result[0]._id).replace(/['"]+/g, '');
+                  res.locals.main2 = JSON.stringify(result[1]._id).replace(/['"]+/g, '');
+                  res.locals.que = JSON.stringify(result[0].children[0]).replace(/['"]+/g, '');
+                  res.locals.que2 = JSON.stringify(result[1].children[0]).replace(/['"]+/g, '');
+                  db.close();
 
-        collection.find({}).toArray(function(err, result) {
-              if (err) {
-                console.log(err);
-              } else {
-                console.log(result);
-                res.locals.main = JSON.stringify(result[0]._id).replace(/['"]+/g, '');
-                res.locals.main2 = JSON.stringify(result[1]._id).replace(/['"]+/g, '');
-                res.locals.que = JSON.stringify(result[0].children[0]).replace(/['"]+/g, '');
-                res.locals.que2 = JSON.stringify(result[1].children[0]).replace(/['"]+/g, '');
-                db.close();
+                  res.render('index');
+                }
+          });
 
-                res.render('index');
-              }
-        });
-
-        //Close connection
-        
-      }
-    });
+          //Close connection
+          
+        }
+      });
+    }
     
 
   console.log("Current Session: " + req.session.user);

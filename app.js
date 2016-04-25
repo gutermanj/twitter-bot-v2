@@ -649,7 +649,10 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
                 console.log(err);
               } else {
                 console.log(result);
-                res.locals.que = result;
+                res.locals.main = JSON.stringify(result[0]._id).replace(/['"]+/g, '');
+                res.locals.main2 = JSON.stringify(result[1]._id).replace(/['"]+/g, '');
+                res.locals.que = JSON.stringify(result[0].children[0]).replace(/['"]+/g, '');
+                res.locals.que2 = JSON.stringify(result[1].children[0]).replace(/['"]+/g, '');
                 db.close();
 
                 res.render('index');

@@ -76,7 +76,7 @@ module.exports = {
 		    						done();
 		    						console.log(err);
 		    					} else {
-		    						var query = client.query("UPDATE manualaccounts SET last_message = (last_message) WHERE username = (username) values ($1, $2)", [messages[0].id_str, account.username]);
+		    						var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");
 		    					}
 		    				});
 		    				messages.forEach(function(message) {
@@ -103,8 +103,7 @@ module.exports = {
 			    						done();
 			    						console.log(err);
 			    					} else {
-			    						var query = client.query('UPDATE manualaccounts SET last_message = (last_message) WHERE username = (username) values ($1, $2)', [messages[0].id_str, account.username]);
-			    					}
+										var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");			    					}
 			    				});
 			    				messages.forEach(function(message) {
 			    					var splitMessage = message.text.toUpperCase().split(" ");

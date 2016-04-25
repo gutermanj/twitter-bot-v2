@@ -994,7 +994,7 @@ function startManualMarket() {
     }
       
 
-    }, 3000);
+    }, 5000);
   }
 
 

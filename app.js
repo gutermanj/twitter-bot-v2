@@ -84,10 +84,10 @@ var users = require('./routes/users');
 // So I don't really need this, but I'm gonna keep it for reference
 
 var T = new Twitter({
-  consumer_key:         '1X8yoooqEevRWdhErqolMb4pE',
-  consumer_secret:      'BjxfK292LJnRxxwlMGeYnEyqanuKPvv25sTt8ULRZPum4HxUnC',
-  access_token_key:         '708512539303350272-Jf4rQFi4Iq3OLQS5C27xkIIxaZdJySd',
-  access_token_secret:  '1PxOSwkUxDB6ulw57o6ix5JKn20N6KiJlz4qpefnI2Cp3',
+  consumer_key:         'k07kZVV7oPWspXMotr9pIVEUP',
+  consumer_secret:      '45adhHKs2fPdrmJiLWUrspvtGuFt73DGik72gRTWepVJEAged5',
+  access_token_key:     '2784707616-Uf44QV2ILKHyxx1XAqqpPXBHr8WVWCdrehNseKu',
+  access_token_secret:  '5j3jsFu1dicB2KzGfSRHePa3CDIJorwXYer1Sp6SXvVyC',
   timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests.
 });
 
@@ -1483,91 +1483,20 @@ app.get('/api/v1/records', requireAdmin, function(req, res) {
 
 // TEST AREA ------------------------------------------------------------------------------------------------
 
-// var potatoes = [];
-
-//        // Get a Postgres client from the connection pool
-//       pg.connect(connectionString, function(err, client, done) {
-//           // Handle connection errors
-//           if(err) {
-//             done();
-//             console.log(err);
-//             return res.status(500).json({ success: false, data: err});
-//           }
-
-//           // SQL Query > Last account created
-//           var query = client.query("SELECT * FROM manualAccounts");
-
-//           // Stream results back one row at a time
-//           query.on('row', function(row) {
-//               potatoes.push(row);
-//           });
-
-//           // After all data is returned, close connection and return results
-//           query.on('end', function() {
-//             var potato = new Twitter({
-//               consumer_key: potatoes[0].consumer_key,
-//               consumer_secret: potatoes[0].consumer_secret,
-//               access_token_key: potatoes[0].access_token,
-//               access_token_secret: potatoes[0].access_token_secret,
-//             });
 
 
-//             potato.stream('user', {with: 'D20'}, function(stream) {
-//               stream.on('data', function(tweet) {
-//                 console.log(tweet);
-//               });
-             
-//               stream.on('error', function(error) {
-//                 throw error;
-//               });
-//             });
+          // T.get('direct_messages', { count: 3 }, function(err, messages, response) {
+          //   if (err) {
+          //     console.log("direct_messages", err);
+          //   } else {
+          //     console.log("Pulled Direct Messages...");
+          //     messages.forEach(function(message) {
+                
+          //       console.log(message);
 
-//             done();
-//           });
-
-
-//       }); // pg connect
-
-
-
-
-// var barb = new Twitter ({
-
-//             consumer_key: 'RCjGrUosFcK4FiNiivn7we1EP',
-//             consumer_secret: 'mtrCwVpeENe9WY8i8qywjquoJT2OMpcBfzseki3VK0CyUQadGQ',
-//             access_token_key: '2903337401-QJ2ep1iZvRbKkAAZJevq0zq11rvuWX11R62zBaj',
-//             access_token_secret: 'twv6LZsx1vVyuZ252uWuO62TK8bCWWNu27mjhBi3t6I9i',
-//             timeout_ms: 60 * 1000
-
-//           });
-
-// var params = {screen_name: 'TheFemaleVibes', count: 3};
-
-// var foo = [];
-
-//       barb.get('favorites/list', params, function(err, tweets, response) {
-
-//         if (err) {
-//           console.log(err);
-//         } else {
-//           tweets.forEach(function(x) {
-//             foo.push(x);
-//           });
-
-//           if (foo.length === 3) {
-//               console.log("Yay");
-//             } else {
-//               console.log("Boo");
-//             }
-          
-
-//           console.log(foo.length);
-
-//         }
-
-//       });
-
-
+          //     });
+          //   }
+          // }); // client.get
 
 
 

@@ -137,7 +137,7 @@ module.exports = {
 				} // else
 			}); // MongoClient
 		} // pushSender
-	}, 1000 * 45); // Message Pull set Interval
+	}, 1000 * 60 * 1); // Message Pull set Interval
 		console.log("currentQue Started!");
 		// Main Set Interval
 		currentQue = setInterval(function() {
@@ -178,7 +178,7 @@ module.exports = {
 									} else {
 										var currentTrader = result[0].children[0];
 											if (result[0].children.length < 1) {
-												console.log("No accounts currently in que for: " + account)
+												console.log("No accounts currently in que for: " + result[0]._id)
 											} else {
 												db.close();
 												initiateTrade(account, currentTrader);
@@ -246,19 +246,18 @@ module.exports = {
 										if (err) {
 											console.log("Statuses/retweet", err);
 										} else {
-											console.log("Trade Started...");
-												MongoClient.connect(url, function(err, db) {
-														if (err) {
-															console.log("Unable to connect to Mongo. Error: ", err);
-														} else {
-															var collection = db.collection('accounts');
-															collection.update(
-																{ _id:  account.username },
-																{ $pull: { children: currentTrader } }
-															) // Remove current trader from que upon completion
-															console.log("Retweet Complete.");
-														}
-												}); // MongoClient
+											MongoClient.connect(url, function(err, db) {
+													if (err) {
+														console.log("Unable to connect to Mongo. Error: ", err);
+													} else {
+														var collection = db.collection('accounts');
+														collection.update(
+															{ _id:  account.username },
+															{ $pull: { children: currentTrader } }
+														) // Remove current trader from que upon completion
+														console.log("Retweet Complete.");
+													}
+											}); // MongoClient
 									// d20Check = setInterval(function() {
 									// 	pg.connect(connectionString, function(err, client, done) {
 									// 	  // Error handler

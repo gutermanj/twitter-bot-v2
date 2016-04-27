@@ -1003,7 +1003,7 @@ function startManualMarket() {
     }
       
 
-    }, 5000);
+    }, 10000);
   }
 
 

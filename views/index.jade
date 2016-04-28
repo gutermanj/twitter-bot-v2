@@ -284,11 +284,11 @@ html
                           th Trades Completed
                       tbody
                         tr
-                          td #{main}
+                          td.js-manual-que-add(data-username='#{main}') #{main}
                           td #{que}
                           td ?
                         tr
-                          td #{main2}
+                          td.js-manual-que-add(data-username='#{main2}') #{main2}
                           td #{que2}
                           td ?
           // /.row
@@ -459,14 +459,35 @@ html
       .modal-footer
         button.btn.btn-default(type='button', data-dismiss='modal') Close
 
+#show-new-que-modal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel')
+  .modal-dialog(role='document')
+    .modal-content
+      .modal-header
+        button.close(type='button', data-dismiss='modal', aria-label='Close')
+          span(aria-hidden='true') ×
+        h4#myModalLabel.modal-title Add an Account to Queue
+      .modal-body
+        .js-new-que-form
+          br
+          label Sender
+          input.js-new-que-sender.form-control
+          br
+          br
+          label Account
+          .js-new-que-account-input
+
+      .modal-footer
+        button.btn.btn-default(type='button', data-dismiss='modal') Close
+        button.btn.btn-primary.js-add-sender(type='button', data-dismiss='modal') Submit
+
     // Bootstrap Core JavaScript
+    script(src='javascripts/manual-add-que.js')
     script(src='javascripts/bootstrap.min.js')
     // Morris Charts JavaScript
     script(src='javascripts/plugins/morris/raphael.min.js')
     script(src='javascripts/plugins/morris/morris.min.js')
     script(src='javascripts/plugins/morris/morris-data.js')
-    // jQuery
-    script(src='javascripts/jquery.js')
+
     script(src='javascripts/account-ajax.js')
     script(src='javascripts/records-ajax.js')
     script(src='javascripts/total-records-ajax.js')

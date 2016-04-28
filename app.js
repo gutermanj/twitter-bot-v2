@@ -563,8 +563,6 @@ app.get('/', function(req, res) {
 });
 
 
-
-
 // Dashboard route
 app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
 
@@ -1006,6 +1004,25 @@ function startManualMarket() {
     }, 10000);
   }
 
+
+app.post('/api/v1/add-que', function(req, res) {
+
+   MongoClient.connect(url, function(err, db) {
+        if (err) {
+          console.log("Unable to connect to Mongo. Error: ", err);
+        } else {
+          var collection = db.collection('accounts');
+                collection.update(
+                      { _id:  req.body.username },
+                      { $push: { children: req.body.sender } }
+                    ) // Add sender to que
+                    console.log("New Senders Manually Added To Que!", req.body.sender);
+                db.close();
+                return res.json("OK");
+        } // else
+      }); // MongoClient
+
+});
 
 
 app.get('/api/v1/toggle', requireAdmin, function(req, res) {

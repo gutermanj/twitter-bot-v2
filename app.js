@@ -962,6 +962,7 @@ app.get('/api/v1/manual', requireAdmin, function(req, res) {
     console.log(manualStarted);
     console.log("False");
     messages.read(manualRunning);
+    return res.json("Manual Proccess Stopped!");
     res.redirect('/dashboard');
 
 

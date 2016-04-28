@@ -24,17 +24,8 @@ html
 
     // My Styles
     link(href='stylesheets/index-style.css', rel='stylesheet')
+      
 
-    // jQuery
-    script(src='javascripts/jquery.js')
-    // My JavaScript
-    script(src='javascripts/myscript.js')
-    // HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries
-    // WARNING: Respond.js doesn't work if you view the page via file://
-    //if lt IE 9
-      script(src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js')
-      script(src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js')
-      script(src='javascripts/market-place-ajax.js')
 
   body
     #wrapper
@@ -480,8 +471,18 @@ html
         button.btn.btn-default(type='button', data-dismiss='modal') Close
         button.btn.btn-primary.js-add-sender(type='button', data-dismiss='modal') Submit
 
+    
+    // jQuery
+    script(src='javascripts/jquery.js')
+    // My JavaScript
+    script(src='javascripts/myscript.js')
+    script(type='text/javascript', src='javascripts/manual-add-que.js')
+    // HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries
+    // WARNING: Respond.js doesn't work if you view the page via file://
+    //if lt IE 9
+      script(src='https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js')
+      script(src='https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js')
     // Bootstrap Core JavaScript
-    script(src='javascripts/manual-add-que.js')
     script(src='javascripts/bootstrap.min.js')
     // Morris Charts JavaScript
     script(src='javascripts/plugins/morris/raphael.min.js')
@@ -491,11 +492,9 @@ html
     script(src='javascripts/account-ajax.js')
     script(src='javascripts/records-ajax.js')
     script(src='javascripts/total-records-ajax.js')
-    script(src='javascripts/myscript.js')
-    // Switch
+
     script(src='javascripts/bootstrap-switch.min.js')
     script(src='javascripts/market-place-ajax.js')
-
 
 
 

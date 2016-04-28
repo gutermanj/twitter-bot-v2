@@ -181,7 +181,10 @@ module.exports = {
 												console.log("No accounts currently in que for: " + result[0]._id)
 											} else {
 												db.close();
-												initiateTrade(account, currentTrader);
+													var time = new Date();
+														if (time.getHours() > 22 && time.getHours() < 8) {
+															initiateTrade(account, currentTrader);
+														}
 											}
 									} // else
 								}) // Grab current trader from que

@@ -239,7 +239,7 @@ module.exports = {
                           		var completeRetweetCount = 0;
 								tweets.forEach(function(tweet) {
 									completeRetweetCount++;
-									if (completeRetweetCount === tweets.length) {
+									if (completeRetweetCount === tweets.length - 1) {
 										messageSender(currentTrader);
 									}
 									client.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {

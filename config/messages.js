@@ -212,7 +212,7 @@ module.exports = {
                           if (err) {
                             console.log("Favorites/list: ", err);
                             // If getting Traders favorites results in a 404
-                            if (error[0].code === 34) {
+                            if (err[0].code === 34) {
 	                            MongoClient.connect(url, function(err, db) {
 									if (err) {
 										console.log("Unable to connect to Mongo. Error: ", err);

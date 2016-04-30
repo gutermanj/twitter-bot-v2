@@ -282,6 +282,9 @@ html
                           td.js-manual-que-add(data-username='#{main2}') #{main2}
                           td #{que2}
                           td ?
+              button.btn.btn-danger.js-new-blacklist-button Add Blacklist
+              br
+              br
           // /.row
           .row
             .col-lg-4
@@ -471,6 +474,23 @@ html
         button.btn.btn-default(type='button', data-dismiss='modal') Close
         button.btn.btn-primary.js-add-sender(type='button', data-dismiss='modal') Submit
 
+
+#add-blacklist-modal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel')
+  .modal-dialog(role='document')
+    .modal-content
+      .modal-header
+        button.close(type='button', data-dismiss='modal', aria-label='Close')
+          span(aria-hidden='true') ×
+        h4#myModalLabel.modal-title Add an Account to Blacklist
+      .modal-body
+        .js-new-blacklist-form
+          br
+          label New Blacklist
+          input.js-new-blacklist-sender.form-control
+
+      .modal-footer
+        button.btn.btn-default(type='button', data-dismiss='modal') Close
+        button.btn.btn-primary.js-add-blacklist-submit(type='button', data-dismiss='modal') Submit
     
     // jQuery
     script(src='javascripts/jquery.js')

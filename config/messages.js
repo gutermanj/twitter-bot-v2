@@ -10,6 +10,7 @@ var history = [];
 var running = false;
 module.exports = {
 	read: function(manualRunning) {
+
 		var currentQueCounter = 0;
 		if (manualRunning === false) {
 			running = false;
@@ -125,12 +126,16 @@ module.exports = {
 								if (query.indexOf(sender) > -1) {
 									console.log("Sender already qued!");
 								} else {
-										collection.update(
-											{ _id:  account.username },
-											{ $push: { children: sender } }
-										) // Add sender to que
-										console.log("New Senders Added To Que!");
-									}
+										if (blacklistFilter(sender)) {
+											console.log("Account On Blacklist...");
+										} else {
+											collection.update(
+												{ _id:  account.username },
+												{ $push: { children: sender } }
+											) // Add sender to que
+											console.log("New Senders Added To Que!");
+										}
+								}
 								db.close();
 								}
 						});
@@ -212,7 +217,6 @@ module.exports = {
                           if (err) {
                             console.log("Favorites/list: ", err);
                             // If getting Traders favorites results in a 404
-                            if (err[0].code === 34) {
 	                            MongoClient.connect(url, function(err, db) {
 									if (err) {
 										console.log("Unable to connect to Mongo. Error: ", err);
@@ -226,7 +230,6 @@ module.exports = {
 										db.close();
 									}
 								}); // MongoClient
-                        	}
                           } else {
                           		var foo = [];
                           		tweets.forEach(function(tweet) {
@@ -330,5 +333,28 @@ module.exports = {
 			}
 		} // Initiate Trade
 		} // else
+
+		function blacklistFilter(sender) {
+			MongoClient.connect(url, function(err, db) {
+				if (err) {
+					console.log("Unable to connect to Mongo. Error: ", err);
+				} else {
+					var collection = db.collection('blacklist');
+						collection.find( { _id:  sender } ).toArray(function(err, result) {
+							if (err) {
+								console.log(err);
+							} else {
+								if (result.length > 0) {
+									console.log("Account Blacklisted!");
+									return true
+								} else {
+									console.log(".");
+								}
+							} // else
+						}); // Grab current trader from que
+				}
+			}); // MongoClient
+		} // blacklistFilter
+
 	} // read: function()
 }

@@ -104,4 +104,51 @@ $(document).ready(function() {
 
 
 
+
+	$('.js-new-blacklist-button').on('click', function() {
+		$('#add-blacklist-modal').modal("toggle");
+
+	});
+
+	$('.js-add-blacklist-submit').on('click', function() {
+		var sender = $('.js-new-blacklist-sender').val();
+		addBlacklistAjax(sender);
+	});
+
+
+	function addBlacklistAjax(sender) {
+
+		$.ajax({
+
+			type: 'POST',
+
+			url: '/api/v1/blacklist',
+
+			data: {
+
+				sender: sender
+
+			},
+
+			success: function(response) {
+				console.log(response);
+			},
+
+			error: function() {
+				console.log("Error");
+			}
+
+		});
+
+	}
+
+
+
+
+
+
+
+
+
+
 });

@@ -1025,6 +1025,25 @@ app.post('/api/v1/add-que', function(req, res) {
 
 });
 
+app.post('/api/v1/blacklist', function(req, res) {
+
+  MongoClient.connect(url, function(err, db) {
+    if (err) {
+      console.log(err);
+    } else {
+      var collection = db.collection('blacklist');
+        collection.insert(
+            { _id: req.body.sender }
+          )
+
+        console.log("New Account Added To Blacklist", req.body.sender);
+      db.close();
+      return res.json("OK");
+    }
+  });
+
+});
+
 
 app.get('/api/v1/toggle', requireAdmin, function(req, res) {
 

@@ -27,18 +27,30 @@ $(document).ready(function() {
 
 			success: function(response) {
 				console.log(response.children);
+				var dad = response._id;
+				console.log(dad);
 				var children = response.children;
 
 				$('.js-current-que').empty();
 
 				children.forEach(function(child) {
 					var html = `
-						<b style='margin-left: 20px;'>${child}</b>
-						<br>
+						<div class='js-que-parent'>
+							<b style='margin-left: 20px;'>${child}</b>
+							<span style='margin-left: 20px; cursor: pointer;' aria-hidden='true' class='js-remove-from-que' data-username='${child}'>x</span>
+							<hr style='width: 50%; margin-left: -0%;'>
+						</div>
 					`
 
 					$('.js-current-que').append(html);
 				});
+
+				$('.js-remove-from-que').on('click', function() {
+					var username = $(this).data('username');
+					$(this).html('<span>Removed</span>')
+					removeFromQue(username, dad);
+				});
+
 			},
 
 			error: function() {
@@ -56,6 +68,31 @@ $(document).ready(function() {
 		manualAdd(username, sender);
 
 	});
+
+	function removeFromQue(username, dad) {
+		
+		$.ajax({
+
+			type: 'POST',
+
+			url: '/api/v1/remove-from-que',
+
+			data: {
+				username: username,
+				dad: dad
+			},
+
+			success: function(response) {
+				console.log(response);
+			},
+
+			error: function() {
+				console.log("Error Removing From Que");
+			}
+
+		});
+
+	}
 
 
 	function manualAdd(username, sender) {

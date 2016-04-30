@@ -188,7 +188,7 @@ module.exports = {
 												db.close();
 													var time = new Date();
 
-														if (time.getHours() > 22 || time.getHours() < 8) {
+														if (time.getHours() >= 22 || time.getHours() < 8) {
 															console.log("Offline: Night Time");
 														} else {
 															initiateTrade(account, currentTrader);

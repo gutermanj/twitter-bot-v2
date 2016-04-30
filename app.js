@@ -1025,6 +1025,27 @@ app.post('/api/v1/add-que', function(req, res) {
 
 });
 
+app.post('/api/v1/show-que', function(req, res) {
+
+  MongoClient.connect(url, function(err, db) {
+    if (err) {
+      console.log(err);
+    } else {
+      var collection = db.collection('accounts');
+        collection.findOne( { _id: req.body.username }, function(err, result) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(result);
+            return res.json(result);
+          }
+        });
+        
+    }
+  });
+
+});
+
 app.post('/api/v1/blacklist', function(req, res) {
 
   MongoClient.connect(url, function(err, db) {

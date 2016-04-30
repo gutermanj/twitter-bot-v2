@@ -10,7 +10,43 @@ $(document).ready(function() {
 		$('.js-new-que-account-input').html(input);
 		$('.js-new-que-sender').val("");
 
+		showCurrentQue(username);
+
 	});
+
+	function showCurrentQue(username) {
+		$.ajax({
+
+			type: 'POST',
+
+			url: '/api/v1/show-que',
+
+			data: {
+				username: username
+			},
+
+			success: function(response) {
+				console.log(response.children);
+				var children = response.children;
+
+				$('.js-current-que').empty();
+
+				children.forEach(function(child) {
+					var html = `
+						<b style='margin-left: 20px;'>${child}</b>
+						<br>
+					`
+
+					$('.js-current-que').append(html);
+				});
+			},
+
+			error: function() {
+				console.log("Error Getting Que");
+			}
+
+		});
+	}
 
 	$('.js-add-sender').on('click', function(e) {
 

@@ -648,6 +648,8 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
                   console.log(err);
                 } else {
                   console.log(result);
+                  var parsed = JSON.parse(result);
+                  res.locals.manAccounts = parsed;
                   res.locals.main = JSON.stringify(result[0]._id).replace(/['"]+/g, '');
                   res.locals.main2 = JSON.stringify(result[1]._id).replace(/['"]+/g, '');
                   if (result[0].children.length > 0) {

@@ -272,13 +272,13 @@ html
                         tr
                           th Username
                           th Queued
-                          th Trades Completed
+                          th Q
                       tbody
                       each val in manAccounts
                         tr
                           td.js-manual-que-add(data-username=val._id)= val._id
                           td= val.children[0]
-                          td ?
+                          td= val.children.length
               button.btn.btn-danger.js-new-blacklist-button Add Blacklist
               br
               br

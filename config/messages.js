@@ -41,7 +41,15 @@ module.exports = {
 	        });
 	    }); // pg connect
 	    function filter(splitMessage) {
-		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT"];
+		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS,", "FAVS,", "RTS!", "RT,", "FAVORITES", "RTS?FAVS!"];
+		    for (i = 0; i < filters.length; i++) {
+		        if (splitMessage.indexOf(filters[i]) > -1) {
+		            return true;
+		        }
+		    }
+		}
+		function lmkwdFilter(splitMessage) {
+		    var filters = ["LMKWD", "GET"];
 		    for (i = 0; i < filters.length; i++) {
 		        if (splitMessage.indexOf(filters[i]) > -1) {
 		            return true;
@@ -78,6 +86,13 @@ module.exports = {
 							    	// Call function to add sender to account que
 							    	pushSender(sender, account);
 							    }
+
+							    if (lmkwdFilter(splitMessage)) {
+							    	var sender = message.sender.screen_name
+
+							    	messageSirBryan(sender);
+							    }
+
 		    				});
 		    			}
 		    		}); // client.get
@@ -355,6 +370,19 @@ module.exports = {
 				}
 			}); // MongoClient
 		} // blacklistFilter
+
+
+		function messageSirBryan(sender) {
+			var messageParams = { screen_name: 'sirbryanthewise', text: "LMKWD or GET sent by" + sender };
+	    	// Confirm D20 message to sender
+			client.post('direct_messages/new', messageParams, function(err, message, response) {
+				if (err) {
+					console.log(err);
+				} else {
+					console.log("Messages Bryan.");
+				}
+			});
+		}
 
 	} // read: function()
 }

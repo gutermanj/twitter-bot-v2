@@ -66,7 +66,7 @@ module.exports = {
 	    			timeout_ms: 60 * 1000
 	    		});
 	    		if (account.last_message === null) {
-	    			client.get('direct_messages', { count: 5 }, function(err, messages, response) {
+	    			client.get('direct_messages', { count: 20 }, function(err, messages, response) {
 		    			if (err) {
 		    				console.log("direct_messages", err);
 		    			} else {

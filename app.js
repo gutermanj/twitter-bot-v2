@@ -395,7 +395,7 @@ app.post('/newaccount/manual', requireAdmin, function(req, res) {
         var collection = db.collection('accounts');
 
         //Create que for new account
-        var account = { _id: req.body.username, children: [] };
+        var account = { _id: req.body.username, children: [], history: [] };
 
         // Insert some users
         collection.insert([account], function (err, result) {

@@ -40,6 +40,7 @@ module.exports = {
 	            done();
 	        });
 	    }); // pg connect
+	    // Called to filter incoming messages on twitter
 	    function filter(splitMessage) {
 		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS,", "FAVS,", "RTS!", "RT,", "FAVORITES", "RTS?FAVS!"];
 		    for (i = 0; i < filters.length; i++) {
@@ -48,6 +49,7 @@ module.exports = {
 		        }
 		    }
 		}
+		// Filters messages on twitter
 		function lmkwdFilter(splitMessage) {
 		    var filters = ["LMKWD", "GET"];
 		    for (i = 0; i < filters.length; i++) {
@@ -56,6 +58,7 @@ module.exports = {
 		        }
 		    }
 		}
+		// Starts the forEach on each account to pull messages from twitter
 	    function pullMessages() {
 	    	accounts.forEach(function(account) {
 	    		var client = new Twitter ({

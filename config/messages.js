@@ -58,6 +58,15 @@ module.exports = {
 		        }
 		    }
 		}
+
+		function done(splitMessage) {
+			var filters = ["D", "D20", "D15", "DONE", "D!", "D,"];
+			for (i = 0; i < filters.length; i++) {
+		        if (splitMessage.indexOf(filters[i]) > -1) {
+		            return true;
+		        }
+		    }
+		}
 		// Starts the forEach on each account to pull messages from twitter
 	    function pullMessages() {
 	    	accounts.forEach(function(account) {
@@ -201,12 +210,12 @@ module.exports = {
 									} else {
 										var currentTrader = result[0].children[0];
 											if (result[0].children.length < 1) {
-												console.log("No accounts currently in que for: " + result[0]._id)
+												console.log("No accounts currently in que for: " + result[0]._id);
 											} else {
 												db.close();
 													var time = new Date();
 
-														if (time.getHours() >= 2 && time.getHours() < 12) {
+														if (time.getHours() >= 1 && time.getHours() < 11) {
 															console.log("Offline: Night Time");
 														} else {
 															initiateTrade(account, currentTrader);
@@ -269,6 +278,8 @@ module.exports = {
 									completeRetweetCount++;
 									if (completeRetweetCount === tweets.length - 1) {
 										messageSender(currentTrader);
+										addToLmkwdList(currentTrader, account);
+										lmkwdInterval(currentTrader, client, account);
 									}
 									client.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
 										if (err) {
@@ -286,43 +297,6 @@ module.exports = {
 														console.log("Retweet Complete.");
 													}
 											}); // MongoClient
-									// d20Check = setInterval(function() {
-									// 	pg.connect(connectionString, function(err, client, done) {
-									// 	  // Error handler
-									// 	  if (err) {
-									// 	  	done();
-									// 	    console.log(err);
-									// 	  } else {
-									// 	    var currentAccount = [];
-									// 	    var trader = client.query('SELECT * FROM history WHERE username=(' + "'" + currentTrader + "'" + ')');
-									// 	    trader.on('row', function(row) {
-									// 	      currentAccount.push(row);
-									// 	    });
-									// 	    trader.on('end', function() {
-									// 	    	done();
-									// 	      if (currentAccount.d20_received !== true) {
-									// 	        // Message them
-									// 	        letEmKnow(currentTrader);
-									// 	      } else {
-									// 	        clearInterval(d20Check);
-									// 	      	console.log("Trade Completed on both ends and account removed from history.");
-									// 		  }
-									// 		  done();
-									// 	    }); // Trader on end
-									// 	  }
-									// 	}); // pg connect
-									// }, 1000 * 60 * 60 * 6); // setInterval d20Check
-									// REMOVED FOR TESTING
-									// function letEmKnow(currentTrader) {
-									// 	var messageParams = { screen_name: currentTrader, text: 'lmkwd' };
-									// 	client.post('direct_messages/new', messageParams, function(err, message, response) {
-									// 		if (err) {
-									// 			console.log(err);
-									// 		} else {
-									// 			console.log("We let em know...");
-									// 		}
-									// 	});
-									// }
                                     // Start coutdown to undo the trade
 											setTimeout(function() {
 												client.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
@@ -351,6 +325,89 @@ module.exports = {
 			}
 		} // Initiate Trade
 		} // else
+
+		// When We Send D20, Add Account To LMKWD List
+		function addToLmkwdList(currentTrader, account) {
+			MongoClient.connect(url, function(err, db) {
+					if (err) {
+						console.log("Unable to connect to Mongo. Error: ", err);
+					} else {
+						var collection = db.collection('accounts');
+						collection.update(
+							{ _id:  account.username },
+							{ $push: { lmkwd: [
+											{
+												username: [
+													currentTrader,
+													account.last_message
+												]
+											}
+										] 
+									}
+							}
+						) // Remove current trader from que upon completion
+						console.log("Account Added To lmkwd List");
+					}
+			}); // MongoClient
+		}
+
+		// Called every 6 hours
+		function lmkwdInterval(currentTrader, client, account) {
+			lmkInterval = setInterval(function() {
+				console.log("6 Hour Countdown Started.")
+				// Get the last message ID
+				MongoClient.connect(url, function(err, db) {
+						if (err) {
+							console.log("Unable to connect to Mongo. Error: ", err);
+						} else {
+							var collection = db.collection('accounts');
+							var possibilities = collection.findOne( { _id:  account.username } ).lmkwd; // Remove current trader from que upon completion
+							console.log("Account Added To lmkwd List");
+							getLastDoneMessages(possibilities, currentTrader, client, account);
+
+						}
+				}); // MongoClient
+			}, 1000 * 60 * 60 * 6);
+		}
+
+		function getLastDoneMessages(possibilities, currentTrader, client, account) {
+
+
+
+			client.get('direct_messages', { since_id: account.last_message }, function(err, messages, response) {
+    			if (err) {
+    				console.log("direct_messages", err);
+    			} else {
+    				if (messages.length < 1) {
+    					console.log("No New Messages From 6 Hour");
+    				} else {
+	    				messages.forEach(function(message) {
+	    					var splitMessage = message.text.toUpperCase().split(" ");
+						    if (done(splitMessage)) {
+						    	console.log("DONE");
+						    }
+	    				});
+    				}
+		    	}
+    		}); // client.get
+		}
+
+		// Check If Sender Exists In Idle History Every 12 Hours
+		function inIdleHistory() {
+			// Every 12 hours, I'm called.
+			// 
+		}
+
+		// Add New Sender To Idle History
+		function addToIdleHistory(currentTrader) {
+
+			// Check if currentTrader is in history already --
+			// If so, remove them...
+			// If not, add them to history
+
+			// Start 12 hour clock, if currentTrader is in history, message them 'rts'
+
+		}
 
 		function blacklistFilter(sender) {
 			MongoClient.connect(url, function(err, db) {
@@ -389,3 +446,9 @@ module.exports = {
 
 	} // read: function()
 }
+
+
+// NOTES --------------------------
+
+// db.accounts.update( { _id: 'DiyNaiis' }, { $push: { lmkwd: { 'username': [ '1243787273424' ] } } });
+

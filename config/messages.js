@@ -99,6 +99,12 @@ module.exports = {
 							    	pushSender(sender, account);
 							    }
 
+							    if (done(splitMessage)) {
+							    	var sender = message.sender.screen_name
+
+							    	pullFromLmkwd(sender, account);
+							    }
+
 							    if (lmkwdFilter(splitMessage)) {
 							    	var sender = message.sender.screen_name
 
@@ -279,7 +285,7 @@ module.exports = {
 									if (completeRetweetCount === tweets.length - 1) {
 										messageSender(currentTrader);
 										addToLmkwdList(currentTrader, account);
-										lmkwdInterval(currentTrader, client, account);
+										// lmkwdInterval(currentTrader, client, account);
 									}
 									client.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
 										if (err) {
@@ -338,11 +344,10 @@ module.exports = {
 							{ $push: { lmkwd: [
 											{
 												username: [
-													currentTrader,
-													account.last_message
+													currentTrader
 												]
 											}
-										] 
+										]
 									}
 							}
 						) // Remove current trader from que upon completion
@@ -351,46 +356,196 @@ module.exports = {
 			}); // MongoClient
 		}
 
-		// Called every 6 hours
-		function lmkwdInterval(currentTrader, client, account) {
-			lmkInterval = setInterval(function() {
-				console.log("6 Hour Countdown Started.")
-				// Get the last message ID
-				MongoClient.connect(url, function(err, db) {
+		// Every 6 hours, if accounts are in this lsit, message them 'lmkwd'
+		lmkInterval = setInterval(function() {
+			MongoClient.connect(url, function(err, db) {
+					if (err) {
+						console.log("Unable to connect to Mongo. Error: ", err);
+					} else {
+						var collection = db.collection('accounts');
+						
+						collection.find({}).toArray(function(err, result) {
+							// For each of our accounts
+							result.forEach(function(ourAccount) {
+								// Push each lmkwd user into array
+								var presentLmkwd = [];
+
+								ourAccount.lmkwd.forEach(function(x) {
+									presentLmkwd.push(x);
+								});
+
+								// If any accounts are in lmkwd list, message them
+								// A different function handles removing them in time
+								if (presentLmkwd.length > 0) {
+									var pgAccount = [];
+
+									pg.connect(connectionString, function(err, client, done) {
+								        // Handle connection errors
+								        if(err) {
+								          done();
+								          console.log(err);
+								          return res.status(500).json({ success: false, data: err});
+								        }
+								        // SQL Query > Last account created
+								        var query = client.query("SELECT * FROM manualAccounts WHERE username=" + "'" + ourAccount._id + "'");
+								        // Stream results back one row at a time
+								        query.on('row', function(row) {
+								            pgAccount.push(row);
+								        });
+								        // After all data is returned, close connection and return results
+								        query.on('end', function() {
+								        	messageThem(pgAccount, presentLmkwd);
+								            done();
+								        });
+								    }); // pg connect
+
+								}
+
+							});
+						});
+					}
+			}); // MongoClient
+		}, 1000 * 60 * 60 * 6);
+
+
+		function messageThem(pgAccount, presentLmkwd) {
+			var account = pgAccount[0];
+			var client = new Twitter ({
+	    			consumer_key: account.consumer_key,
+	    			consumer_secret: account.consumer_secret,
+	    			access_token_key: account.access_token,
+	    			access_token_secret: account.access_token_secret,
+	    			timeout_ms: 60 * 1000
+	    		});
+
+			presentLmkwd.forEach(function(x) {
+				var messageParams = { screen_name: x.username[0], text: "lmkwd" };
+		    	// Confirm D20 message to sender
+				client.post('direct_messages/new', messageParams, function(err, message, response) {
+					if (err) {
+						console.log(err);
+					} else {
+						console.log("lmkwd sent to" + x.username[0]);
+					}
+				});
+			});
+		}
+
+		function pullFromLmkwd(sender, account) {
+			MongoClient.connect(url, function(err, db) {
+				if (err) {
+					console.log("Unable to connect to Mongo. Error: ", err);
+				} else {
+					var collection = db.collection('accounts');
+						collection.find( { _id: account.username } ).toArray(function(err, result) {
+							if (err) {
+								console.log(err);
+							} else {	
+								collection.update(
+									{ _id:  account.username },
+									{ $pull: { lmkwd: { 'username': [ sender ] } } }
+								) // Remove sender from lmkwd list
+								console.log("Sender Removed From lmkwd", sender);
+
+								collection.update(
+									{ _id: account.username },
+									{ $push: { history: { 'username': [ sender ] } } }
+								) // Add user to be messaged every morning at 7AM
+
+								db.close();
+								}
+						});
+				} // else
+			}); // MongoClient
+		}
+
+
+		morningMessage = setInterval(function() {
+			var time = new Date();
+			var currentHours = time.getHours();
+
+			if (currentHours === 13) {
+				// At 7 AM, message the history lists with 'rts'
+
+				accounts.forEach(function(account) {
+					var client = new Twitter({
+						consumer_key: account.consumer_key,
+		    			consumer_secret: account.consumer_secret,
+		    			access_token_key: account.access_token,
+		    			access_token_secret: account.access_token_secret,
+		    			timeout_ms: 60 * 1000
+					});
+
+					MongoClient.connect(url, function(err, db) {
 						if (err) {
 							console.log("Unable to connect to Mongo. Error: ", err);
 						} else {
 							var collection = db.collection('accounts');
-							var possibilities = collection.findOne( { _id:  account.username } ).lmkwd; // Remove current trader from que upon completion
-							console.log("Account Added To lmkwd List");
-							getLastDoneMessages(possibilities, currentTrader, client, account);
+								collection.find( { _id: account.username } ).toArray(function(err, result) {
+									if (err) {
+										console.log(err);
+									} else {	
+										var history = result[0].history;
 
-						}
-				}); // MongoClient
-			}, 1000 * 60 * 60 * 6);
-		}
+										history.forEach(function(x) {
+											if (result[0].children.indexOf(x) > -1) {
+												console.log("Morning message not sent, account qued");
+											} else {
+												var messageParams = { screen_name: x, text: 'rts' };
+										    	// Confirm D20 message to sender
+												client.post('direct_messages/new', messageParams, function(err, message, response) {
+													if (err) {
+														console.log(err);
+													} else {
+														console.log('rts sent to: ', x);
+													}
+												});
+											}
+										});
+									}
+								});
 
-		function getLastDoneMessages(possibilities, currentTrader, client, account) {
+								setTimeout(function() {
+									client.get('direct_messages', { count: 20 }, function(err, messages, response) {
+										if (err) {
+											console.log(err);
+										} else {
+											messages.forEach(function(message) {
+
+												if (history.indexOf(message.sender.screen_name) > -1) {
+													var splitMessage = message.text.toUpperCase().split(" ");
+
+													if (done(splitMessage)) {
+														var sender = message.sender.screen_name;
+														collection.update(
+															{ _id:  account.username },
+															{ $pull: { history: { 'username': [ sender ] } } }
+														) // Remove sender from lmkwd list
 
 
+														// Then add them to que
+														collection.update(
+															{ _id:  account.username },
+															{ $push: { children: sender } }
+														) // Add sender to que
+													}
+												}
 
-			client.get('direct_messages', { since_id: account.last_message }, function(err, messages, response) {
-    			if (err) {
-    				console.log("direct_messages", err);
-    			} else {
-    				if (messages.length < 1) {
-    					console.log("No New Messages From 6 Hour");
-    				} else {
-	    				messages.forEach(function(message) {
-	    					var splitMessage = message.text.toUpperCase().split(" ");
-						    if (done(splitMessage)) {
-						    	console.log("DONE");
-						    }
-	    				});
-    				}
-		    	}
-    		}); // client.get
-		}
+											});
+										}
+									});
+
+								}, 1000 * 60 * 60 * 2);
+						} // else
+					}); // MongoClient
+				});
+
+
+			}
+
+
+		}, 1000 * 60 * 60 * 1); // 
+
 
 		// Check If Sender Exists In Idle History Every 12 Hours
 		function inIdleHistory() {

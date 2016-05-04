@@ -93,17 +93,20 @@ module.exports = {
 		    				});
 		    				messages.forEach(function(message) {
 		    					var splitMessage = message.text.toUpperCase().split(" ");
+
+		    					if (done(splitMessage)) {
+							    	var sender = message.sender.screen_name
+
+							    	pullFromLmkwd(sender, account);
+							    }
+							    
 							    if (filter(splitMessage)) {
 							    	var sender = message.sender.screen_name
 							    	// Call function to add sender to account que
 							    	pushSender(sender, account);
 							    }
 
-							    if (done(splitMessage)) {
-							    	var sender = message.sender.screen_name
 
-							    	pullFromLmkwd(sender, account);
-							    }
 
 							    if (lmkwdFilter(splitMessage)) {
 							    	var sender = message.sender.screen_name

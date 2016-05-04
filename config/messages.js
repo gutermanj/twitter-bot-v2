@@ -162,11 +162,31 @@ module.exports = {
 										if (blacklistFilter(sender)) {
 											console.log("Account On Blacklist...");
 										} else {
-											collection.update(
-												{ _id:  account.username },
-												{ $push: { children: sender } }
-											) // Add sender to que
-											console.log("New Senders Added To Que!");
+											if (result[0].lmkwd.indexOf(sender) > -1) {
+												var client = new Twitter ({
+									    			consumer_key: account.consumer_key,
+									    			consumer_secret: account.consumer_secret,
+									    			access_token_key: account.access_token,
+									    			access_token_secret: account.access_token_secret,
+									    			timeout_ms: 60 * 1000
+									    		});
+
+									    		var messageParams = { screen_name: sender, text: 'lmkwd' };
+										    	// Confirm D20 message to sender
+												client.post('direct_messages/new', messageParams, function(err, message, response) {
+													if (err) {
+														console.log(err);
+													} else {
+														console.log("We let em know...", sender);
+													}
+												});
+											} else {
+												collection.update(
+													{ _id:  account.username },
+													{ $push: { children: sender } }
+												) // Add sender to que
+												console.log("New Senders Added To Que!");
+											}
 										}
 								}
 								db.close();

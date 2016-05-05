@@ -640,7 +640,7 @@ module.exports = {
 		} // blacklistFilter
 
 
-		function messageSirBryan(sender account) {
+		function messageSirBryan(sender, account) {
 			var client = new Twitter ({
 				consumer_key: account.consumer_key,
     			consumer_secret: account.consumer_secret,

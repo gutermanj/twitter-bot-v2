@@ -59,7 +59,7 @@ module.exports = {
 		    }
 		}
 
-		function done(splitMessage) {
+		function d20(splitMessage) {
 			var filters = ["D", "D20", "D15", "DONE", "D!", "D,"];
 			for (i = 0; i < filters.length; i++) {
 		        if (splitMessage.indexOf(filters[i]) > -1) {
@@ -94,12 +94,12 @@ module.exports = {
 		    				messages.forEach(function(message) {
 		    					var splitMessage = message.text.toUpperCase().split(" ");
 
-		    					if (done(splitMessage)) {
+		    					if (d20(splitMessage)) {
 							    	var sender = message.sender.screen_name
-
+							    	// Call function to deal with D20
 							    	pullFromLmkwd(sender, account);
 							    }
-							    
+
 							    if (filter(splitMessage)) {
 							    	var sender = message.sender.screen_name
 							    	// Call function to add sender to account que
@@ -107,10 +107,9 @@ module.exports = {
 							    }
 
 
-
 							    if (lmkwdFilter(splitMessage)) {
 							    	var sender = message.sender.screen_name
-
+							    	// Call function to message Bryan ( Missing Retweets )
 							    	messageSirBryan(sender);
 							    }
 
@@ -136,11 +135,28 @@ module.exports = {
 			    				});
 			    				messages.forEach(function(message) {
 			    					var splitMessage = message.text.toUpperCase().split(" ");
+
+								    if (d20(splitMessage)) {
+								    	var sender = message.sender.screen_name
+								    	// Call function to deal with D20
+								    	pullFromLmkwd(sender, account);
+								    }
+
 								    if (filter(splitMessage)) {
 								    	var sender = message.sender.screen_name
 								    	// Call function to add sender to account que
 								    	pushSender(sender, account);
 								    }
+
+
+								    if (lmkwdFilter(splitMessage)) {
+								    	var sender = message.sender.screen_name
+								    	// Call function to message Bryan ( Missing Retweets )
+								    	messageSirBryan(sender);
+								    }
+
+
+
 			    				});
 		    				}
 				    	}
@@ -364,15 +380,7 @@ module.exports = {
 						var collection = db.collection('accounts');
 						collection.update(
 							{ _id:  account.username },
-							{ $push: { lmkwd: [
-											{
-												username: [
-													currentTrader
-												]
-											}
-										]
-									}
-							}
+							{ $push: { lmkwd: currentTrader } }
 						) // Remove current trader from que upon completion
 						console.log("Account Added To lmkwd List");
 					}
@@ -464,16 +472,36 @@ module.exports = {
 							if (err) {
 								console.log(err);
 							} else {	
-								collection.update(
-									{ _id:  account.username },
-									{ $pull: { lmkwd: { 'username': [ sender ] } } }
-								) // Remove sender from lmkwd list
-								console.log("Sender Removed From lmkwd", sender);
+								if (result[0].children.indexOf(sender) < 0 &&
+								 	result[0].lmkwd.indexOf(sender) < 0 &&
+								  	result[0].history.indexOf(sender) < 0) {
 
-								collection.update(
-									{ _id: account.username },
-									{ $push: { history: { 'username': [ sender ] } } }
-								) // Add user to be messaged every morning at 7AM
+									collection.update(
+										{ _id: account.username },
+										{ $push: { children: sender } }
+										)
+
+								} else if (result[0].lmkwd.indexOf(sender) > -1) {
+									collection.update(
+										{ _id: account.username },
+										{ $push: { history: sender } }
+									)
+
+									collection.update(
+										{ _id: account.username },
+										{ $pull: { lmkwd: sender } }
+									)
+
+								} else if (	result[0].history.indexOf(sender) > -1 &&
+											result[0].children.indexOf(sender) < 0 &&
+								  			result[0].lmkwd.indexOf(sender) < 0) {
+
+									collection.update(
+										{ _id: account.username },
+										{ $push: { children: sender } }
+									)
+
+								}
 
 								db.close();
 								}
@@ -538,7 +566,7 @@ module.exports = {
 												if (history.indexOf(message.sender.screen_name) > -1) {
 													var splitMessage = message.text.toUpperCase().split(" ");
 
-													if (done(splitMessage)) {
+													if (d20(splitMessage)) {
 														var sender = message.sender.screen_name;
 														collection.update(
 															{ _id:  account.username },

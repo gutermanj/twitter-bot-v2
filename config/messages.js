@@ -152,7 +152,8 @@ module.exports = {
 								    if (lmkwdFilter(splitMessage)) {
 								    	var sender = message.sender.screen_name
 								    	// Call function to message Bryan ( Missing Retweets )
-								    	messageSirBryan(sender);
+								    	messageSirBryan(sender, account);
+
 								    }
 
 
@@ -471,7 +472,8 @@ module.exports = {
 						collection.find( { _id: account.username } ).toArray(function(err, result) {
 							if (err) {
 								console.log(err);
-							} else {	
+							} else {
+								console.log(result);	
 								if (result[0].children.indexOf(sender) < 0 &&
 								 	result[0].lmkwd.indexOf(sender) < 0 &&
 								  	result[0].history.indexOf(sender) < 0) {
@@ -638,7 +640,15 @@ module.exports = {
 		} // blacklistFilter
 
 
-		function messageSirBryan(sender) {
+		function messageSirBryan(sender account) {
+			var client = new Twitter ({
+				consumer_key: account.consumer_key,
+    			consumer_secret: account.consumer_secret,
+    			access_token_key: account.access_token,
+    			access_token_secret: account.access_token_secret,
+    			timeout_ms: 60 * 1000
+			});
+
 			var messageParams = { screen_name: 'sirbryanthewise', text: "LMKWD or GET sent by" + sender };
 	    	// Confirm D20 message to sender
 			client.post('direct_messages/new', messageParams, function(err, message, response) {

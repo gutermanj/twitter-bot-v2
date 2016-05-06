@@ -494,7 +494,7 @@ module.exports = {
 										{ $pull: { lmkwd: sender } }
 									)
 
-									console.log("Received D20 from " + sender + ": removed from lmkwd | added to history");
+									console.log("Received D20 from " + sender + ": removed from lmkwd | added to history - " + result[0]._id);
 
 								// If sender is on history
 								} else if (	result[0].history.indexOf(sender) > -1 &&
@@ -511,7 +511,7 @@ module.exports = {
 										{ $pull: { history: sender } }
 									)
 
-									console.log("Received D20 from " + sender + ": removed from history | added to que");
+									console.log("Received D20 from " + sender + ": removed from history | added to que - " + result[0]._id);
 
 								}
 

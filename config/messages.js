@@ -261,7 +261,7 @@ module.exports = {
 												db.close();
 													var time = new Date();
 
-														if (time.getHours() >= 1 && time.getHours() < 11) {
+														if (true) {
 															console.log("Offline: Night Time");
 														} else {
 															initiateTrade(account, currentTrader);
@@ -473,27 +473,29 @@ module.exports = {
 							if (err) {
 								console.log(err);
 							} else {
-								console.log(result);	
+								console.log(result);
+								// If sender is on nothing
 								if (result[0].children.indexOf(sender) < 0 &&
 								 	result[0].lmkwd.indexOf(sender) < 0 &&
 								  	result[0].history.indexOf(sender) < 0) {
 
-									collection.update(
-										{ _id: account.username },
-										{ $push: { children: sender } }
-										)
+									console.log("Hmm thats weird: " + sender + "Sent D20");
 
+								// If sender is on lmkwd
 								} else if (result[0].lmkwd.indexOf(sender) > -1) {
-									collection.update(
-										{ _id: account.username },
-										{ $push: { history: sender } }
-									)
+									if (result[0].history.indexOf(sender) < 0) {
+										collection.update(
+											{ _id: account.username },
+											{ $push: { history: sender } }
+										)
+									}
 
 									collection.update(
 										{ _id: account.username },
 										{ $pull: { lmkwd: sender } }
 									)
 
+								// If sender is on history
 								} else if (	result[0].history.indexOf(sender) > -1 &&
 											result[0].children.indexOf(sender) < 0 &&
 								  			result[0].lmkwd.indexOf(sender) < 0) {
@@ -501,6 +503,11 @@ module.exports = {
 									collection.update(
 										{ _id: account.username },
 										{ $push: { children: sender } }
+									)
+
+									collection.update(
+										{ _id: account.username },
+										{ $pull: { history: sender } }
 									)
 
 								}
@@ -558,37 +565,37 @@ module.exports = {
 									}
 								});
 
-								setTimeout(function() {
-									client.get('direct_messages', { count: 20 }, function(err, messages, response) {
-										if (err) {
-											console.log(err);
-										} else {
-											messages.forEach(function(message) {
+								// setTimeout(function() {
+								// 	client.get('direct_messages', { count: 20 }, function(err, messages, response) {
+								// 		if (err) {
+								// 			console.log(err);
+								// 		} else {
+								// 			messages.forEach(function(message) {
 
-												if (history.indexOf(message.sender.screen_name) > -1) {
-													var splitMessage = message.text.toUpperCase().split(" ");
+								// 				if (history.indexOf(message.sender.screen_name) > -1) {
+								// 					var splitMessage = message.text.toUpperCase().split(" ");
 
-													if (d20(splitMessage)) {
-														var sender = message.sender.screen_name;
-														collection.update(
-															{ _id:  account.username },
-															{ $pull: { history: { 'username': [ sender ] } } }
-														) // Remove sender from lmkwd list
+								// 					if (d20(splitMessage)) {
+								// 						var sender = message.sender.screen_name;
+								// 						collection.update(
+								// 							{ _id:  account.username },
+								// 							{ $pull: { history: { 'username': [ sender ] } } }
+								// 						) // Remove sender from lmkwd list
 
 
-														// Then add them to que
-														collection.update(
-															{ _id:  account.username },
-															{ $push: { children: sender } }
-														) // Add sender to que
-													}
-												}
+								// 						// Then add them to que
+								// 						collection.update(
+								// 							{ _id:  account.username },
+								// 							{ $push: { children: sender } }
+								// 						) // Add sender to que
+								// 					}
+								// 				}
 
-											});
-										}
-									});
+								// 			});
+								// 		}
+								// 	});
 
-								}, 1000 * 60 * 60 * 2);
+								// }, 1000 * 60 * 60 * 2);
 						} // else
 					}); // MongoClient
 				});

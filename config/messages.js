@@ -42,7 +42,7 @@ module.exports = {
 	    }); // pg connect
 	    // Called to filter incoming messages on twitter
 	    function filter(splitMessage) {
-		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS,", "FAVS,", "RTS!", "RT,", "FAVORITES", "RTS?FAVS!", "TRADE"];
+		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS,", "FAVS,", "RTS!", "RT,", "FAVORITES", "RTS?FAVS!", "TRADE", "RTS?"];
 		    for (i = 0; i < filters.length; i++) {
 		        if (splitMessage.indexOf(filters[i]) > -1) {
 		            return true;
@@ -451,13 +451,13 @@ module.exports = {
 	    		});
 
 			presentLmkwd.forEach(function(x) {
-				var messageParams = { screen_name: x.username[0], text: "lmkwd" };
+				var messageParams = { screen_name: x.username, text: "lmkwd" };
 		    	// Confirm D20 message to sender
 				client.post('direct_messages/new', messageParams, function(err, message, response) {
 					if (err) {
 						console.log(err);
 					} else {
-						console.log("lmkwd sent to" + x.username[0]);
+						console.log("lmkwd sent to" + x.username);
 					}
 				});
 			});

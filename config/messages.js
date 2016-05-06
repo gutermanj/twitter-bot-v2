@@ -197,7 +197,7 @@ module.exports = {
 													if (err) {
 														console.log(err);
 													} else {
-														console.log("We let em know...", sender);
+														console.log("We let em know..." + sender + " Sent from: " + account.username);
 													}
 												});
 											} else {
@@ -473,13 +473,12 @@ module.exports = {
 							if (err) {
 								console.log(err);
 							} else {
-								console.log(result);
 								// If sender is on nothing
 								if (result[0].children.indexOf(sender) < 0 &&
 								 	result[0].lmkwd.indexOf(sender) < 0 &&
 								  	result[0].history.indexOf(sender) < 0) {
 
-									console.log("Hmm thats weird: " + sender + "Sent D20");
+									console.log("Hmm thats weird: " + sender + " Sent D20 and is not on our lists.");
 
 								// If sender is on lmkwd
 								} else if (result[0].lmkwd.indexOf(sender) > -1) {
@@ -641,8 +640,6 @@ module.exports = {
 								if (result.length > 0) {
 									console.log("Account Blacklisted!");
 									return true
-								} else {
-									console.log(".");
 								}
 							} // else
 						}); // Grab current trader from que

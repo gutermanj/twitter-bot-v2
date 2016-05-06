@@ -453,7 +453,6 @@ app.post('/signin', function(req, res) {
 
         // After all data is returned, close connection and return results
         query.on('end', function() {
-          console.log(results[0]);
             done(); // If the email doesn't exist - get out of here
             if (results === null) {
               res.redirect('/signin');
@@ -517,7 +516,6 @@ app.post('/admin/signin', function(req, res) {
 
         // After all data is returned, close connection and return results
         query.on('end', function() {
-          console.log(results[0]);
             done(); // If the email doesn't exist - get out of here
             if (results === null) {
               res.redirect('/signin');
@@ -647,7 +645,6 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
                 if (err) {
                   console.log(err);
                 } else {
-                  console.log(result);
                   res.locals.manAccounts = result;
                   res.locals.main = JSON.stringify(result[0]._id).replace(/['"]+/g, '');
                   res.locals.main2 = JSON.stringify(result[1]._id).replace(/['"]+/g, '');
@@ -1037,7 +1034,6 @@ app.post('/api/v1/show-que', function(req, res) {
           if (err) {
             console.log(err);
           } else {
-            console.log(result);
             return res.json(result);
           }
         });
@@ -1265,7 +1261,6 @@ function toggleTimer(pairs) {
                                       if (err) {
                                         console.log(err);
                                       } else {
-                                        console.log(results);
                                         var recordExists = results.rows.length;
                                         updateRecord(recordExists, results);
                                       }
@@ -1277,8 +1272,6 @@ function toggleTimer(pairs) {
                                       if (recordExists > 0) {
                                         
                                         
-                                        console.log(results.rows[0].trades);
-                                        console.log(tradeCount);
                                         var tradeCount = results.rows[0].trades + 1;
 
                                         client.query('UPDATE records SET trades = ' + '\'' + tradeCount + '\'' + 'WHERE username = ' + '\'' + evenSplit[evenPair].username + '\'')
@@ -1483,7 +1476,6 @@ app.get('/api/v1/records', requireAdmin, function(req, res) {
     });
 
     records.on('end', function() {
-      console.log(results);
       return res.json(results);
     });
 

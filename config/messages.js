@@ -42,7 +42,7 @@ module.exports = {
 	    }); // pg connect
 	    // Called to filter incoming messages on twitter
 	    function filter(splitMessage) {
-		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS,", "FAVS,", "RTS!", "RT,", "FAVORITES", "RTS?FAVS!"];
+		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS,", "FAVS,", "RTS!", "RT,", "FAVORITES", "RTS?FAVS!", "TRADE"];
 		    for (i = 0; i < filters.length; i++) {
 		        if (splitMessage.indexOf(filters[i]) > -1) {
 		            return true;
@@ -261,7 +261,7 @@ module.exports = {
 												db.close();
 													var time = new Date();
 
-														if (true) {
+														if (time.getHours() < 16 && time.getHours() > 2) {
 															console.log("Offline: Night Time");
 														} else {
 															initiateTrade(account, currentTrader);

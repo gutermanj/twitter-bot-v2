@@ -14,6 +14,8 @@ $(document).ready(function() {
 
 	});
 
+
+
 	function showCurrentQue(username) {
 		$.ajax({
 
@@ -30,6 +32,8 @@ $(document).ready(function() {
 				var dad = response._id;
 				console.log(dad);
 				var children = response.children;
+				var lmkwd_list = response.lmkwd;
+				var rts_list = response.history;
 
 				$('.js-current-que').empty();
 
@@ -45,10 +49,46 @@ $(document).ready(function() {
 					$('.js-current-que').append(html);
 				});
 
+				lmkwd_list.forEach(function(child) {
+					var html = `
+						<div class='js-que-parent'>
+							<b style='margin-left: 20px;'>${child}</b>
+							<span style='margin-left: 20px; cursor: pointer;' aria-hidden='true' class='js-remove-from-lmkwd' data-username='${child}'>x</span>
+							<hr style='width: 50%; margin-left: -0%;'>
+						</div>
+					`
+
+					$('.js-current-lmkwd').append(html);
+				});
+
+				rts_list.forEach(function(child) {
+					var html = `
+						<div class='js-que-parent'>
+							<b style='margin-left: 20px;'>${child}</b>
+							<span style='margin-left: 20px; cursor: pointer;' aria-hidden='true' class='js-remove-from-rts' data-username='${child}'>x</span>
+							<hr style='width: 50%; margin-left: -0%;'>
+						</div>
+					`
+
+					$('.js-current-history').append(html);
+				});
+
 				$('.js-remove-from-que').on('click', function() {
 					var username = $(this).data('username');
 					$(this).html('<span>Removed</span>')
 					removeFromQue(username, dad);
+				});
+
+				$('.js-remove-from-lmkwd').on('click', function() {
+					var username = $(this).data('username');
+					$(this).html('<span>Removed</span>')
+					removeFromLmkwd(username, dad);
+				});
+
+				$('.js-remove-from-rts').on('click', function() {
+					var username = $(this).data('username');
+					$(this).html('<span>Removed</span>')
+					removeFromRts(username, dad);
 				});
 
 			},
@@ -66,6 +106,24 @@ $(document).ready(function() {
 		var sender = $('.js-new-que-sender').val();
 
 		manualAdd(username, sender);
+
+	});
+
+	$('.js-new-lmkwd-button').on('click', function(e) {
+
+		var username = $('.js-new-que-username').val();
+		var sender = $('.js-new-lmkwd').val();
+
+		lmkwdAdd(username, sender);
+
+	});
+
+	$('.js-new-history-button').on('click', function(e) {
+
+		var username = $('.js-new-que-username').val();
+		var sender = $('.js-new-history').val();
+
+		historyAdd(username, sender);
 
 	});
 
@@ -94,6 +152,56 @@ $(document).ready(function() {
 
 	}
 
+		function removeFromLmkwd(username, dad) {
+		
+		$.ajax({
+
+			type: 'POST',
+
+			url: '/api/v1/remove-from-lmkwd',
+
+			data: {
+				username: username,
+				dad: dad
+			},
+
+			success: function(response) {
+				console.log(response);
+			},
+
+			error: function() {
+				console.log("Error Removing From Que");
+			}
+
+		});
+
+	}
+
+	function removeFromRts(username, dad) {
+		
+		$.ajax({
+
+			type: 'POST',
+
+			url: '/api/v1/remove-from-rts',
+
+			data: {
+				username: username,
+				dad: dad
+			},
+
+			success: function(response) {
+				console.log(response);
+			},
+
+			error: function() {
+				console.log("Error Removing From Que");
+			}
+
+		});
+
+	}
+
 
 	function manualAdd(username, sender) {
 
@@ -102,6 +210,56 @@ $(document).ready(function() {
 			type: 'POST',
 
 			url: '/api/v1/add-que',
+
+			data: {
+				username: username,
+				sender: sender
+			},
+
+			success: function(response) {
+				console.log(response);
+			},
+
+			error: function() {
+				console.log("error");
+			}
+
+		});
+
+	}
+
+		function lmkwdAdd(username, sender) {
+
+		$.ajax({
+
+			type: 'POST',
+
+			url: '/api/v1/add-lmkwd',
+
+			data: {
+				username: username,
+				sender: sender
+			},
+
+			success: function(response) {
+				console.log(response);
+			},
+
+			error: function() {
+				console.log("error");
+			}
+
+		});
+
+	}
+
+		function historyAdd(username, sender) {
+
+		$.ajax({
+
+			type: 'POST',
+
+			url: '/api/v1/add-history',
 
 			data: {
 				username: username,

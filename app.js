@@ -1023,7 +1023,65 @@ app.post('/api/v1/add-que', function(req, res) {
 
 });
 
+app.post('/api/v1/add-lmkwd', function(req, res) {
+
+   MongoClient.connect(url, function(err, db) {
+        if (err) {
+          console.log("Unable to connect to Mongo. Error: ", err);
+        } else {
+          var collection = db.collection('accounts');
+                collection.update(
+                      { _id:  req.body.username },
+                      { $push: { lmkwd: req.body.sender } }
+                    ) // Add sender to que
+                    console.log("New Senders Manually Added To lmkwd!", req.body.sender);
+                db.close();
+                return res.json("OK");
+        } // else
+      }); // MongoClient
+
+});
+
+app.post('/api/v1/add-history', function(req, res) {
+
+   MongoClient.connect(url, function(err, db) {
+        if (err) {
+          console.log("Unable to connect to Mongo. Error: ", err);
+        } else {
+          var collection = db.collection('accounts');
+                collection.update(
+                      { _id:  req.body.username },
+                      { $push: { history: req.body.sender } }
+                    ) // Add sender to que
+                    console.log("New Senders Manually Added To history!", req.body.sender);
+                db.close();
+                return res.json("OK");
+        } // else
+      }); // MongoClient
+
+});
+
 app.post('/api/v1/show-que', function(req, res) {
+
+  MongoClient.connect(url, function(err, db) {
+    if (err) {
+      console.log(err);
+    } else {
+      var collection = db.collection('accounts');
+        collection.findOne( { _id: req.body.username }, function(err, result) {
+          if (err) {
+            console.log(err);
+          } else {
+            return res.json(result);
+          }
+        });
+        
+    }
+  });
+
+});
+
+app.post('/api/v1/show-lmkwd', function(req, res) {
 
   MongoClient.connect(url, function(err, db) {
     if (err) {
@@ -1054,6 +1112,44 @@ app.post('/api/v1/remove-from-que', function(req, res) {
           collection.update(
             { _id:  req.body.dad },
             { $pull: { children: req.body.username } }
+          ) // Remove current trader from que upon completion
+          db.close();
+    }
+
+  });
+
+});
+
+app.post('/api/v1/remove-from-lmkwd', function(req, res) {
+
+  MongoClient.connect(url, function(err, db) {
+    
+    if (err) {
+      console.log(err);
+    } else {
+        var collection = db.collection('accounts');
+          collection.update(
+            { _id:  req.body.dad },
+            { $pull: { lmkwd: req.body.username } }
+          ) // Remove current trader from que upon completion
+          db.close();
+    }
+
+  });
+
+});
+
+app.post('/api/v1/remove-from-rts', function(req, res) {
+
+  MongoClient.connect(url, function(err, db) {
+    
+    if (err) {
+      console.log(err);
+    } else {
+        var collection = db.collection('accounts');
+          collection.update(
+            { _id:  req.body.dad },
+            { $pull: { history: req.body.username } }
           ) // Remove current trader from que upon completion
           db.close();
     }

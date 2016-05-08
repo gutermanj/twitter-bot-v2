@@ -36,6 +36,8 @@ $(document).ready(function() {
 				var rts_list = response.history;
 
 				$('.js-current-que').empty();
+				$('.js-current-history').empty();
+				$('.js-current-lmkwd').empty();
 
 				children.forEach(function(child) {
 					var html = `

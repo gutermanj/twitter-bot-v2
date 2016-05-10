@@ -522,6 +522,28 @@ module.exports = {
 			}); // MongoClient
 		}
 
+		var accounts = [];
+
+		pg.connect(connectionString, function(err, client, done) {
+	        // Handle connection errors
+	        if(err) {
+	          done();
+	          console.log(err);
+	          return res.status(500).json({ success: false, data: err});
+	        }
+	        // SQL Query > Last account created
+	        var query = client.query("SELECT * FROM manualAccounts");
+	        // Stream results back one row at a time
+	        query.on('row', function(row) {
+	            accounts.push(row);
+	        });
+	        // After all data is returned, close connection and return results
+	        query.on('end', function() {
+	        	console.log("Accounts Ready.");
+	            done();
+	        });
+	    }); // pg connect
+
 
 		morningMessage = setInterval(function() {
 			var time = new Date();

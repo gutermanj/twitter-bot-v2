@@ -205,6 +205,18 @@ module.exports = {
 													{ _id:  account.username },
 													{ $push: { children: sender } }
 												) // Add sender to que
+
+												// REMOVE SENDER FROM HISTORY
+												// SO WHEN WE RECEIVE DONE FROM THEIR D20, IT DOESN'T RE-ADD THEM TO QUE
+
+												// -----------------------------------------------------------------------
+
+												// PUSH THIS NEW CODE WHEN YOU HAVE A CHANCE
+
+												collection.update(
+													{ _id: account.username },
+													{ $pull: { history: sender } }
+												)
 												console.log("New Senders Added To Que!");
 											}
 										}

@@ -42,7 +42,9 @@ module.exports = {
 	    }); // pg connect
 	    // Called to filter incoming messages on twitter
 	    function filter(splitMessage) {
-		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS,", "FAVS,", "RTS!", "RT,", "FAVORITES", "RTS?FAVS!", "TRADE", "RTS?"];
+		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS,", "FAVS,", "RTS!", "RT,",
+		    					"FAVORITES", "RTS?FAVS!", "TRADE", "RTS?", "RETWEETS?", "RETWEETS!", "RT?"];
+
 		    for (i = 0; i < filters.length; i++) {
 		        if (splitMessage.indexOf(filters[i]) > -1) {
 		            return true;
@@ -338,6 +340,7 @@ module.exports = {
 										messageSender(currentTrader);
 										addToLmkwdList(currentTrader, account);
 										// lmkwdInterval(currentTrader, client, account);
+										incrementTotalTradeCount(account);
 									}
 									client.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
 										if (err) {
@@ -564,6 +567,9 @@ module.exports = {
 			if (currentHours === 13) {
 				// At 7 AM, message the history lists with 'rts'
 
+				resetTotalTrades(accounts);
+				// Set all total trades on each account to 0
+
 				accounts.forEach(function(account) {
 					var client = new Twitter({
 						consumer_key: account.consumer_key,
@@ -641,7 +647,7 @@ module.exports = {
 			}
 
 
-		}, 1000 * 60 * 60 * 1); // 
+		}, 1000 * 60 * 60 * 1);
 
 
 		// Check If Sender Exists In Idle History Every 12 Hours
@@ -659,6 +665,47 @@ module.exports = {
 
 			// Start 12 hour clock, if currentTrader is in history, message them 'rts'
 
+		}
+
+		function incrementTotalTradeCount(account) {
+			MongoClient.connect(url, function(err. db) {
+				if (err) {
+					console.log("Unable to connect to Mongo. Error: ", err)
+				} else {
+					var collection = db.collection('accounts');
+						collection.findAndModify(
+							{
+								query: { 
+									_id: account.username
+								},
+								update: {
+									$inc: {
+										total_trades: 1
+									}
+								}
+							}
+						)
+				}
+			});
+		}
+
+		function resetTotalTrades(accounts) {
+			MongoClient.connect(url, function(err, db) {
+				if (err) {
+					console.log("Unable to connect to Mongo. Error: ", err);
+				} else {
+					var collection = db.collection('accounts');
+						accounts.forEach(function(account) {
+							collection.update(
+								{ _id: account.username },
+								{
+									'total_trades' : 0
+								}
+							)
+						});
+						db.close();
+				}
+			});
 		}
 
 		function blacklistFilter(sender) {

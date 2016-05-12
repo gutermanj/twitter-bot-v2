@@ -668,7 +668,7 @@ module.exports = {
 		}
 
 		function incrementTotalTradeCount(account) {
-			MongoClient.connect(url, function(err. db) {
+			MongoClient.connect(url, function(err, db) {
 				if (err) {
 					console.log("Unable to connect to Mongo. Error: ", err)
 				} else {

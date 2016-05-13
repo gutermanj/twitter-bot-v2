@@ -645,15 +645,8 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
                 if (err) {
                   console.log(err);
                 } else {
+                  console.log(result);
                   res.locals.manAccounts = result;
-                  res.locals.main = JSON.stringify(result[0]._id).replace(/['"]+/g, '');
-                  res.locals.main2 = JSON.stringify(result[1]._id).replace(/['"]+/g, '');
-                  if (result[0].children.length > 0) {
-                    res.locals.que = JSON.stringify(result[0].children[0]).replace(/['"]+/g, '');
-                  }
-                  if (result[1].children.length > 0) {
-                    res.locals.que2 = JSON.stringify(result[1].children[0]).replace(/['"]+/g, '');
-                  }
                   db.close();
 
                   res.render('index');

@@ -561,14 +561,12 @@ module.exports = {
 
 
 		morningMessage = setInterval(function() {
+
 			var time = new Date();
 			var currentHours = time.getHours();
 
 			if (currentHours === 13) {
 				// At 7 AM, message the history lists with 'rts'
-
-				resetTotalTrades(accounts);
-				// Set all total trades on each account to 0
 
 				accounts.forEach(function(account) {
 					var client = new Twitter({
@@ -607,38 +605,6 @@ module.exports = {
 										});
 									}
 								});
-
-								// setTimeout(function() {
-								// 	client.get('direct_messages', { count: 20 }, function(err, messages, response) {
-								// 		if (err) {
-								// 			console.log(err);
-								// 		} else {
-								// 			messages.forEach(function(message) {
-
-								// 				if (history.indexOf(message.sender.screen_name) > -1) {
-								// 					var splitMessage = message.text.toUpperCase().split(" ");
-
-								// 					if (d20(splitMessage)) {
-								// 						var sender = message.sender.screen_name;
-								// 						collection.update(
-								// 							{ _id:  account.username },
-								// 							{ $pull: { history: { 'username': [ sender ] } } }
-								// 						) // Remove sender from lmkwd list
-
-
-								// 						// Then add them to que
-								// 						collection.update(
-								// 							{ _id:  account.username },
-								// 							{ $push: { children: sender } }
-								// 						) // Add sender to que
-								// 					}
-								// 				}
-
-								// 			});
-								// 		}
-								// 	});
-
-								// }, 1000 * 60 * 60 * 2);
 						} // else
 					}); // MongoClient
 				});
@@ -673,16 +639,15 @@ module.exports = {
 					console.log("Unable to connect to Mongo. Error: ", err)
 				} else {
 					var collection = db.collection('accounts');
-						collection.findAndModify(
+						collection.update(
 							{
-								query: { 
-									_id: account.username
-								},
-								update: {
-									$inc: {
+								_id: account.username
+							},
+							
+							{
+								$inc: {
 										total_trades: 1
-									}
-								}
+									  }
 							}
 						)
 				}
@@ -699,7 +664,9 @@ module.exports = {
 							collection.update(
 								{ _id: account.username },
 								{
-									'total_trades' : 0
+									$set: {
+										'total_trades' : 0
+									}
 								}
 							)
 						});

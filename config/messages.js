@@ -537,30 +537,30 @@ module.exports = {
 			}); // MongoClient
 		}
 
-		var accounts = [];
-
-		pg.connect(connectionString, function(err, client, done) {
-	        // Handle connection errors
-	        if(err) {
-	          done();
-	          console.log(err);
-	          return res.status(500).json({ success: false, data: err});
-	        }
-	        // SQL Query > Last account created
-	        var query = client.query("SELECT * FROM manualAccounts");
-	        // Stream results back one row at a time
-	        query.on('row', function(row) {
-	            accounts.push(row);
-	        });
-	        // After all data is returned, close connection and return results
-	        query.on('end', function() {
-	        	console.log("Accounts Ready.");
-	            done();
-	        });
-	    }); // pg connect
-
 
 		morningMessage = setInterval(function() {
+
+			var accounts = [];
+
+			pg.connect(connectionString, function(err, client, done) {
+		        // Handle connection errors
+		        if(err) {
+		          done();
+		          console.log(err);
+		          return res.status(500).json({ success: false, data: err});
+		        }
+		        // SQL Query > Last account created
+		        var query = client.query("SELECT * FROM manualAccounts");
+		        // Stream results back one row at a time
+		        query.on('row', function(row) {
+		            accounts.push(row);
+		        });
+		        // After all data is returned, close connection and return results
+		        query.on('end', function() {
+		        	console.log("Accounts Ready.");
+		            done();
+		        });
+		    }); // pg connect
 
 			var time = new Date();
 			var currentHours = time.getHours();
@@ -577,7 +577,7 @@ module.exports = {
 		    			timeout_ms: 60 * 1000
 					});
 
-					MongoClient.connect(url, function(err, db) {
+					MongoClient.connect('mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13', function(err, db) {
 						if (err) {
 							console.log("Unable to connect to Mongo. Error: ", err);
 						} else {
@@ -586,9 +586,9 @@ module.exports = {
 									if (err) {
 										console.log(err);
 									} else {	
-										var history = result[0].history;
+										var historyList = result[0].history;
 
-										history.forEach(function(x) {
+										historyList.forEach(function(x) {
 											if (result[0].children.indexOf(x) > -1) {
 												console.log("Morning message not sent, account qued");
 											} else {

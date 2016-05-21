@@ -275,8 +275,8 @@ module.exports = {
 												db.close();
 														var time = new Date();
 
+														// Attempt to send morning message
 														morningMessage(time);
-
 
 														if (time.getHours() < 16 && time.getHours() >= 2) {
 															console.log("Offline: Night Time");
@@ -353,19 +353,15 @@ module.exports = {
 																console.log('rts sent to: ', x);
 															}
 														});
-
 														collection.update(
 															{ _id: account.username },
 															{ $pull: { history: x } }
 														)
-
 														collection.update(
 															{ _id: account.username },
 															{ $push: { sent: x } }
 														)
-														
 													}
-
 												}
 											});
 										} // 2nd else
@@ -626,84 +622,6 @@ module.exports = {
 				} // else
 			}); // MongoClient
 		}
-
-
-		morningMessage = setInterval(function() {
-
-			var accounts = [];
-
-			pg.connect(connectionString, function(err, client, done) {
-		        // Handle connection errors
-		        if(err) {
-		          done();
-		          console.log(err);
-		          return res.status(500).json({ success: false, data: err});
-		        }
-		        // SQL Query > Last account created
-		        var query = client.query("SELECT * FROM manualAccounts");
-		        // Stream results back one row at a time
-		        query.on('row', function(row) {
-		            accounts.push(row);
-		        });
-		        // After all data is returned, close connection and return results
-		        query.on('end', function() {
-		        	console.log("Accounts Ready.");
-		            done();
-		        });
-		    }); // pg connect
-
-			var time = new Date();
-			var currentHours = time.getHours();
-
-			if (currentHours === 13) {
-				// At 7 AM, message the history lists with 'rts'
-
-				accounts.forEach(function(account) {
-					var client = new Twitter({
-						consumer_key: account.consumer_key,
-		    			consumer_secret: account.consumer_secret,
-		    			access_token_key: account.access_token,
-		    			access_token_secret: account.access_token_secret,
-		    			timeout_ms: 60 * 1000
-					});
-
-					MongoClient.connect('mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13', function(err, db) {
-						if (err) {
-							console.log("Unable to connect to Mongo. Error: ", err);
-						} else {
-							var collection = db.collection('accounts');
-								collection.find( { _id: account.username } ).toArray(function(err, result) {
-									if (err) {
-										console.log(err);
-									} else {	
-										var historyList = result[0].history;
-
-										historyList.forEach(function(x) {
-											if (result[0].children.indexOf(x) > -1) {
-												console.log("Morning message not sent, account qued");
-											} else {
-												var messageParams = { screen_name: x, text: 'rts' };
-										    	// Confirm D20 message to sender
-												client.post('direct_messages/new', messageParams, function(err, message, response) {
-													if (err) {
-														console.log(err);
-													} else {
-														console.log('rts sent to: ', x);
-													}
-												});
-											}
-										});
-									}
-								});
-						} // else
-					}); // MongoClient
-				});
-
-
-			}
-
-
-		}, 1000 * 60 * 60 * 1);
 
 
 		// Check If Sender Exists In Idle History Every 12 Hours

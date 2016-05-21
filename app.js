@@ -597,7 +597,6 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
         // After all data is returned, close connection and return results
         users.on('end', function() {
             res.locals.userCount = userCount[0];
-            console.log(userCount[0].count);
             done();
         });
 
@@ -611,7 +610,6 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
         // After all data is returned, close connection and return results
         accounts.on('end', function() {
             done();
-            console.log(accountCount);
             res.locals.running = running;
             res.locals.manualRunning = manualRunning;
             res.locals.accountCount = accountCount[0];
@@ -626,7 +624,6 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
 
         manualAccounts.on('end', function() {
           res.locals.manualAccountCount = manualAccountCount[0];
-          console.log("MANUAL ACCOUNT COUNT: " + manualAccountCount[0].count);
           done();
           mongoquery();
         });
@@ -660,7 +657,7 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
     }
     
 
-  console.log("Current Session: " + req.session.user);
+
   res.locals.user = req.session.user;
   
 

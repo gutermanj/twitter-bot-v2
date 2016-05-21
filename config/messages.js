@@ -278,7 +278,7 @@ module.exports = {
 														// Attempt to send morning message
 														morningMessage(time);
 
-														if (time.getHours() < 16 && time.getHours() >= 2) {
+														if (time.getHours() < 10 && time.getHours() >= 22) {
 															console.log("Offline: Night Time");
 														} else {
 															initiateTrade(account, currentTrader);
@@ -316,7 +316,7 @@ module.exports = {
 			        });
 			    }); // pg connect
 
-				if (time.getHours() === 13) {
+				if (time.getHours() === 7) {
 					// At 7 AM, message the history lists with 'rts'
 
 					accounts.forEach(function(account) {

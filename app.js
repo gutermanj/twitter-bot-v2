@@ -993,7 +993,7 @@ function startManualMarket() {
     }
       
 
-    }, 10000);
+    }, 20000);
   }
 
 

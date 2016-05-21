@@ -273,7 +273,10 @@ module.exports = {
 												console.log("No accounts currently in que for: " + result[0]._id);
 											} else {
 												db.close();
-													var time = new Date();
+														var time = new Date();
+
+														morningMessage(time);
+
 
 														if (time.getHours() < 16 && time.getHours() >= 2) {
 															console.log("Offline: Night Time");
@@ -288,6 +291,93 @@ module.exports = {
 					}); // MongoClient
 				});
 			}
+
+			function morningMessage(time) {
+
+				var accounts = [];
+
+				pg.connect(connectionString, function(err, client, done) {
+			        // Handle connection errors
+			        if(err) {
+			          done();
+			          console.log(err);
+			          return res.status(500).json({ success: false, data: err});
+			        }
+			        // SQL Query > Last account created
+			        var query = client.query("SELECT * FROM manualAccounts");
+			        // Stream results back one row at a time
+			        query.on('row', function(row) {
+			            accounts.push(row);
+			        });
+			        // After all data is returned, close connection and return results
+			        query.on('end', function() {
+			        	console.log("Accounts Ready.");
+			            done();
+			        });
+			    }); // pg connect
+
+				if (time.getHours() === 13) {
+					// At 7 AM, message the history lists with 'rts'
+
+					accounts.forEach(function(account) {
+						var client = new Twitter({
+							consumer_key: account.consumer_key,
+			    			consumer_secret: account.consumer_secret,
+			    			access_token_key: account.access_token,
+			    			access_token_secret: account.access_token_secret,
+			    			timeout_ms: 60 * 1000
+						});
+
+						MongoClient.connect('mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13', function(err, db) {
+							if (err) {
+								console.log("Unable to connect to Mongo. Error: ", err);
+							} else {
+								var collection = db.collection('accounts');
+									collection.find( { _id: account.username } ).toArray(function(err, result) {
+										if (err) {
+											console.log(err);
+										} else {	
+											var historyList = result[0].history;
+
+											historyList.forEach(function(x, index) {
+												if (result[0].children.indexOf(x) > -1) {
+													console.log("Morning message not sent, account qued");
+												} else {
+													if (index < 14) {
+														var messageParams = { screen_name: x, text: 'rts' };
+												    	// Confirm D20 message to sender
+														client.post('direct_messages/new', messageParams, function(err, message, response) {
+															if (err) {
+																console.log(err);
+															} else {
+																console.log('rts sent to: ', x);
+															}
+														});
+
+														collection.update(
+															{ _id: account.username },
+															{ $pull: { history: x } }
+														)
+
+														collection.update(
+															{ _id: account.username },
+															{ $push: { sent: x } }
+														)
+														
+													}
+
+												}
+											});
+										} // 2nd else
+									});
+							} // else
+						}); // MongoClient
+					}); // Accounts For Each
+				} // time check
+			} // morning message function
+			
+
+
 		}, 1000 * 60 * 20);
 		// Start the actual trade with each account
 		function initiateTrade(account, currentTrader) {
@@ -511,8 +601,8 @@ module.exports = {
 
 									console.log("Received D20 from " + sender + ": removed from lmkwd | added to history - " + result[0]._id);
 
-								// If sender is on history
-								} else if (	result[0].history.indexOf(sender) > -1 &&
+								// If sender is on sent
+								} else if (	result[0].sent.indexOf(sender) > -1 &&
 											result[0].children.indexOf(sender) < 0 &&
 								  			result[0].lmkwd.indexOf(sender) < 0) {
 
@@ -523,7 +613,7 @@ module.exports = {
 
 									collection.update(
 										{ _id: account.username },
-										{ $pull: { history: sender } }
+										{ $pull: { sent: sender } }
 									)
 
 									console.log("Received D20 from " + sender + ": removed from history | added to que - " + result[0]._id);

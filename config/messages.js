@@ -316,7 +316,7 @@ module.exports = {
 			        });
 			    }); // pg connect
 
-				if (time.getHours() === 7) {
+				if (time.getHours() === 7 || time.getHours() === 8 || time.getHours() === 9) {
 					// At 7 AM, message the history lists with 'rts'
 
 					accounts.forEach(function(account) {

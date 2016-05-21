@@ -112,7 +112,7 @@ module.exports = {
 							    if (lmkwdFilter(splitMessage)) {
 							    	var sender = message.sender.screen_name
 							    	// Call function to message Bryan ( Missing Retweets )
-							    	messageSirBryan(sender);
+							    	messageSirBryan(sender, account);
 							    }
 
 		    				});

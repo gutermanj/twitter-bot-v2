@@ -231,6 +231,7 @@ module.exports = {
 		} // pushSender
 	}, 1000 * 65 * 1); // Message Pull set Interval
 		console.log("currentQue Started!");
+
 		// Main Set Interval
 		currentQue = setInterval(function() {
 			var accounts = [];
@@ -312,10 +313,12 @@ module.exports = {
 			        // After all data is returned, close connection and return results
 			        query.on('end', function() {
 			        	console.log("Accounts Ready.");
+			        	checkTime(accounts);
 			            done();
 			        });
 			    }); // pg connect
 
+				function checkTime(accounts) {
 				if (time.getHours() === 7 || time.getHours() === 8 || time.getHours() === 9) {
 					// At 7 AM, message the history lists with 'rts'
 
@@ -332,6 +335,7 @@ module.exports = {
 							if (err) {
 								console.log("Unable to connect to Mongo. Error: ", err);
 							} else {
+								console.log("Preparing Morning Message.");
 								var collection = db.collection('accounts');
 									collection.find( { _id: account.username } ).toArray(function(err, result) {
 										if (err) {
@@ -339,28 +343,33 @@ module.exports = {
 										} else {	
 											var historyList = result[0].history;
 
-											historyList.forEach(function(x, index) {
-												if (result[0].children.indexOf(x) > -1) {
+											historyList.forEach(function(sender, index) {
+												if (result[0].children.indexOf(sender) > -1) {
 													console.log("Morning message not sent, account qued");
 												} else {
 													if (index < 14) {
-														var messageParams = { screen_name: x, text: 'rts' };
-												    	// Confirm D20 message to sender
-														client.post('direct_messages/new', messageParams, function(err, message, response) {
-															if (err) {
-																console.log(err);
-															} else {
-																console.log('rts sent to: ', x);
-															}
-														});
-														collection.update(
-															{ _id: account.username },
-															{ $pull: { history: x } }
-														)
-														collection.update(
-															{ _id: account.username },
-															{ $push: { sent: x } }
-														)
+														if (result[0].lmkwd.indexOf(sender) > -1) {
+															console.log("User On lmkwd")
+														} else {
+															var messageParams = { screen_name: sender, text: 'rts' };
+													    	// Confirm D20 message to sender
+															client.post('direct_messages/new', messageParams, function(err, message, response) {
+																if (err) {
+																	console.log(err);
+																} else {
+																	console.log('rts sent to: ', sender);
+																	collection.update(
+																		{ _id: account.username },
+																		{ $pull: { history: sender } }
+																	)
+																	collection.update(
+																		{ _id: account.username },
+																		{ $push: { sent: sender } }
+																	)
+																}
+															});
+														}
+														
 													}
 												}
 											});
@@ -370,6 +379,7 @@ module.exports = {
 						}); // MongoClient
 					}); // Accounts For Each
 				} // time check
+				}
 			} // morning message function
 			
 
@@ -577,7 +587,8 @@ module.exports = {
 								// If sender is on nothing
 								if (result[0].children.indexOf(sender) < 0 &&
 								 	result[0].lmkwd.indexOf(sender) < 0 &&
-								  	result[0].history.indexOf(sender) < 0) {
+								  	result[0].history.indexOf(sender) < 0 &&
+								  	result[0].sent.indexOf(sender) < 0) {
 
 									console.log("Hmm thats weird: " + sender + " Sent D20 and is not on our lists.");
 

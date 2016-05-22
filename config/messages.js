@@ -303,7 +303,6 @@ module.exports = {
 			        if(err) {
 			          done();
 			          console.log(err);
-			          return res.status(500).json({ success: false, data: err});
 			        }
 			        // SQL Query > Last account created
 			        var query = client.query("SELECT * FROM manualAccounts");

@@ -624,6 +624,11 @@ module.exports = {
 										{ $pull: { sent: sender } }
 									)
 
+									collection.update(
+										{ _id: account.username },
+										{ $pull: { lmkwd: sender } }
+									)
+
 									console.log("Received D20 from " + sender + ": removed from history | added to que - " + result[0]._id);
 
 								}

@@ -326,7 +326,7 @@ module.exports = {
 			    }); // pg connect
 
 				function checkTime(accounts) {
-				if (time.getHours() === 7 || time.getHours() === 8 || time.getHours() === 9) {
+				if (time.getHours() === 7) {
 					// At 7 AM, message the history lists with 'rts'
 
 					accounts.forEach(function(account) {
@@ -354,7 +354,6 @@ module.exports = {
 												if (result[0].children.indexOf(sender) > -1) {
 													console.log("Morning message not sent, account qued");
 												} else {
-													if (index < 14) {
 														if (result[0].lmkwd.indexOf(sender) > -1) {
 															console.log("User On lmkwd")
 														} else {
@@ -377,7 +376,6 @@ module.exports = {
 															});
 														}
 														
-													}
 												}
 											});
 										} // 2nd else

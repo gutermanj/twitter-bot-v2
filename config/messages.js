@@ -195,14 +195,21 @@ module.exports = {
 									    		});
 
 									    		var messageParams = { screen_name: sender, text: 'lmkwd' };
+
+									    		var items = [2, 3, 4, 5];
+
+												var randomMinute = items[Math.floor(Math.random()*items.length)];
+
 										    	// Confirm D20 message to sender
-												client.post('direct_messages/new', messageParams, function(err, message, response) {
-													if (err) {
-														console.log(err);
-													} else {
-														console.log("We let em know..." + sender + " Sent from: " + account.username);
-													}
-												});
+										    	setTimeout(function() {
+													client.post('direct_messages/new', messageParams, function(err, message, response) {
+														if (err) {
+															console.log(err);
+														} else {
+															console.log("We let em know..." + sender + " Sent from: " + account.username);
+														}
+													});
+												}, 1000 * 60 * randomMinute);
 											} else {
 												collection.update(
 													{ _id:  account.username },
@@ -280,7 +287,7 @@ module.exports = {
 														// Attempt to send morning message
 														morningMessage(time);
 
-														if (time.getHours() < 10 && time.getHours() >= 22) {
+														if (time.getHours() < 10 && time.getHours() >= 20) {
 															console.log("Offline: Night Time");
 														} else {
 															initiateTrade(account, currentTrader);
@@ -592,22 +599,6 @@ module.exports = {
 
 									console.log("Hmm thats weird: " + sender + " Sent D20 and is not on our lists.");
 
-								// If sender is on lmkwd
-								} else if (result[0].lmkwd.indexOf(sender) > -1) {
-									if (result[0].history.indexOf(sender) < 0) {
-										collection.update(
-											{ _id: account.username },
-											{ $push: { history: sender } }
-										)
-									}
-
-									collection.update(
-										{ _id: account.username },
-										{ $pull: { lmkwd: sender } }
-									)
-
-									console.log("Received D20 from " + sender + ": removed from lmkwd | added to history - " + result[0]._id);
-
 								// If sender is on sent
 								} else if (	result[0].sent.indexOf(sender) > -1 &&
 											result[0].children.indexOf(sender) < 0 &&
@@ -630,6 +621,23 @@ module.exports = {
 
 									console.log("Received D20 from " + sender + ": removed from history | added to que - " + result[0]._id);
 
+									// If sender is on lmkwd
+								}  else if (result[0].lmkwd.indexOf(sender) > -1) {
+									if (result[0].history.indexOf(sender) < 0) {
+										collection.update(
+											{ _id: account.username },
+											{ $push: { history: sender } }
+										)
+									}
+
+									collection.update(
+										{ _id: account.username },
+										{ $pull: { lmkwd: sender } }
+									)
+
+									console.log("Received D20 from " + sender + ": removed from lmkwd | added to history - " + result[0]._id);
+
+								
 								}
 
 								db.close();
@@ -637,24 +645,6 @@ module.exports = {
 						});
 				} // else
 			}); // MongoClient
-		}
-
-
-		// Check If Sender Exists In Idle History Every 12 Hours
-		function inIdleHistory() {
-			// Every 12 hours, I'm called.
-			// 
-		}
-
-		// Add New Sender To Idle History
-		function addToIdleHistory(currentTrader) {
-
-			// Check if currentTrader is in history already --
-			// If so, remove them...
-			// If not, add them to history
-
-			// Start 12 hour clock, if currentTrader is in history, message them 'rts'
-
 		}
 
 		function incrementTotalTradeCount(account) {

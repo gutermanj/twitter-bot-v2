@@ -26,7 +26,6 @@ module.exports = {
 	        if(err) {
 	          done();
 	          console.log(err);
-	          return res.status(500).json({ success: false, data: err});
 	        }
 	        // SQL Query > Last account created
 	        var query = client.query("SELECT * FROM manualAccounts");
@@ -250,7 +249,6 @@ module.exports = {
 		        if(err) {
 		          done();
 		          console.log(err);
-		          return res.status(500).json({ success: false, data: err});
 		        }
 		        // SQL Query > Last account created
 		        var query = client.query("SELECT * FROM manualAccounts");
@@ -532,7 +530,6 @@ module.exports = {
 								        if(err) {
 								          done();
 								          console.log(err);
-								          return res.status(500).json({ success: false, data: err});
 								        }
 								        // SQL Query > Last account created
 								        var query = client.query("SELECT * FROM manualAccounts WHERE username=" + "'" + ourAccount._id + "'");
@@ -621,17 +618,19 @@ module.exports = {
 
 									// If sender is on lmkwd
 								}  else if (result[0].lmkwd.indexOf(sender) > -1) {
+
+									collection.update(
+										{ _id: account.username },
+										{ $pull: { lmkwd: sender } }
+									)
+
+
 									if (result[0].history.indexOf(sender) < 0) {
 										collection.update(
 											{ _id: account.username },
 											{ $push: { history: sender } }
 										)
 									}
-
-									collection.update(
-										{ _id: account.username },
-										{ $pull: { lmkwd: sender } }
-									)
 
 									console.log("Received D20 from " + sender + ": removed from lmkwd | added to history - " + result[0]._id);
 

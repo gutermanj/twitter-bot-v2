@@ -285,7 +285,7 @@ module.exports = {
 														// Attempt to send morning message
 														morningMessage(time);
 
-														if (time.getHours() < 10 && time.getHours() >= 20) {
+														if (time.getHours() < 12 || time.getHours() > 22) {
 															console.log("Offline: Night Time");
 														} else {
 															initiateTrade(account, currentTrader);

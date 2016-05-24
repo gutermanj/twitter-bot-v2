@@ -285,7 +285,11 @@ module.exports = {
 														// Attempt to send morning message
 														morningMessage(time);
 
+<<<<<<< HEAD
 														if (time.getHours() < 12 || time.getHours() > 22) {
+=======
+														if (time.getHours() < 12 && time.getHours() >= 20) {
+>>>>>>> 1156393cc0e0526bf0514bb2a7b4896b4f680964
 															console.log("Offline: Night Time");
 														} else {
 															initiateTrade(account, currentTrader);

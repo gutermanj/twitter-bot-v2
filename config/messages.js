@@ -285,7 +285,7 @@ module.exports = {
 														// Attempt to send morning message
 														morningMessage(time);
 
-														if (time.getHours() < 10 || time.getHours() > 20) {
+														if (time.getHours() < 10 || time.getHours() > 20	) {
 															console.log("Offline: Night Time");
 														} else {
 															initiateTrade(account, currentTrader);
@@ -509,8 +509,9 @@ module.exports = {
 					} else {
 						var collection = db.collection('accounts');
 						
-						collection.find({}).toArray(function(err, result) {
+						collection.find().toArray(function(err, result) {
 							// For each of our accounts
+
 							result.forEach(function(ourAccount) {
 								// Push each lmkwd user into array
 								var presentLmkwd = [];

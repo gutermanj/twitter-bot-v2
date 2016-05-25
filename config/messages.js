@@ -217,11 +217,6 @@ module.exports = {
 
 												// REMOVE SENDER FROM HISTORY
 												// SO WHEN WE RECEIVE DONE FROM THEIR D20, IT DOESN'T RE-ADD THEM TO QUE
-
-												// -----------------------------------------------------------------------
-
-												// PUSH THIS NEW CODE WHEN YOU HAVE A CHANCE
-
 												collection.update(
 													{ _id: account.username },
 													{ $pull: { history: sender } }
@@ -234,7 +229,7 @@ module.exports = {
 								}
 						});
 				} // else
-			}); // MongoClient
+			}, db.close()); // MongoClient
 
 		} // pushSender
 	}, 1000 * 65 * 1); // Message Pull set Interval
@@ -587,7 +582,6 @@ module.exports = {
 								  	result[0].sent.indexOf(sender) < 0) {
 
 									console.log("Hmm thats weird: " + sender + " Sent D20 and is not on our lists.");
-									db.close();
 
 								// If sender is on sent
 								} else if (	result[0].sent.indexOf(sender) > -1 &&
@@ -610,7 +604,6 @@ module.exports = {
 									)
 
 									console.log("Received D20 from " + sender + ": removed from history | added to que - " + result[0]._id);
-									db.close();
 
 									// If sender is on lmkwd
 								}  else if (result[0].lmkwd.indexOf(sender) > -1) {
@@ -629,7 +622,6 @@ module.exports = {
 									}
 
 									console.log("Received D20 from " + sender + ": removed from lmkwd | added to history - " + result[0]._id);
-									db.close();
 
 								
 								}
@@ -640,7 +632,7 @@ module.exports = {
 						});
 				} // else
 				
-			}); // MongoClient
+			}, db.close()); // MongoClient
 		}
 
 		function incrementTotalTradeCount(account) {

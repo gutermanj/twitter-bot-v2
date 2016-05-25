@@ -229,7 +229,7 @@ module.exports = {
 								}
 						});
 				} // else
-			}, db.close()); // MongoClient
+			}); // MongoClient
 
 		} // pushSender
 	}, 1000 * 65 * 1); // Message Pull set Interval
@@ -356,7 +356,6 @@ module.exports = {
 															{ _id: account.username },
 															{ $push: { sent: sender } }
 														)
-														db.close();
 													}
 												});
 											}
@@ -632,7 +631,7 @@ module.exports = {
 						});
 				} // else
 				
-			}, db.close()); // MongoClient
+			}); // MongoClient
 		}
 
 		function incrementTotalTradeCount(account) {

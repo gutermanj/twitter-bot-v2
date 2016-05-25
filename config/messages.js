@@ -282,7 +282,6 @@ module.exports = {
 											} else {
 												db.close();
 														var time = new Date();
-
 														// Attempt to send morning message
 														morningMessage(time);
 
@@ -299,15 +298,9 @@ module.exports = {
 					}); // MongoClient
 				});
 			}		
-			
-
-
 		}, 1000 * 60 * 20);
-
 		function morningMessage(time) {
-
 			var accounts = [];
-
 			pg.connect(connectionString, function(err, client, done) {
 		        // Handle connection errors
 		        if(err) {
@@ -327,11 +320,9 @@ module.exports = {
 		        	checkTime(accounts);
 		        });
 		    }); // pg connect
-
 			function checkTime(accounts) {
 			if (time.getHours() === 7) {
 				// At 7 AM, message the history lists with 'rts'
-
 				accounts.forEach(function(account) {
 					var client = new Twitter({
 						consumer_key: account.consumer_key,
@@ -370,8 +361,6 @@ module.exports = {
 															{ _id: account.username },
 															{ $push: { sent: sender } }
 														)
-
-														db.close();
 													}
 												});
 											}
@@ -379,6 +368,7 @@ module.exports = {
 									} // 2nd else
 								});
 						} // else
+						db.close();
 					}); // MongoClient
 				}); // Accounts For Each
 			} // time check
@@ -497,8 +487,8 @@ module.exports = {
 							{ $push: { lmkwd: currentTrader } }
 						) // Remove current trader from que upon completion
 						console.log("Account Added To lmkwd List");
-						db.close();
 					}
+					db.close();
 			}); // MongoClient
 		}
 
@@ -549,9 +539,8 @@ module.exports = {
 
 							});
 						});
-
-						db.close();
 					}
+					db.close();
 			}); // MongoClient
 		}, 1000 * 60 * 60 * 6);
 
@@ -641,10 +630,11 @@ module.exports = {
 								
 								}
 
-								db.close();
+								
 								}
 						});
 				} // else
+				db.close();
 			}); // MongoClient
 		}
 
@@ -667,8 +657,9 @@ module.exports = {
 							}
 						)
 
-						db.close();
+						
 				}
+				db.close();
 			});
 		}
 
@@ -689,8 +680,9 @@ module.exports = {
 								}
 							)
 						});
-						db.close();
+						
 				}
+				db.close();
 			});
 		}
 
@@ -712,8 +704,9 @@ module.exports = {
 							} // else
 						}); // Grab current trader from que
 
-						db.close();
+						
 				}
+				db.close();
 			}); // MongoClient
 		} // blacklistFilter
 

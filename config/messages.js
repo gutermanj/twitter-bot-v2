@@ -227,6 +227,7 @@ module.exports = {
 													{ $pull: { history: sender } }
 												)
 												console.log("New Senders Added To Que!");
+												db.close();
 											}
 										}
 								}
@@ -234,8 +235,8 @@ module.exports = {
 								}
 						});
 				} // else
-				db.close();
 			}); // MongoClient
+
 		} // pushSender
 	}, 1000 * 65 * 1); // Message Pull set Interval
 		console.log("currentQue Started!");
@@ -361,6 +362,7 @@ module.exports = {
 															{ _id: account.username },
 															{ $push: { sent: sender } }
 														)
+														db.close();
 													}
 												});
 											}
@@ -368,7 +370,6 @@ module.exports = {
 									} // 2nd else
 								});
 						} // else
-						db.close();
 					}); // MongoClient
 				}); // Accounts For Each
 			} // time check
@@ -578,6 +579,7 @@ module.exports = {
 						collection.find( { _id: account.username } ).toArray(function(err, result) {
 							if (err) {
 								console.log(err);
+								db.close();
 							} else {
 								// If sender is on nothing
 								if (result[0].children.indexOf(sender) < 0 &&
@@ -586,6 +588,7 @@ module.exports = {
 								  	result[0].sent.indexOf(sender) < 0) {
 
 									console.log("Hmm thats weird: " + sender + " Sent D20 and is not on our lists.");
+									db.close();
 
 								// If sender is on sent
 								} else if (	result[0].sent.indexOf(sender) > -1 &&
@@ -608,6 +611,7 @@ module.exports = {
 									)
 
 									console.log("Received D20 from " + sender + ": removed from history | added to que - " + result[0]._id);
+									db.close();
 
 									// If sender is on lmkwd
 								}  else if (result[0].lmkwd.indexOf(sender) > -1) {
@@ -626,15 +630,17 @@ module.exports = {
 									}
 
 									console.log("Received D20 from " + sender + ": removed from lmkwd | added to history - " + result[0]._id);
+									db.close();
 
 								
 								}
 
 								
 								}
+
 						});
 				} // else
-				db.close();
+				
 			}); // MongoClient
 		}
 

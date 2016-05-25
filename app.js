@@ -1063,6 +1063,7 @@ app.post('/api/v1/show-que', function(req, res) {
             console.log(err);
           } else {
             return res.json(result);
+            db.close();
           }
         });
         
@@ -1083,6 +1084,7 @@ app.post('/api/v1/show-lmkwd', function(req, res) {
             console.log(err);
           } else {
             return res.json(result);
+            db.close();
           }
         });
         
@@ -1102,6 +1104,25 @@ app.post('/api/v1/remove-from-que', function(req, res) {
           collection.update(
             { _id:  req.body.dad },
             { $pull: { children: req.body.username } }
+          ) // Remove current trader from que upon completion
+          db.close();
+    }
+
+  });
+
+});
+
+app.post('/api/v1/remove-from-sent', function(req, res) {
+
+  MongoClient.connect(url, function(err, db) {
+    
+    if (err) {
+      console.log(err);
+    } else {
+        var collection = db.collection('accounts');
+          collection.update(
+            { _id:  req.body.dad },
+            { $pull: { sent: req.body.username } }
           ) // Remove current trader from que upon completion
           db.close();
     }

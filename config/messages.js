@@ -285,7 +285,7 @@ module.exports = {
 														// Attempt to send morning message
 														morningMessage(time);
 
-														if (time.getHours() < 12 || time.getHours() > 22) {
+														if (time.getHours() < 10 || time.getHours() > 20) {
 															console.log("Offline: Night Time");
 														} else {
 															initiateTrade(account, currentTrader);
@@ -297,97 +297,94 @@ module.exports = {
 						}
 					}); // MongoClient
 				});
-			}
-
-			function morningMessage(time) {
-
-				var accounts = [];
-
-				pg.connect(connectionString, function(err, client, done) {
-			        // Handle connection errors
-			        if(err) {
-			          done();
-			          console.log(err);
-			        }
-			        // SQL Query > Last account created
-			        var query = client.query("SELECT * FROM manualAccounts");
-			        // Stream results back one row at a time
-			        query.on('row', function(row) {
-			            accounts.push(row);
-			        });
-			        // After all data is returned, close connection and return results
-			        query.on('end', function() {
-			        	console.log("Accounts Ready.");
-			        	checkTime(accounts);
-			            done();
-			        });
-			    }); // pg connect
-
-				function checkTime(accounts) {
-				if (time.getHours() === 7) {
-					// At 7 AM, message the history lists with 'rts'
-
-					accounts.forEach(function(account) {
-						var client = new Twitter({
-							consumer_key: account.consumer_key,
-			    			consumer_secret: account.consumer_secret,
-			    			access_token_key: account.access_token,
-			    			access_token_secret: account.access_token_secret,
-			    			timeout_ms: 60 * 1000
-						});
-
-						MongoClient.connect('mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13', function(err, db) {
-							if (err) {
-								console.log("Unable to connect to Mongo. Error: ", err);
-							} else {
-								console.log("Preparing Morning Message.");
-								var collection = db.collection('accounts');
-									collection.find( { _id: account.username } ).toArray(function(err, result) {
-										if (err) {
-											console.log(err);
-										} else {	
-											var historyList = result[0].history;
-
-											historyList.forEach(function(sender, index) {
-												if (result[0].children.indexOf(sender) > -1) {
-													console.log("Morning message not sent, account qued");
-												} else {
-														if (result[0].lmkwd.indexOf(sender) > -1) {
-															console.log("User On lmkwd")
-														} else {
-															var messageParams = { screen_name: sender, text: 'rts' };
-													    	// Confirm D20 message to sender
-															client.post('direct_messages/new', messageParams, function(err, message, response) {
-																if (err) {
-																	console.log(err);
-																} else {
-																	console.log('rts sent to: ', sender);
-																	collection.update(
-																		{ _id: account.username },
-																		{ $pull: { history: sender } }
-																	)
-																	collection.update(
-																		{ _id: account.username },
-																		{ $push: { sent: sender } }
-																	)
-																}
-															});
-														}
-														
-												}
-											});
-										} // 2nd else
-									});
-							} // else
-						}); // MongoClient
-					}); // Accounts For Each
-				} // time check
-				}
-			} // morning message function
+			}		
 			
 
 
 		}, 1000 * 60 * 20);
+
+		function morningMessage(time) {
+
+			var accounts = [];
+
+			pg.connect(connectionString, function(err, client, done) {
+		        // Handle connection errors
+		        if(err) {
+		          done();
+		          console.log(err);
+		        }
+		        // SQL Query > Last account created
+		        var query = client.query("SELECT * FROM manualAccounts");
+		        // Stream results back one row at a time
+		        query.on('row', function(row) {
+		            accounts.push(row);
+		        });
+		        // After all data is returned, close connection and return results
+		        query.on('end', function() {
+		        	done();
+		        	console.log("Accounts Ready.");
+		        	checkTime(accounts);
+		        });
+		    }); // pg connect
+
+			function checkTime(accounts) {
+			if (time.getHours() === 7) {
+				// At 7 AM, message the history lists with 'rts'
+
+				accounts.forEach(function(account) {
+					var client = new Twitter({
+						consumer_key: account.consumer_key,
+		    			consumer_secret: account.consumer_secret,
+		    			access_token_key: account.access_token,
+		    			access_token_secret: account.access_token_secret,
+		    			timeout_ms: 60 * 1000
+					});
+
+					MongoClient.connect('mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13', function(err, db) {
+						if (err) {
+							console.log("Unable to connect to Mongo. Error: ", err);
+						} else {
+							console.log("Preparing Morning Message.");
+							var collection = db.collection('accounts');
+								collection.find( { _id: account.username } ).toArray(function(err, result) {
+									if (err) {
+										console.log(err);
+									} else {	
+										var historyList = result[0].history;
+										historyList.forEach(function(sender, index) {
+											if (result[0].children.indexOf(sender) > -1) {
+												console.log("Morning message not sent, account qued");
+											} else {
+												var messageParams = { screen_name: sender, text: 'rts' };
+												client.post('direct_messages/new', messageParams, function(err, message, response) {
+													if (err) {
+														console.log(err);
+													} else {
+														console.log('rts sent to: ', sender);
+														collection.update(
+															{ _id: account.username },
+															{ $pull: { history: sender } }
+														)
+														collection.update(
+															{ _id: account.username },
+															{ $push: { sent: sender } }
+														)
+
+														db.close();
+													}
+												});
+											}
+										});
+									} // 2nd else
+								});
+						} // else
+					}); // MongoClient
+				}); // Accounts For Each
+			} // time check
+			}
+		} // morning message function
+
+		
 		// Start the actual trade with each account
 		function initiateTrade(account, currentTrader) {
 			console.log("Iniated Trade for account: ", account);
@@ -454,6 +451,7 @@ module.exports = {
 															{ _id:  account.username },
 															{ $pull: { children: currentTrader } }
 														) // Remove current trader from que upon completion
+														db.close();
 														console.log("Retweet Complete.");
 													}
 											}); // MongoClient
@@ -498,6 +496,7 @@ module.exports = {
 							{ $push: { lmkwd: currentTrader } }
 						) // Remove current trader from que upon completion
 						console.log("Account Added To lmkwd List");
+						db.close();
 					}
 			}); // MongoClient
 		}
@@ -539,8 +538,8 @@ module.exports = {
 								        });
 								        // After all data is returned, close connection and return results
 								        query.on('end', function() {
+								        	done();
 								        	messageThem(pgAccount, presentLmkwd);
-								            done();
 								        });
 								    }); // pg connect
 
@@ -548,6 +547,8 @@ module.exports = {
 
 							});
 						});
+
+						db.close();
 					}
 			}); // MongoClient
 		}, 1000 * 60 * 60 * 6);
@@ -580,6 +581,7 @@ module.exports = {
 			MongoClient.connect(url, function(err, db) {
 				if (err) {
 					console.log("Unable to connect to Mongo. Error: ", err);
+					db.close();
 				} else {
 					var collection = db.collection('accounts');
 						collection.find( { _id: account.username } ).toArray(function(err, result) {
@@ -647,7 +649,8 @@ module.exports = {
 		function incrementTotalTradeCount(account) {
 			MongoClient.connect(url, function(err, db) {
 				if (err) {
-					console.log("Unable to connect to Mongo. Error: ", err)
+					console.log("Unable to connect to Mongo. Error: ", err);
+					db.close();
 				} else {
 					var collection = db.collection('accounts');
 						collection.update(
@@ -661,6 +664,8 @@ module.exports = {
 									  }
 							}
 						)
+
+						db.close();
 				}
 			});
 		}
@@ -669,6 +674,7 @@ module.exports = {
 			MongoClient.connect(url, function(err, db) {
 				if (err) {
 					console.log("Unable to connect to Mongo. Error: ", err);
+					db.close();
 				} else {
 					var collection = db.collection('accounts');
 						accounts.forEach(function(account) {
@@ -690,6 +696,7 @@ module.exports = {
 			MongoClient.connect(url, function(err, db) {
 				if (err) {
 					console.log("Unable to connect to Mongo. Error: ", err);
+					db.close();
 				} else {
 					var collection = db.collection('blacklist');
 						collection.find( { _id:  sender } ).toArray(function(err, result) {
@@ -702,6 +709,8 @@ module.exports = {
 								}
 							} // else
 						}); // Grab current trader from que
+
+						db.close();
 				}
 			}); // MongoClient
 		} // blacklistFilter

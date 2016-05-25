@@ -34,10 +34,12 @@ $(document).ready(function() {
 				var children = response.children;
 				var lmkwd_list = response.lmkwd;
 				var rts_list = response.history;
+				var sent_list = response.sent;
 
 				$('.js-current-que').empty();
 				$('.js-current-history').empty();
 				$('.js-current-lmkwd').empty();
+				$('.js-current-sent').empty();
 
 				children.forEach(function(child) {
 					var html = `
@@ -49,6 +51,18 @@ $(document).ready(function() {
 					`
 
 					$('.js-current-que').append(html);
+				});
+
+				sent_list.forEach(function(sent) {
+					var html = `
+						<div class='js-que-parent'>
+							<b style='margin-left: 20px; color: lightgray;'>${sent}</b>
+							<span style='margin-left: 20px; cursor: pointer;' aria-hidden='true' class='js-remove-from-sent' data-username='${sent}'>x</span>
+							<hr style='width: 50%; margin-left: -0%;'>
+						</div>
+					`
+
+					$('.js-current-sent').append(html);
 				});
 
 				lmkwd_list.forEach(function(child) {
@@ -79,6 +93,12 @@ $(document).ready(function() {
 					var username = $(this).data('username');
 					$(this).html('<span>Removed</span>')
 					removeFromQue(username, dad);
+				});
+
+				$('.js-remove-from-sent').on('click', function() {
+					var username = $(this).data('username');
+					$(this).html('<span>Removed</span>')
+					removeFromSent(username, dad);
 				});
 
 				$('.js-remove-from-lmkwd').on('click', function() {
@@ -173,6 +193,31 @@ $(document).ready(function() {
 
 			error: function() {
 				console.log("Error Removing From Que");
+			}
+
+		});
+
+	}
+
+	function removeFromSent(username, dad) {
+		
+		$.ajax({
+
+			type: 'POST',
+
+			url: '/api/v1/remove-from-sent',
+
+			data: {
+				username: username,
+				dad: dad
+			},
+
+			success: function(response) {
+				console.log(response);
+			},
+
+			error: function() {
+				console.log("Error Removing From Sent");
 			}
 
 		});

@@ -230,10 +230,11 @@ module.exports = {
 											}
 										}
 								}
-								db.close();
+								
 								}
 						});
 				} // else
+				db.close();
 			}); // MongoClient
 		} // pushSender
 	}, 1000 * 65 * 1); // Message Pull set Interval

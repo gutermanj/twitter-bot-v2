@@ -227,7 +227,6 @@ module.exports = {
 													{ $pull: { history: sender } }
 												)
 												console.log("New Senders Added To Que!");
-												db.close();
 											}
 										}
 								}
@@ -281,7 +280,7 @@ module.exports = {
 											if (result[0].children.length < 1) {
 												console.log("No accounts currently in que for: " + result[0]._id);
 											} else {
-												db.close();
+														db.close();
 														var time = new Date();
 														// Attempt to send morning message
 														morningMessage(time);

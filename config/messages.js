@@ -229,11 +229,12 @@ module.exports = {
 
 												async.series([
 													function(callback) {
-														callback(async.parallel([updateOne, updateTwo]));
+														async.parallel([updateOne, updateTwo]);
+														var done = db.close();
+														callback(done);
 													},
 													function(callback) {
-														callback
-														db.close();
+														done
 													}
 												]);
 												console.log("New Senders Added To Que!");

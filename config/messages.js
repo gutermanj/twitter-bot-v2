@@ -636,7 +636,6 @@ module.exports = {
 								  	result[0].history.indexOf(sender) < 0 &&
 								  	result[0].sent.indexOf(sender) < 0) {
 									console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists.");
-									db.close();
 								// If sender is on sent
 								} else if (	result[0].sent.indexOf(sender) > -1 &&
 											result[0].children.indexOf(sender) < 0 &&

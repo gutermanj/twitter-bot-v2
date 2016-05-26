@@ -660,7 +660,7 @@ module.exports = {
 								}  else if (result[0].lmkwd.indexOf(sender) > -1) {
 									// REMOVE FROM LMKWD => ADD TO HISTORY
 									async.series([
-										function(result) {
+										function() {
 											async.parallel([updateThree, updateFour(result)]);
 										},
 										function() {

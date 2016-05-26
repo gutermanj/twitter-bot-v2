@@ -228,10 +228,11 @@ module.exports = {
 												}
 
 												async.series([
-													function() {
-														async.parallel([updateOne, updateTwo]);
+													function(callback) {
+														callback(async.parallel([updateOne, updateTwo]));
 													},
-													function() {
+													function(callback) {
+														callback
 														db.close();
 													}
 												]);

@@ -176,7 +176,7 @@ module.exports = {
 					var collection = db.collection('accounts');
 						collection.find( { _id: account.username } ).toArray(function(err, result) {
 							if (err) {
-								console.log(err);
+								console.log("Mongo Error: Grabbing Account To Add Que -", err);
 							} else {
 								var query = result[0].children;
 								if (query.indexOf(sender) > -1) {

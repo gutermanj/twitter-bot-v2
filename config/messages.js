@@ -361,15 +361,31 @@ module.exports = {
 													if (err) {
 														console.log(err);
 													} else {
-														console.log('rts sent to: ', sender);
-														collection.update(
-															{ _id: account.username },
-															{ $pull: { history: sender } }
-														)
-														collection.update(
-															{ _id: account.username },
-															{ $push: { sent: sender } }
-														)
+														var updateOne = function updateRemoveHistory() {
+															collection.update(
+																{ _id:  account.username },
+																{ $pull: { history: sender } }
+															) // Add sender to que
+														}
+
+														var updateTwo = function updateAddSent() {
+															collection.update(
+																{ _id:  account.username },
+																{ $push: { sent: sender } }
+															) // Add sender to que
+														}
+
+														async.series([
+															function() {
+																async.parallel([updateOne, updateTwo]);
+															},
+															function() {
+																db.close();
+																console.log("Morning Message Sent To: ", sender);
+															}
+														]);
+												
+
 													}
 												});
 											}
@@ -583,6 +599,37 @@ module.exports = {
 					db.close();
 				} else {
 					var collection = db.collection('accounts');
+					
+					var updateOne = function updateAddQue() {
+									collection.update(
+										{ _id: account.username },
+										{ $push: { children: sender } }
+									)
+								}
+
+					var updateTwo = function updateRemoveSent() {
+									collection.update(
+										{ _id: account.username },
+										{ $pull: { sent: sender } }
+									)
+								}
+
+					var updateThree = function updateRemoveLmkwd() {
+									collection.update(
+										{ _id: account.username },
+										{ $pull: { lmkwd: sender } }
+									)
+								}
+
+					var updateFour = function updateAddHistory() {
+									if (result[0].history.indexOf(sender) < 0) {
+										collection.update(
+											{ _id: account.username },
+											{ $push: { history: sender } }
+										)
+									}
+								}
+										
 						collection.find( { _id: account.username } ).toArray(function(err, result) {
 							if (err) {
 								console.log(err);
@@ -593,57 +640,36 @@ module.exports = {
 								 	result[0].lmkwd.indexOf(sender) < 0 &&
 								  	result[0].history.indexOf(sender) < 0 &&
 								  	result[0].sent.indexOf(sender) < 0) {
-
-									console.log("Hmm thats weird: " + sender + " Sent D20 and is not on our lists.");
+									console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists.");
 									db.close();
-
 								// If sender is on sent
 								} else if (	result[0].sent.indexOf(sender) > -1 &&
 											result[0].children.indexOf(sender) < 0 &&
 								  			result[0].lmkwd.indexOf(sender) < 0) {
-
-									collection.update(
-										{ _id: account.username },
-										{ $push: { children: sender } }
-									)
-
-									collection.update(
-										{ _id: account.username },
-										{ $pull: { sent: sender } }
-									)
-
-									collection.update(
-										{ _id: account.username },
-										{ $pull: { lmkwd: sender } }
-									)
-
-									console.log("Received D20 from " + sender + ": removed from history | added to que - " + result[0]._id);
-									db.close();
-
+								// ADD TO QUE => REMOVE FROM SENT => REMOVE FROM LMKWD
+									async.series([
+										function() {
+											async.parallel([updateOne, updateTwo, updateThree]);
+										},
+										function() {
+											db.close();
+											console.log("Received D20, Q+ => S- => LMK-");
+										}
+									]);
 									// If sender is on lmkwd
 								}  else if (result[0].lmkwd.indexOf(sender) > -1) {
-
-									collection.update(
-										{ _id: account.username },
-										{ $pull: { lmkwd: sender } }
-									)
-
-
-									if (result[0].history.indexOf(sender) < 0) {
-										collection.update(
-											{ _id: account.username },
-											{ $push: { history: sender } }
-										)
-									}
-
-									console.log("Received D20 from " + sender + ": removed from lmkwd | added to history - " + result[0]._id);
-									db.close();
-
-								
+									// REMOVE FROM LMKWD => ADD TO HISTORY
+									async.series([
+										function() {
+											async.parallel([updateThree, updateFour]);
+										},
+										function() {
+											db.close();
+											console.log("Received D20, LMK- => H+")
+										}
+									]);
 								}
-
-								
-								}
+							}
 
 						});
 				} // else

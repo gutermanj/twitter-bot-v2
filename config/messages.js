@@ -230,11 +230,8 @@ module.exports = {
 												async.series([
 													function() {
 														async.parallel([updateOne, updateTwo]);
-													},
-													function() {
-														db.close();
 													}
-												]);
+												], db.close());
 												console.log("New Senders Added To Que!");
 											}
 										}
@@ -605,34 +602,34 @@ module.exports = {
 								db.close();
 							} else {
 								var updateOne = function updateAddQue() {
-									collection.update(
-										{ _id: account.username },
-										{ $push: { children: sender } }
-									)
-								}
-
-								var updateTwo = function updateRemoveSent() {
-												collection.update(
-													{ _id: account.username },
-													{ $pull: { sent: sender } }
-												)
-											}
-
-								var updateThree = function updateRemoveLmkwd() {
-												collection.update(
-													{ _id: account.username },
-													{ $pull: { lmkwd: sender } }
-												)
-											}
-
-								var updateFour = function updateAddHistory() {
-												if (result[0].history.indexOf(sender) < 0) {
 													collection.update(
 														{ _id: account.username },
-														{ $push: { history: sender } }
+														{ $push: { children: sender } }
 													)
 												}
-											}
+
+								var updateTwo = function updateRemoveSent() {
+													collection.update(
+														{ _id: account.username },
+														{ $pull: { sent: sender } }
+													)
+												}
+
+								var updateThree = function updateRemoveLmkwd() {
+													collection.update(
+														{ _id: account.username },
+														{ $pull: { lmkwd: sender } }
+													)
+												  }
+
+								var updateFour = function updateAddHistory() {
+													if (result[0].history.indexOf(sender) < 0) {
+														collection.update(
+															{ _id: account.username },
+															{ $push: { history: sender } }
+														)
+													}
+												}
 								// If sender is on nothing
 								if (result[0].children.indexOf(sender) < 0 &&
 								 	result[0].lmkwd.indexOf(sender) < 0 &&
@@ -650,10 +647,9 @@ module.exports = {
 											async.parallel([updateOne, updateTwo, updateThree]);
 										},
 										function() {
-											db.close();
 											console.log("Received D20, Q+ => S- => LMK-");
 										}
-									]);
+									], db.close());
 									// If sender is on lmkwd
 								}  else if (result[0].lmkwd.indexOf(sender) > -1) {
 									// REMOVE FROM LMKWD => ADD TO HISTORY
@@ -662,10 +658,9 @@ module.exports = {
 											async.parallel([updateThree, updateFour]);
 										},
 										function() {
-											db.close();
 											console.log("Received D20, LMK- => H+")
 										}
-									]);
+									], db.close());
 								}
 							}
 

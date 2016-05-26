@@ -519,17 +519,17 @@ module.exports = {
 		}
 
 		// Every 6 hours, if accounts are in this lsit, message them 'lmkwd'
-		lmkInterval = setInterval(function() {
+		setInterval(function() {
 			MongoClient.connect(url, function(err, db) {
 					if (err) {
 						console.log("Unable to connect to Mongo. Error: ", err);
 					} else {
 						var collection = db.collection('accounts');
-						
 						collection.find().toArray(function(err, result) {
 							// For each of our accounts
+							var accounts = result[0];
 
-							result.forEach(function(ourAccount) {
+							accounts.forEach(function(ourAccount) {
 								// Push each lmkwd user into array
 								var presentLmkwd = [];
 
@@ -607,10 +607,12 @@ module.exports = {
 								db.close();
 							} else {
 								var updateOne = function updateAddQue() {
-													collection.update(
-														{ _id: account.username },
-														{ $push: { children: sender } }
-													)
+												if (result[0].children.indexOf(sender) < 0) {
+														collection.update(
+															{ _id: account.username },
+															{ $push: { children: sender } }
+														)
+													}
 												}
 
 								var updateTwo = function updateRemoveSent() {
@@ -640,8 +642,7 @@ module.exports = {
 								 	result[0].lmkwd.indexOf(sender) < 0 &&
 								  	result[0].history.indexOf(sender) < 0 &&
 								  	result[0].sent.indexOf(sender) < 0) {
-									console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists.");
-									db.close();
+									console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
 								// If sender is on sent
 								} else if (	result[0].sent.indexOf(sender) > -1 &&
 											result[0].children.indexOf(sender) < 0 &&
@@ -652,10 +653,12 @@ module.exports = {
 											async.parallel([updateOne, updateTwo, updateThree]);
 										},
 										function() {
-											db.close();
 											console.log("Received D20, Q+ => S- => LMK-");
 										}
-									]);
+									],
+									function() {
+										db.close();
+									});
 									// If sender is on lmkwd
 								}  else if (result[0].lmkwd.indexOf(sender) > -1) {
 									// REMOVE FROM LMKWD => ADD TO HISTORY
@@ -664,10 +667,12 @@ module.exports = {
 											async.parallel([updateThree, updateFour]);
 										},
 										function() {
-											db.close();
 											console.log("Received D20, LMK- => H+")
 										}
-									]);
+									],
+									function() {
+										db.close();
+									});
 								}
 							}
 

@@ -625,7 +625,7 @@ module.exports = {
 												)
 											}
 
-								var updateFour = function updateAddHistory(result) {
+								var updateFour = function updateAddHistory() {
 												if (result[0].history.indexOf(sender) < 0) {
 													collection.update(
 														{ _id: account.username },

@@ -599,42 +599,40 @@ module.exports = {
 					db.close();
 				} else {
 					var collection = db.collection('accounts');
-
-					var updateOne = function updateAddQue() {
+						collection.find( { _id: account.username } ).toArray(function(err, result) {
+							if (err) {
+								console.log(err);
+								db.close();
+							} else {
+								var updateOne = function updateAddQue() {
 									collection.update(
 										{ _id: account.username },
 										{ $push: { children: sender } }
 									)
 								}
 
-					var updateTwo = function updateRemoveSent() {
-									collection.update(
-										{ _id: account.username },
-										{ $pull: { sent: sender } }
-									)
-								}
+								var updateTwo = function updateRemoveSent() {
+												collection.update(
+													{ _id: account.username },
+													{ $pull: { sent: sender } }
+												)
+											}
 
-					var updateThree = function updateRemoveLmkwd() {
-									collection.update(
-										{ _id: account.username },
-										{ $pull: { lmkwd: sender } }
-									)
-								}
+								var updateThree = function updateRemoveLmkwd() {
+												collection.update(
+													{ _id: account.username },
+													{ $pull: { lmkwd: sender } }
+												)
+											}
 
-					var updateFour = function updateAddHistory(result) {
-									if (result[0].history.indexOf(sender) < 0) {
-										collection.update(
-											{ _id: account.username },
-											{ $push: { history: sender } }
-										)
-									}
-								}
-										
-						collection.find( { _id: account.username } ).toArray(function(err, result) {
-							if (err) {
-								console.log(err);
-								db.close();
-							} else {
+								var updateFour = function updateAddHistory(result) {
+												if (result[0].history.indexOf(sender) < 0) {
+													collection.update(
+														{ _id: account.username },
+														{ $push: { history: sender } }
+													)
+												}
+											}
 								// If sender is on nothing
 								if (result[0].children.indexOf(sender) < 0 &&
 								 	result[0].lmkwd.indexOf(sender) < 0 &&
@@ -661,7 +659,7 @@ module.exports = {
 									// REMOVE FROM LMKWD => ADD TO HISTORY
 									async.series([
 										function() {
-											async.parallel([updateThree, updateFour(result)]);
+											async.parallel([updateThree, updateFour]);
 										},
 										function() {
 											db.close();

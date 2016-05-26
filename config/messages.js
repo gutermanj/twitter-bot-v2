@@ -230,8 +230,11 @@ module.exports = {
 												async.series([
 													function() {
 														async.parallel([updateOne, updateTwo]);
+													},
+													function() {
+														db.close();
 													}
-												], db.close());
+												]);
 												console.log("New Senders Added To Que!");
 											}
 										}
@@ -636,6 +639,7 @@ module.exports = {
 								  	result[0].history.indexOf(sender) < 0 &&
 								  	result[0].sent.indexOf(sender) < 0) {
 									console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists.");
+									db.close();
 								// If sender is on sent
 								} else if (	result[0].sent.indexOf(sender) > -1 &&
 											result[0].children.indexOf(sender) < 0 &&
@@ -646,9 +650,10 @@ module.exports = {
 											async.parallel([updateOne, updateTwo, updateThree]);
 										},
 										function() {
+											db.close();
 											console.log("Received D20, Q+ => S- => LMK-");
 										}
-									], db.close());
+									]);
 									// If sender is on lmkwd
 								}  else if (result[0].lmkwd.indexOf(sender) > -1) {
 									// REMOVE FROM LMKWD => ADD TO HISTORY
@@ -657,9 +662,10 @@ module.exports = {
 											async.parallel([updateThree, updateFour]);
 										},
 										function() {
+											db.close();
 											console.log("Received D20, LMK- => H+")
 										}
-									], db.close());
+									]);
 								}
 							}
 

@@ -599,7 +599,7 @@ module.exports = {
 					db.close();
 				} else {
 					var collection = db.collection('accounts');
-					
+
 					var updateOne = function updateAddQue() {
 									collection.update(
 										{ _id: account.username },
@@ -621,7 +621,7 @@ module.exports = {
 									)
 								}
 
-					var updateFour = function updateAddHistory() {
+					var updateFour = function updateAddHistory(result) {
 									if (result[0].history.indexOf(sender) < 0) {
 										collection.update(
 											{ _id: account.username },
@@ -661,7 +661,7 @@ module.exports = {
 									// REMOVE FROM LMKWD => ADD TO HISTORY
 									async.series([
 										function() {
-											async.parallel([updateThree, updateFour]);
+											async.parallel([updateThree, updateFour(result)]);
 										},
 										function() {
 											db.close();

@@ -1,5 +1,6 @@
 var Twitter = require('twitter');
 var mongodb = require('mongodb');
+var async = require("async");
 var pg = require('pg');
 pg.defaults.ssl = true;
 var connectionString = 'postgres://zqjwdkhttstwfx:ykFbgDKz8eTpXM3CCyim6Zyw-m@ec2-54-235-246-67.compute-1.amazonaws.com:5432/d43r3ued3buhe1';
@@ -210,17 +211,30 @@ module.exports = {
 													});
 												}, 1000 * 60 * randomMinute);
 											} else {
-												collection.update(
-													{ _id:  account.username },
-													{ $push: { children: sender } }
-												) // Add sender to que
+												var updateOne = function updateAddQue() {
+													collection.update(
+														{ _id:  account.username },
+														{ $push: { children: sender } }
+													) // Add sender to que
+												}
 
 												// REMOVE SENDER FROM HISTORY
 												// SO WHEN WE RECEIVE DONE FROM THEIR D20, IT DOESN'T RE-ADD THEM TO QUE
-												collection.update(
-													{ _id: account.username },
-													{ $pull: { history: sender } }
-												)
+												var updateTwo = function updateRemoveHistory() {
+													collection.update(
+														{ _id: account.username },
+														{ $pull: { history: sender } }
+													)
+												}
+
+												async.series([
+													function() {
+														async.parallel([updateOne, updateTwo]);
+													},
+													function() {
+														db.close();
+													}
+												]);
 												console.log("New Senders Added To Que!");
 											}
 										}
@@ -581,6 +595,7 @@ module.exports = {
 								  	result[0].sent.indexOf(sender) < 0) {
 
 									console.log("Hmm thats weird: " + sender + " Sent D20 and is not on our lists.");
+									db.close();
 
 								// If sender is on sent
 								} else if (	result[0].sent.indexOf(sender) > -1 &&
@@ -603,6 +618,7 @@ module.exports = {
 									)
 
 									console.log("Received D20 from " + sender + ": removed from history | added to que - " + result[0]._id);
+									db.close();
 
 									// If sender is on lmkwd
 								}  else if (result[0].lmkwd.indexOf(sender) > -1) {
@@ -621,6 +637,7 @@ module.exports = {
 									}
 
 									console.log("Received D20 from " + sender + ": removed from lmkwd | added to history - " + result[0]._id);
+									db.close();
 
 								
 								}

@@ -228,16 +228,15 @@ module.exports = {
 												}
 
 												async.series([
-													function(callback) {
+													function() {
 														async.parallel([updateOne, updateTwo]);
-														var done = db.close();
-														callback(done);
-													},
-													function(callback) {
-														done
 													}
-												]);
-												console.log("New Senders Added To Que!");
+												],
+												function() {
+													db.close();
+													console.log("New Senders Added To Que!");
+												});
+												
 											}
 										}
 								}

@@ -196,11 +196,8 @@ module.exports = {
 									    		});
 
 									    		var messageParams = { screen_name: sender, text: 'lmkwd' };
-
 									    		var items = [2, 3, 4, 5];
-
 												var randomMinute = items[Math.floor(Math.random()*items.length)];
-
 										    	// Confirm D20 message to sender
 										    	setTimeout(function() {
 													client.post('direct_messages/new', messageParams, function(err, message, response) {
@@ -218,7 +215,6 @@ module.exports = {
 														{ $push: { children: sender } }
 													) // Add sender to que
 												}
-
 												// REMOVE SENDER FROM HISTORY
 												// SO WHEN WE RECEIVE DONE FROM THEIR D20, IT DOESN'T RE-ADD THEM TO QUE
 												var updateTwo = function updateRemoveHistory() {
@@ -227,7 +223,6 @@ module.exports = {
 														{ $pull: { history: sender } }
 													)
 												}
-
 												async.series([
 													function() {
 														async.parallel([updateOne, updateTwo]);
@@ -237,11 +232,9 @@ module.exports = {
 													db.close();
 													console.log("New Senders Added To Que!");
 												});
-												
 											}
 										}
-								}
-								
+									}
 								}
 						});
 				} // else
@@ -300,14 +293,14 @@ module.exports = {
 											if (result[0].children.length < 1) {
 												console.log("No accounts currently in que for: " + result[0]._id);
 											} else {
-														db.close();
-														var time = new Date();
+												db.close();
+												var time = new Date();
 
-														if (time.getHours() < 8 || time.getHours() > 24) {
-															console.log("Offline: Night Time");
-														} else {
-															initiateTrade(account, currentTrader);
-														}
+												if (time.getHours() < 8 || time.getHours() > 24) {
+													console.log("Offline: Night Time");
+												} else {
+													initiateTrade(account, currentTrader);
+												}
 														
 											}
 									} // else
@@ -714,14 +707,15 @@ module.exports = {
 								 	result[0].lmkwd.indexOf(sender) < 0 &&
 								  	result[0].history.indexOf(sender) < 0 &&
 								  	result[0].sent.indexOf(sender) < 0) {
-									console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
 
 									async.series([
 										function() {
 											async.parallel([updateOne]);
+											done();
 										}
 									],
-									function() {
+									function done() {
+										console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
 										db.close();
 									});
 
@@ -733,12 +727,11 @@ module.exports = {
 									async.series([
 										function() {
 											async.parallel([updateOne, updateTwo, updateThree]);
-										},
-										function() {
-											console.log("Received D20, Q+ => S- => LMK-");
+											done();
 										}
 									],
-									function() {
+									function done() {
+										console.log("Received D20, Q+ => S- => LMK-");
 										db.close();
 									});
 									// If sender is on lmkwd
@@ -747,12 +740,11 @@ module.exports = {
 									async.series([
 										function() {
 											async.parallel([updateThree, updateFour]);
-										},
-										function() {
-											console.log("Received D20, LMK- => H+")
+											done();
 										}
 									],
-									function() {
+									function done() {
+										console.log("Received D20, LMK- => H+");
 										db.close();
 									});
 								}

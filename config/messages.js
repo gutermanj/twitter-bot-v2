@@ -224,14 +224,20 @@ module.exports = {
 													)
 												}
 												async.series([
-													function() {
-														async.parallel([updateOne, updateTwo]);
+														function(callback) {
+															async.parallel([updateOne, updateTwo]);
+															callback();
+														},
+														function(callback) {
+															console.log("New Senders Added To Que!");
+															db.close();
+														}
+													],
+													function(error, data) {
+														console.log(error);
+														db.close();
 													}
-												],
-												function() {
-													db.close();
-													console.log("New Senders Added To Que!");
-												});
+												);
 											}
 										}
 									}
@@ -379,14 +385,20 @@ module.exports = {
 														}
 
 														async.series([
-															function() {
-																async.parallel([updateOne, updateTwo]);
-															},
-															function() {
+																function(callback) {
+																	async.parallel([updateOne, updateTwo]);
+																	callback();
+																},
+																function(callback) {
+																	console.log("Morning Message Sent To: ", sender);
+																	db.close();
+																}
+															],
+															function(error, data) {
+																console.log(error);
 																db.close();
-																console.log("Morning Message Sent To: ", sender);
 															}
-														]);
+														);
 												
 
 													}
@@ -709,15 +721,21 @@ module.exports = {
 								  	result[0].sent.indexOf(sender) < 0) {
 
 									async.series([
-										function(done) {
-											async.parallel([updateOne]);
-											done();
+											function(callback) {
+												async.parallel([updateOne]);
+												callback();
+											},
+											function(callback) {
+												console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
+												db.close();
+											}
+										],
+										function(error, data) {
+											console.log(error);
+											console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
+											db.close();
 										}
-									],
-									function done() {
-										console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
-										db.close();
-									});
+									);
 
 								// If sender is on sent
 								} else if (	result[0].sent.indexOf(sender) > -1 &&
@@ -725,28 +743,40 @@ module.exports = {
 								  			result[0].lmkwd.indexOf(sender) < 0) {
 								// ADD TO QUE => REMOVE FROM SENT => REMOVE FROM LMKWD
 									async.series([
-										function(done) {
-											async.parallel([updateOne, updateTwo, updateThree]);
-											done();
+											function(callback) {
+												async.parallel([updateOne, updateTwo, updateThree]);
+												callback();
+											},
+											function(callback) {
+											console.log("Received D20, Q+ => S- => LMK-");
+											db.close();
+											}
+										],
+										function(error, data) {
+											console.log(error);
+											console.log("Received D20, Q+ => S- => LMK-");
+											db.close();
 										}
-									],
-									function done() {
-										console.log("Received D20, Q+ => S- => LMK-");
-										db.close();
-									});
+									);
 									// If sender is on lmkwd
 								}  else if (result[0].lmkwd.indexOf(sender) > -1) {
 									// REMOVE FROM LMKWD => ADD TO HISTORY
 									async.series([
-										function(done) {
-											async.parallel([updateThree, updateFour]);
-											done();
+											function(callback) {
+												async.parallel([updateThree, updateFour]);
+												callback();
+											},
+											function(callback) {
+											console.log("Received D20, LMK- => H+");
+											db.close();											
+											}
+										],
+										function(error, data) {
+											console.log(error);
+											console.log("Received D20, LMK- => H+");
+											db.close();
 										}
-									],
-									function done() {
-										console.log("Received D20, LMK- => H+");
-										db.close();
-									});
+									);
 								}
 							}
 

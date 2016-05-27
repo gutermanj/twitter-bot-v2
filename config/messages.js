@@ -1,6 +1,7 @@
 var Twitter = require('twitter');
 var mongodb = require('mongodb');
 var async = require("async");
+var schedule = require('node-schedule');
 var pg = require('pg');
 pg.defaults.ssl = true;
 var connectionString = 'postgres://zqjwdkhttstwfx:ykFbgDKz8eTpXM3CCyim6Zyw-m@ec2-54-235-246-67.compute-1.amazonaws.com:5432/d43r3ued3buhe1';
@@ -249,6 +250,15 @@ module.exports = {
 		} // pushSender
 	}, 1000 * 65 * 1); // Message Pull set Interval
 		console.log("currentQue Started!");
+		schedule.scheduleJob({hour:7, minute: 0}, function() {
+			console.log("Sending Out Morning Rts!");
+			morningMessage();	
+		});
+
+		schedule.scheduleJob({hour:7, minute: 30}, function() {
+			console.log("Sending Out Morning Lmkwd!");
+			morningMessageLmkwd();	
+		});
 
 		// Main Set Interval
 		currentQue = setInterval(function() {
@@ -291,11 +301,7 @@ module.exports = {
 												console.log("No accounts currently in que for: " + result[0]._id);
 											} else {
 														db.close();
-														var time = new Date();
-														// Attempt to send morning message
-														morningMessage(time);
-
-														if (time.getHours() < 10 || time.getHours() > 20	) {
+														if (time.getHours() < 8 || time.getHours() > 24) {
 															console.log("Offline: Night Time");
 														} else {
 															initiateTrade(account, currentTrader);
@@ -309,7 +315,7 @@ module.exports = {
 				});
 			}		
 		}, 1000 * 60 * 20);
-		function morningMessage(time) {
+		function morningMessage() {
 			var accounts = [];
 			pg.connect(connectionString, function(err, client, done) {
 		        // Handle connection errors
@@ -331,7 +337,6 @@ module.exports = {
 		        });
 		    }); // pg connect
 			function checkTime(accounts) {
-			if (time.getHours() === 7) {
 				// At 7 AM, message the history lists with 'rts'
 				accounts.forEach(function(account) {
 					var client = new Twitter({
@@ -356,6 +361,8 @@ module.exports = {
 										historyList.forEach(function(sender, index) {
 											if (result[0].children.indexOf(sender) > -1) {
 												console.log("Morning message not sent, account qued");
+											} else if (result[0].lmkwd.indexOf(sender) > -1) {
+												console.log("Morning message not sent, account on lmkwd");
 											} else {
 												var messageParams = { screen_name: sender, text: 'rts' };
 												client.post('direct_messages/new', messageParams, function(err, message, response) {
@@ -366,14 +373,14 @@ module.exports = {
 															collection.update(
 																{ _id:  account.username },
 																{ $pull: { history: sender } }
-															) // Add sender to que
+															) // Pull Sender From History
 														}
 
 														var updateTwo = function updateAddSent() {
 															collection.update(
 																{ _id:  account.username },
 																{ $push: { sent: sender } }
-															) // Add sender to que
+															) // Add Sender To Sent
 														}
 
 														async.series([
@@ -396,7 +403,71 @@ module.exports = {
 						} // else
 					}); // MongoClient
 				}); // Accounts For Each
-			} // time check
+			}
+		} // morning message function
+
+		function morningMessageLmkwd() {
+			var accounts = [];
+			pg.connect(connectionString, function(err, client, done) {
+		        // Handle connection errors
+		        if(err) {
+		          done();
+		          console.log(err);
+		        }
+		        // SQL Query > Last account created
+		        var query = client.query("SELECT * FROM manualAccounts");
+		        // Stream results back one row at a time
+		        query.on('row', function(row) {
+		            accounts.push(row);
+		        });
+		        // After all data is returned, close connection and return results
+		        query.on('end', function() {
+		        	done();
+		        	console.log("Accounts Ready.");
+		        	checkTime(accounts);
+		        });
+		    }); // pg connect
+			function checkTime(accounts) {
+				// At 7 AM, message the history lists with 'rts'
+				accounts.forEach(function(account) {
+					var client = new Twitter({
+						consumer_key: account.consumer_key,
+		    			consumer_secret: account.consumer_secret,
+		    			access_token_key: account.access_token,
+		    			access_token_secret: account.access_token_secret,
+		    			timeout_ms: 60 * 1000
+					});
+
+					MongoClient.connect('mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13', function(err, db) {
+						if (err) {
+							console.log("Unable to connect to Mongo. Error: ", err);
+						} else {
+							console.log("Preparing Morning Message.");
+							var collection = db.collection('accounts');
+								collection.find( { _id: account.username } ).toArray(function(err, result) {
+									if (err) {
+										console.log(err);
+									} else {	
+										var lmkwdList = result[0].lmkwd;
+										lmkwdList.forEach(function(sender, index) {
+											if (result[0].sent.indexOf(sender) > -1) {
+												console.log("Morning message not sent, account on lmkwd");
+											} else {
+												var messageParams = { screen_name: sender, text: 'lmkwd' };
+												client.post('direct_messages/new', messageParams, function(err, message, response) {
+													if (err) {
+														console.log(err);
+													} else {
+														console.log("Morning Message LMKWD Sent To " + sender);
+													}
+												});
+											}
+										});
+									} // 2nd else
+								});
+						} // else
+					}); // MongoClient
+				}); // Accounts For Each
 			}
 		} // morning message function
 
@@ -517,57 +588,57 @@ module.exports = {
 			}); // MongoClient
 		}
 
-		// Every 6 hours, if accounts are in this lsit, message them 'lmkwd'
-		setInterval(function() {
-			MongoClient.connect(url, function(err, db) {
-					if (err) {
-						console.log("Unable to connect to Mongo. Error: ", err);
-					} else {
-						var collection = db.collection('accounts');
-						collection.find().toArray(function(err, result) {
-							// For each of our accounts
-							var accounts = result[0];
+		// // Every 6 hours, if accounts are in this lsit, message them 'lmkwd'
+		// setInterval(function() {
+		// 	MongoClient.connect(url, function(err, db) {
+		// 			if (err) {
+		// 				console.log("Unable to connect to Mongo. Error: ", err);
+		// 			} else {
+		// 				var collection = db.collection('accounts');
+		// 				collection.find().toArray(function(err, result) {
+		// 					// For each of our accounts
+		// 					var accounts = result[0];
 
-							accounts.forEach(function(ourAccount) {
-								// Push each lmkwd user into array
-								var presentLmkwd = [];
+		// 					accounts.forEach(function(ourAccount) {
+		// 						// Push each lmkwd user into array
+		// 						var presentLmkwd = [];
 
-								ourAccount.lmkwd.forEach(function(x) {
-									presentLmkwd.push(x);
-								});
+		// 						ourAccount.lmkwd.forEach(function(x) {
+		// 							presentLmkwd.push(x);
+		// 						});
 
-								// If any accounts are in lmkwd list, message them
-								// A different function handles removing them in time
-								if (presentLmkwd.length > 0) {
-									var pgAccount = [];
+		// 						// If any accounts are in lmkwd list, message them
+		// 						// A different function handles removing them in time
+		// 						if (presentLmkwd.length > 0) {
+		// 							var pgAccount = [];
 
-									pg.connect(connectionString, function(err, client, done) {
-								        // Handle connection errors
-								        if(err) {
-								          done();
-								          console.log(err);
-								        }
-								        // SQL Query > Last account created
-								        var query = client.query("SELECT * FROM manualAccounts WHERE username=" + "'" + ourAccount._id + "'");
-								        // Stream results back one row at a time
-								        query.on('row', function(row) {
-								            pgAccount.push(row);
-								        });
-								        // After all data is returned, close connection and return results
-								        query.on('end', function() {
-								        	done();
-								        	messageThem(pgAccount, presentLmkwd);
-								        });
-								    }); // pg connect
+		// 							pg.connect(connectionString, function(err, client, done) {
+		// 						        // Handle connection errors
+		// 						        if(err) {
+		// 						          done();
+		// 						          console.log(err);
+		// 						        }
+		// 						        // SQL Query > Last account created
+		// 						        var query = client.query("SELECT * FROM manualAccounts WHERE username=" + "'" + ourAccount._id + "'");
+		// 						        // Stream results back one row at a time
+		// 						        query.on('row', function(row) {
+		// 						            pgAccount.push(row);
+		// 						        });
+		// 						        // After all data is returned, close connection and return results
+		// 						        query.on('end', function() {
+		// 						        	done();
+		// 						        	messageThem(pgAccount, presentLmkwd);
+		// 						        });
+		// 						    }); // pg connect
 
-								}
+		// 						}
 
-							});
-						});
-					}
-					db.close();
-			}); // MongoClient
-		}, 1000 * 60 * 60 * 6);
+		// 					});
+		// 				});
+		// 			}
+		// 			db.close();
+		// 	}); // MongoClient
+		// }, 1000 * 60 * 60 * 6);
 
 
 		function messageThem(pgAccount, presentLmkwd) {

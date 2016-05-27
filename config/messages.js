@@ -259,6 +259,11 @@ module.exports = {
 			morningMessageLmkwd();	
 		});
 
+		schedule.scheduleJob({hour:1}, function() {
+			console.log("Migrating Sent Back To History");
+			migrateSentToHistory();	
+		});
+
 		// Main Set Interval
 		currentQue = setInterval(function() {
 			var accounts = [];
@@ -316,6 +321,70 @@ module.exports = {
 				});
 			}		
 		}, 1000 * 60 * 20);
+		function migrateSentToHistory() {
+			var accounts = [];
+			pg.connect(connectionString, function(err, client, done) {
+		        // Handle connection errors
+		        if(err) {
+		          done();
+		          console.log(err);
+		        }
+		        // SQL Query > Last account created
+		        var query = client.query("SELECT * FROM manualAccounts");
+		        // Stream results back one row at a time
+		        query.on('row', function(row) {
+		            accounts.push(row);
+		        });
+		        // After all data is returned, close connection and return results
+		        query.on('end', function() {
+		        	done();
+		        	console.log("Accounts Ready To Be Migrated.");
+		        	migrate(accounts);
+		        });
+		    }); // pg connect
+			function migrate() {
+				accounts.forEach(function(account) {
+					MongoClient.connect('mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13', function(err, db) {
+						if (err) {
+							console.log(err);
+						} else {
+							var collection = db.collection('accounts');
+							collection.find( { _id: account.username } ).toArray(function(err, result) {
+								if (err) {
+									console.log(err);
+								} else {
+									var currentSent = result[0].sent;
+									currentSent.forEach(function(thisSent) {
+										var updateOne = function updateMigrateToHistory() {
+															if (result[0].history.indexOf(thisSent) < 0) {
+																collection.update(
+																	{ _id:  account.username },
+																	{ $push: { history: thisSent } }
+																) // Migrate each Sent Account to History List
+															}
+														}
+										async.series([
+												function(callback) {
+													async.parallel([updateOne])
+													callback();
+												},
+												function(callback) {
+													db.close();
+												}
+											],
+											function(error, data) {
+												console.log(error);
+												db.close();
+											}
+										); // series
+									}); // current sent for each
+								}
+							});
+						}
+					});
+				});
+			}
+		}
 		function morningMessage() {
 			var accounts = [];
 			pg.connect(connectionString, function(err, client, done) {

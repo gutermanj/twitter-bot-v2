@@ -301,6 +301,8 @@ module.exports = {
 												console.log("No accounts currently in que for: " + result[0]._id);
 											} else {
 														db.close();
+														var time = new Date();
+
 														if (time.getHours() < 8 || time.getHours() > 24) {
 															console.log("Offline: Night Time");
 														} else {

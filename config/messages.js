@@ -709,7 +709,7 @@ module.exports = {
 								  	result[0].sent.indexOf(sender) < 0) {
 
 									async.series([
-										function() {
+										function(done) {
 											async.parallel([updateOne]);
 											done();
 										}
@@ -725,7 +725,7 @@ module.exports = {
 								  			result[0].lmkwd.indexOf(sender) < 0) {
 								// ADD TO QUE => REMOVE FROM SENT => REMOVE FROM LMKWD
 									async.series([
-										function() {
+										function(done) {
 											async.parallel([updateOne, updateTwo, updateThree]);
 											done();
 										}
@@ -738,7 +738,7 @@ module.exports = {
 								}  else if (result[0].lmkwd.indexOf(sender) > -1) {
 									// REMOVE FROM LMKWD => ADD TO HISTORY
 									async.series([
-										function() {
+										function(done) {
 											async.parallel([updateThree, updateFour]);
 											done();
 										}

@@ -259,7 +259,7 @@ module.exports = {
 			morningMessageLmkwd();	
 		});
 
-		schedule.scheduleJob({hour:1}, function() {
+		schedule.scheduleJob({hour:1, minute: 20}, function() {
 			console.log("Migrating Sent Back To History");
 			migrateSentToHistory();	
 		});

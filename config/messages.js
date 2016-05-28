@@ -365,10 +365,12 @@ module.exports = {
 														}
 										async.series([
 												function(callback) {
-													async.parallel([updateOne])
+													async.parallel([updateOne]);
+													console.log(".");
 													callback();
 												},
 												function(callback) {
+													console.log("Finished Migrating Sent List For Account: " + account.username);
 													db.close();
 												}
 											],

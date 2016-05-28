@@ -355,12 +355,19 @@ module.exports = {
 								} else {
 									var currentSent = result[0].sent;
 									var updateOne = function updateMigrateToHistory() {
+														var alreadyAdded = [];
 														currentSent.forEach(function(thisSent) {
 															if (result[0].history.indexOf(thisSent) < 0) {
-																collection.update(
-																	{ _id:  account.username },
-																	{ $push: { history: thisSent } }
-																) // Migrate each Sent Account to History List
+																if (alreadyAdded.indexOf(thisSent) > -1) {
+																	console.log("Duplicate Sent");
+																} else {
+																	collection.update(
+																		{ _id:  account.username },
+																		{ $push: { history: thisSent } }
+																	) // Migrate each Sent Account to History List
+
+																	alreadyAdded.push(thisSent);
+																}
 															}
 														}); // current sent for each
 													}
@@ -815,12 +822,11 @@ module.exports = {
 								// ADD TO QUE => REMOVE FROM SENT => REMOVE FROM LMKWD
 									async.series([
 											function(callback) {
-												async.parallel([updateOne, updateTwo, updateThree]);
+												async.parallel([updateTwo, updateOne, updateThree]);
 												callback();
 											},
 											function(callback) {
 											console.log("Received D20, Q+ => S- => LMK-");
-											db.close();
 											}
 										],
 										function(error, data) {

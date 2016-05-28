@@ -259,7 +259,7 @@ module.exports = {
 			morningMessageLmkwd();	
 		});
 
-		schedule.scheduleJob({hour:1, minute: 20}, function() {
+		schedule.scheduleJob({hour:1, minute: 30}, function() {
 			console.log("Migrating Sent Back To History");
 			migrateSentToHistory();	
 		});
@@ -354,32 +354,33 @@ module.exports = {
 									console.log(err);
 								} else {
 									var currentSent = result[0].sent;
-									currentSent.forEach(function(thisSent) {
-										var updateOne = function updateMigrateToHistory() {
+									var updateOne = function updateMigrateToHistory() {
+														currentSent.forEach(function(thisSent) {
 															if (result[0].history.indexOf(thisSent) < 0) {
 																collection.update(
 																	{ _id:  account.username },
 																	{ $push: { history: thisSent } }
 																) // Migrate each Sent Account to History List
 															}
-														}
-										async.series([
-												function(callback) {
-													async.parallel([updateOne]);
-													console.log(".");
-													callback();
-												},
-												function(callback) {
-													console.log("Finished Migrating Sent List For Account: " + account.username);
-													db.close();
-												}
-											],
-											function(error, data) {
-												console.log(error);
+														}); // current sent for each
+													}
+
+									async.series([
+											function(callback) {
+												async.parallel([updateOne]);
+												console.log(".");
+												callback();
+											},
+											function(callback) {
+												console.log("Finished Migrating Sent List For Account: " + account.username);
 												db.close();
 											}
-										); // series
-									}); // current sent for each
+										],
+										function(error, data) {
+											console.log(error);
+											db.close();
+										}
+									); // series
 								}
 							});
 						}

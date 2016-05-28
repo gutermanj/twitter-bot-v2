@@ -259,7 +259,7 @@ module.exports = {
 			morningMessageLmkwd();	
 		});
 
-		schedule.scheduleJob({hour:1, minute: 30}, function() {
+		schedule.scheduleJob({hour:1, minute: 34}, function() {
 			console.log("Migrating Sent Back To History");
 			migrateSentToHistory();	
 		});
@@ -373,7 +373,6 @@ module.exports = {
 											},
 											function(callback) {
 												console.log("Finished Migrating Sent List For Account: " + account.username);
-												db.close();
 											}
 										],
 										function(error, data) {

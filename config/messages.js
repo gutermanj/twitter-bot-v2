@@ -64,7 +64,7 @@ module.exports = {
 		}
 
 		function spacedFilter(uppcasedMessage) {
-			var filters = ["TOP LIKES LMK!", "NS 15", "NS 20"];
+			var filters = ["TOP LIKES LMK!"];
 			for (i = 0; i < filters.length; i++) {
 				if (uppcasedMessage.indexOf(filters[i]) > -1) {
 					return true;

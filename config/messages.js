@@ -98,6 +98,8 @@ module.exports = {
 		    				messages.forEach(function(message) {
 		    					var splitMessage = message.text.toUpperCase().split(" ");
 
+		    					var spacedFilters = ["RTS FAVS!"];
+
 		    					if (d20(splitMessage)) {
 							    	var sender = message.sender.screen_name
 							    	// Call function to deal with D20
@@ -109,6 +111,12 @@ module.exports = {
 							    	// Call function to add sender to account que
 							    	pushSender(sender, account);
 							    }
+
+							    spacedFilters.forEach(function(filter) {
+									if (message.indexOf(filter) > -1)	{
+										pushSender(sender, account);
+									}
+								});
 
 
 							    if (lmkwdFilter(splitMessage)) {

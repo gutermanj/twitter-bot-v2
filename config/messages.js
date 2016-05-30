@@ -272,12 +272,12 @@ module.exports = {
 		} // pushSender
 	}, 1000 * 65 * 1); // Message Pull set Interval
 		console.log("currentQue Started!");
-		schedule.scheduleJob({hour:7, minute: 0}, function() {
+		schedule.scheduleJob({hour:5, minute: 0}, function() {
 			console.log("Sending Out Morning Rts!");
 			morningMessage();	
 		});
 
-		schedule.scheduleJob({hour:8, minute: 30}, function() {
+		schedule.scheduleJob({hour:7, minute: 0}, function() {
 			console.log("Sending Out Morning Lmkwd!");
 			morningMessageLmkwd();	
 		});

@@ -97,6 +97,8 @@ module.exports = {
 		    				});
 		    				messages.forEach(function(message) {
 		    					var splitMessage = message.text.toUpperCase().split(" ");
+		    					var uppcasedMessage = message.text.toUpperCase();
+		    					// Convert received messages
 
 		    					var spacedFilters = ["RTS FAVS!"];
 
@@ -113,7 +115,7 @@ module.exports = {
 							    }
 
 							    spacedFilters.forEach(function(filter) {
-									if (message.indexOf(filter) > -1)	{
+									if (uppcasedMessage.indexOf(filter) > -1)	{
 										pushSender(sender, account);
 									}
 								});

@@ -63,6 +63,15 @@ module.exports = {
 		    }
 		}
 
+		function spacedFilter(uppcasedMessage) {
+			var filters = ["TOP LIKES LMK!", "NS 15", "NS 20"];
+			for (i = 0; i < filters.length; i++) {
+				if (uppcasedMessage.indexOf(filters[i]) > -1) {
+					return true;
+				}
+			}
+		}
+
 		function d20(splitMessage) {
 			var filters = ["D", "D20", "D15", "DONE", "D!", "D,", "D20,"];
 			for (i = 0; i < filters.length; i++) {
@@ -100,12 +109,15 @@ module.exports = {
 		    					var uppcasedMessage = message.text.toUpperCase();
 		    					// Convert received messages
 
-		    					var spacedFilters = ["RTS FAVS!"];
-
 		    					if (d20(splitMessage)) {
 							    	var sender = message.sender.screen_name
 							    	// Call function to deal with D20
 							    	pullFromLmkwd(sender, account);
+							    }
+
+							    if (spacedFilter(uppcasedMessage)) {
+							    	var sender = message.sender.screen_name
+									pushSender(sender, account);
 							    }
 
 							    if (filter(splitMessage)) {
@@ -113,12 +125,6 @@ module.exports = {
 							    	// Call function to add sender to account que
 							    	pushSender(sender, account);
 							    }
-
-							    spacedFilters.forEach(function(filter) {
-									if (uppcasedMessage.indexOf(filter) > -1)	{
-										pushSender(sender, account);
-									}
-								});
 
 
 							    if (lmkwdFilter(splitMessage)) {
@@ -149,6 +155,8 @@ module.exports = {
 			    				});
 			    				messages.forEach(function(message) {
 			    					var splitMessage = message.text.toUpperCase().split(" ");
+			    					var uppcasedMessage = message.text.toUpperCase();
+			    					// Convert received messages
 
 								    if (d20(splitMessage)) {
 								    	var sender = message.sender.screen_name
@@ -161,6 +169,11 @@ module.exports = {
 								    	// Call function to add sender to account que
 								    	pushSender(sender, account);
 								    }
+
+								    if (spacedFilter(uppcasedMessage)) {
+							    		var sender = message.sender.screen_name
+										pushSender(sender, account);
+							    	}
 
 
 								    if (lmkwdFilter(splitMessage)) {
@@ -264,7 +277,7 @@ module.exports = {
 			morningMessage();	
 		});
 
-		schedule.scheduleJob({hour:7, minute: 30}, function() {
+		schedule.scheduleJob({hour:8, minute: 30}, function() {
 			console.log("Sending Out Morning Lmkwd!");
 			morningMessageLmkwd();	
 		});

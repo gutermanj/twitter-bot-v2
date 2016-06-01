@@ -158,11 +158,12 @@ module.exports = {
 			    					var uppcasedMessage = message.text.toUpperCase();
 			    					// Convert received messages
 
-								    if (d20(splitMessage)) {
-								    	var sender = message.sender.screen_name
-								    	// Call function to deal with D20
-								    	pullFromLmkwd(sender, account);
-								    }
+								    // if (d20(splitMessage)) {
+								    // 	var sender = message.sender.screen_name
+								    // 	// Call function to deal with D20
+								    // 	pullFromLmkwd(sender, account);
+								    // }
+								    // COMMENTED OUT FOR 1 TIME TURN ON
 
 								    if (filter(splitMessage)) {
 								    	var sender = message.sender.screen_name
@@ -210,27 +211,32 @@ module.exports = {
 											console.log("Account On Blacklist...");
 										} else {
 											if (result[0].lmkwd.indexOf(sender) > -1) {
-												var client = new Twitter ({
-									    			consumer_key: account.consumer_key,
-									    			consumer_secret: account.consumer_secret,
-									    			access_token_key: account.access_token,
-									    			access_token_secret: account.access_token_secret,
-									    			timeout_ms: 60 * 1000
-									    		});
+												// var client = new Twitter ({
+									   //  			consumer_key: account.consumer_key,
+									   //  			consumer_secret: account.consumer_secret,
+									   //  			access_token_key: account.access_token,
+									   //  			access_token_secret: account.access_token_secret,
+									   //  			timeout_ms: 60 * 1000
+									   //  		});
 
-									    		var messageParams = { screen_name: sender, text: 'lmkwd' };
-									    		var items = [2, 3, 4, 5];
-												var randomMinute = items[Math.floor(Math.random()*items.length)];
-										    	// Confirm D20 message to sender
-										    	setTimeout(function() {
-													client.post('direct_messages/new', messageParams, function(err, message, response) {
-														if (err) {
-															console.log(err);
-														} else {
-															console.log("We let em know..." + sender + " Sent from: " + account.username);
-														}
-													});
-												}, 1000 * 60 * randomMinute);
+									   //  		var messageParams = { screen_name: sender, text: 'lmkwd' };
+									   //  		var items = [2, 3, 4, 5];
+												// var randomMinute = items[Math.floor(Math.random()*items.length)];
+										  //   	// Confirm D20 message to sender
+										  //   	setTimeout(function() {
+												// 	client.post('direct_messages/new', messageParams, function(err, message, response) {
+												// 		if (err) {
+												// 			console.log(err);
+												// 		} else {
+												// 			console.log("We let em know..." + sender + " Sent from: " + account.username);
+												// 		}
+												// 	});
+												// }, 1000 * 60 * randomMinute);
+												// COMMENTED OUT FOR 1 TIME TURN ON
+												// COMMENTED OUT FOR 1 TIME TURN ON
+												// COMMENTED OUT FOR 1 TIME TURN ON
+												// COMMENTED OUT FOR 1 TIME TURN ON
+												console.log("Would've Sent lmkwd to " + sender + " from " + account.username);
 											} else {
 												var updateOne = function updateAddQue() {
 													collection.update(
@@ -821,43 +827,48 @@ module.exports = {
 								  	result[0].history.indexOf(sender) < 0 &&
 								  	result[0].sent.indexOf(sender) < 0) {
 
-									async.series([
-											function(callback) {
-												async.parallel([updateOne]);
-												callback();
-											},
-											function(callback) {
-												console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
-												db.close();
-											}
-										],
-										function(error, data) {
-											console.log(error);
-											console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
-											db.close();
-										}
-									);
+									// async.series([
+									// 		function(callback) {
+									// 			async.parallel([updateOne]);
+									// 			callback();
+									// 		},
+									// 		function(callback) {
+									// 			console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
+									// 			db.close();
+									// 		}
+									// 	],
+									// 	function(error, data) {
+									// 		console.log(error);
+									// 		console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
+									// 		db.close();
+									// 	}
+									// );
+									// COMMENTED OUT FOR 1 TIME TURN ON
+									// COMMENTED OUT FOR 1 TIME TURN ON
+									// COMMENTED OUT FOR 1 TIME TURN ON
 
 								// If sender is on sent
 								} else if (	result[0].sent.indexOf(sender) > -1 &&
 											result[0].children.indexOf(sender) < 0 &&
 								  			result[0].lmkwd.indexOf(sender) < 0) {
 								// ADD TO QUE => REMOVE FROM SENT => REMOVE FROM LMKWD
-									async.series([
-											function(callback) {
-												async.parallel([updateTwo, updateOne, updateThree]);
-												callback();
-											},
-											function(callback) {
-											console.log("Received D20, Q+ => S- => LMK-");
-											}
-										],
-										function(error, data) {
-											console.log(error);
-											console.log("Received D20, Q+ => S- => LMK-");
-											db.close();
-										}
-									);
+									// async.series([
+									// 		function(callback) {
+									// 			async.parallel([updateTwo, updateOne, updateThree]);
+									// 			callback();
+									// 		},
+									// 		function(callback) {
+									// 		console.log("Received D20, Q+ => S- => LMK-");
+									// 		}
+									// 	],
+									// 	function(error, data) {
+									// 		console.log("MONGO ERROR: ON SENT" + error);
+									// 		db.close();
+									// 	}
+									// );
+									// COMMENTED OUT FOR 1 TIME TURN ON
+									// COMMENTED OUT FOR 1 TIME TURN ON
+									// COMMENTED OUT FOR 1 TIME TURN ON
 									// If sender is on lmkwd
 								}  else if (result[0].lmkwd.indexOf(sender) > -1) {
 									// REMOVE FROM LMKWD => ADD TO HISTORY

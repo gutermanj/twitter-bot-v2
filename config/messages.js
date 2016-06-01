@@ -278,15 +278,15 @@ module.exports = {
 		} // pushSender
 	}, 1000 * 65 * 1); // Message Pull set Interval
 		console.log("currentQue Started!");
-		schedule.scheduleJob({hour:5, minute: 0}, function() {
-			console.log("Sending Out Morning Rts!");
-			morningMessage();	
-		});
+		// schedule.scheduleJob({hour:5, minute: 0}, function() {
+		// 	console.log("Sending Out Morning Rts!");
+		// 	morningMessage();	
+		// });
 
-		schedule.scheduleJob({hour:7, minute: 0}, function() {
-			console.log("Sending Out Morning Lmkwd!");
-			morningMessageLmkwd();	
-		});
+		// schedule.scheduleJob({hour:7, minute: 0}, function() {
+		// 	console.log("Sending Out Morning Lmkwd!");
+		// 	morningMessageLmkwd();	
+		// });
 
 		schedule.scheduleJob({hour:1, minute: 0}, function() {
 			console.log("Migrating Sent Back To History");
@@ -846,6 +846,7 @@ module.exports = {
 									// COMMENTED OUT FOR 1 TIME TURN ON
 									// COMMENTED OUT FOR 1 TIME TURN ON
 									// COMMENTED OUT FOR 1 TIME TURN ON
+									console.log(sender + " not on any lists for " + account.username);
 
 								// If sender is on sent
 								} else if (	result[0].sent.indexOf(sender) > -1 &&
@@ -869,6 +870,7 @@ module.exports = {
 									// COMMENTED OUT FOR 1 TIME TURN ON
 									// COMMENTED OUT FOR 1 TIME TURN ON
 									// COMMENTED OUT FOR 1 TIME TURN ON
+									console.log(sender + " on send list for " + account.username);
 									// If sender is on lmkwd
 								}  else if (result[0].lmkwd.indexOf(sender) > -1) {
 									// REMOVE FROM LMKWD => ADD TO HISTORY

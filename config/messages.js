@@ -782,7 +782,6 @@ module.exports = {
 			MongoClient.connect(url, function(err, db) {
 				if (err) {
 					console.log("Unable to connect to Mongo. Error: ", err);
-					db.close();
 				} else {
 					var collection = db.collection('accounts');
 						collection.find( { _id: account.username } ).toArray(function(err, result) {
@@ -928,7 +927,6 @@ module.exports = {
 			MongoClient.connect(url, function(err, db) {
 				if (err) {
 					console.log("Unable to connect to Mongo. Error: ", err);
-					db.close();
 				} else {
 					var collection = db.collection('accounts');
 						accounts.forEach(function(account) {
@@ -951,7 +949,6 @@ module.exports = {
 			MongoClient.connect(url, function(err, db) {
 				if (err) {
 					console.log("Unable to connect to Mongo. Error: ", err);
-					db.close();
 				} else {
 					var collection = db.collection('blacklist');
 						collection.find( { _id:  sender } ).toArray(function(err, result) {

@@ -848,22 +848,22 @@ module.exports = {
 								  	result[0].history.indexOf(sender) < 0 &&
 								  	result[0].sent.indexOf(sender) < 0) {
 
-									// async.series([
-									// 		function(callback) {
-									// 			async.parallel([updateOne]);
-									// 			callback();
-									// 		},
-									// 		function(callback) {
-									// 			console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
-									// 			db.close();
-									// 		}
-									// 	],
-									// 	function(error, data) {
-									// 		console.log(error);
-									// 		console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
-									// 		db.close();
-									// 	}
-									// );
+									async.series([
+											function(callback) {
+												async.parallel([updateOne]);
+												callback();
+											},
+											function(callback) {
+												console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
+												db.close();
+											}
+										],
+										function(error, data) {
+											console.log(error);
+											console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
+											db.close();
+										}
+									);
 									// COMMENTED OUT FOR 1 TIME TURN ON
 									// COMMENTED OUT FOR 1 TIME TURN ON
 									// COMMENTED OUT FOR 1 TIME TURN ON

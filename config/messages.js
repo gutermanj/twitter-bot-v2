@@ -635,6 +635,7 @@ module.exports = {
 									if (completeRetweetCount === tweets.length - 1) {
 										messageSender(currentTrader);
 
+										// Check if trader is from inbound of outbound
 										var collection = db.collection('accounts');
 										collection.find(
 											{ _id: account.username }
@@ -970,20 +971,21 @@ module.exports = {
 					console.log("Unable to connect to Mongo. Error: ", err);
 				} else {
 					var collection = db.collection('blacklist');
-						collection.find( { _id:  sender } ).toArray(function(err, result) {
+						collection.find({}).toArray(function(err, result) {
 							if (err) {
 								console.log(err);
 							} else {
-								if (result.length > 0) {
-									console.log("Account Blacklisted!");
-									return true
-								}
+								result[0].forEach(function(blackListAccount) {
+									if (blackListAccount._id === sender) {
+										console.log("Account Blacklisted!");
+										return true
+									}
+								});
 							} // else
 						}); // Grab current trader from que
 
 						
 				}
-				db.close();
 			}); // MongoClient
 		} // blacklistFilter
 

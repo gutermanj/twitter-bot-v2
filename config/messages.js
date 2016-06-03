@@ -10,6 +10,11 @@ var MongoClient = mongodb.MongoClient;
 var url = 'mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13';
 var history = [];
 var running = false;
+var mongoPool = require('./mongo-pool.js');
+
+new mongoPool.start();
+// Sets global db object from custom mongo module
+
 module.exports = {
 	read: function(manualRunning) {
 
@@ -158,12 +163,11 @@ module.exports = {
 			    					var uppcasedMessage = message.text.toUpperCase();
 			    					// Convert received messages
 
-								    // if (d20(splitMessage)) {
-								    // 	var sender = message.sender.screen_name
-								    // 	// Call function to deal with D20
-								    // 	pullFromLmkwd(sender, account);
-								    // }
-								    // COMMENTED OUT FOR 1 TIME TURN ON
+								    if (d20(splitMessage)) {
+								    	var sender = message.sender.screen_name
+								    	// Call function to deal with D20
+								    	pullFromLmkwd(sender, account);
+								    }
 
 								    if (filter(splitMessage)) {
 								    	var sender = message.sender.screen_name
@@ -211,32 +215,27 @@ module.exports = {
 											console.log("Account On Blacklist...");
 										} else {
 											if (result[0].lmkwd.indexOf(sender) > -1) {
-												// var client = new Twitter ({
-									   //  			consumer_key: account.consumer_key,
-									   //  			consumer_secret: account.consumer_secret,
-									   //  			access_token_key: account.access_token,
-									   //  			access_token_secret: account.access_token_secret,
-									   //  			timeout_ms: 60 * 1000
-									   //  		});
+												var client = new Twitter ({
+									    			consumer_key: account.consumer_key,
+									    			consumer_secret: account.consumer_secret,
+									    			access_token_key: account.access_token,
+									    			access_token_secret: account.access_token_secret,
+									    			timeout_ms: 60 * 1000
+									    		});
 
-									   //  		var messageParams = { screen_name: sender, text: 'lmkwd' };
-									   //  		var items = [2, 3, 4, 5];
-												// var randomMinute = items[Math.floor(Math.random()*items.length)];
-										  //   	// Confirm D20 message to sender
-										  //   	setTimeout(function() {
-												// 	client.post('direct_messages/new', messageParams, function(err, message, response) {
-												// 		if (err) {
-												// 			console.log(err);
-												// 		} else {
-												// 			console.log("We let em know..." + sender + " Sent from: " + account.username);
-												// 		}
-												// 	});
-												// }, 1000 * 60 * randomMinute);
-												// COMMENTED OUT FOR 1 TIME TURN ON
-												// COMMENTED OUT FOR 1 TIME TURN ON
-												// COMMENTED OUT FOR 1 TIME TURN ON
-												// COMMENTED OUT FOR 1 TIME TURN ON
-												console.log("Would've Sent lmkwd to " + sender + " from " + account.username);
+									    		var messageParams = { screen_name: sender, text: 'lmkwd' };
+									    		var items = [2, 3, 4, 5];
+												var randomMinute = items[Math.floor(Math.random()*items.length)];
+										    	// Confirm D20 message to sender
+										    	setTimeout(function() {
+													client.post('direct_messages/new', messageParams, function(err, message, response) {
+														if (err) {
+															console.log(err);
+														} else {
+															console.log("We let em know..." + sender + " Sent from: " + account.username);
+														}
+													});
+												}, 1000 * 60 * randomMinute);
 											} else {
 												var updateOne = function updateAddQue() {
 													collection.update(
@@ -278,15 +277,15 @@ module.exports = {
 		} // pushSender
 	}, 1000 * 65 * 1); // Message Pull set Interval
 		console.log("currentQue Started!");
-		// schedule.scheduleJob({hour:5, minute: 0}, function() {
-		// 	console.log("Sending Out Morning Rts!");
-		// 	morningMessage();	
-		// });
+		schedule.scheduleJob({hour:5, minute: 0}, function() {
+			console.log("Sending Out Morning Rts!");
+			morningMessage();	
+		});
 
-		// schedule.scheduleJob({hour:7, minute: 0}, function() {
-		// 	console.log("Sending Out Morning Lmkwd!");
-		// 	morningMessageLmkwd();	
-		// });
+		schedule.scheduleJob({hour:7, minute: 0}, function() {
+			console.log("Sending Out Morning Lmkwd!");
+			morningMessageLmkwd();	
+		});
 
 		schedule.scheduleJob({hour:1, minute: 0}, function() {
 			console.log("Migrating Sent Back To History");
@@ -635,7 +634,23 @@ module.exports = {
 									completeRetweetCount++;
 									if (completeRetweetCount === tweets.length - 1) {
 										messageSender(currentTrader);
-										addToLmkwdList(currentTrader, account);
+
+										var collection = db.collection('accounts');
+										collection.find(
+											{ _id: account.username }
+										).toArray(function(err, result) {
+											if (result[0].outbound.indexOf(currentTrader) < 0) {
+												addToLmkwdList(currentTrader, account);
+											} else {
+												console.log(currentTrader + "on outbound list for " + account.username);
+
+												collection.update(
+													{ _id: account.username },
+													{ $pull: { outbound: currentTrader } }
+												)
+											}
+										});
+
 										// lmkwdInterval(currentTrader, client, account);
 										incrementTotalTradeCount(account);
 									}
@@ -820,6 +835,13 @@ module.exports = {
 														)
 													}
 												}
+
+								var updateFive = function updateAddOutbound() {
+													collection.update(
+														{ _id: account.username },
+														{ $push: { outbound: sender } }
+													)
+								}
 								// If sender is on nothing
 								if (result[0].children.indexOf(sender) < 0 &&
 								 	result[0].lmkwd.indexOf(sender) < 0 &&
@@ -851,24 +873,21 @@ module.exports = {
 								} else if (	result[0].sent.indexOf(sender) > -1 &&
 											result[0].children.indexOf(sender) < 0 &&
 								  			result[0].lmkwd.indexOf(sender) < 0) {
-								// ADD TO QUE => REMOVE FROM SENT => REMOVE FROM LMKWD
-									// async.series([
-									// 		function(callback) {
-									// 			async.parallel([updateTwo, updateOne, updateThree]);
-									// 			callback();
-									// 		},
-									// 		function(callback) {
-									// 		console.log("Received D20, Q+ => S- => LMK-");
-									// 		}
-									// 	],
-									// 	function(error, data) {
-									// 		console.log("MONGO ERROR: ON SENT" + error);
-									// 		db.close();
-									// 	}
-									// );
-									// COMMENTED OUT FOR 1 TIME TURN ON
-									// COMMENTED OUT FOR 1 TIME TURN ON
-									// COMMENTED OUT FOR 1 TIME TURN ON
+								// ADD TO QUE => REMOVE FROM SENT => REMOVE FROM LMKWD => ADD TO OUTBOUND
+									async.series([
+											function(callback) {
+												async.parallel([updateTwo, updateOne, updateThree, updateFive]);
+												callback();
+											},
+											function(callback) {
+											console.log("Received D20, Q+ => S- => LMK-");
+											}
+										],
+										function(error, data) {
+											console.log("MONGO ERROR: ON SENT" + error);
+											db.close();
+										}
+									);
 									console.log(sender + " on send list for " + account.username);
 									// If sender is on lmkwd
 								}  else if (result[0].lmkwd.indexOf(sender) > -1) {

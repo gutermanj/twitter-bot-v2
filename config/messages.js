@@ -17,6 +17,7 @@ new mongoPool.start();
 
 module.exports = {
 	read: function(manualRunning) {
+		var grantedAccounts = [];
 
 		var currentQueCounter = 0;
 		if (manualRunning === false) {
@@ -84,6 +85,29 @@ module.exports = {
 		            return true;
 		        }
 		    }
+		}
+
+		function checkFollowers(sender, account) {
+
+			var client = new Twitter({
+				consumer_key: account.consumer_key,
+    			consumer_secret: account.consumer_secret,
+    			access_token_key: account.access_token,
+    			access_token_secret: account.access_token_secret,
+    			timeout_ms: 60 * 1000
+			});
+
+			var params = { screen_name: sender };
+
+			client.get('users/show', params, function(err, user, response) {
+				if (err) {
+					console.log("Users/Show", err)
+				} else {
+					console.log(user);
+					return true;
+				}
+			});
+
 		}
 		// Starts the forEach on each account to pull messages from twitter
 	    function pullMessages() {
@@ -214,60 +238,66 @@ module.exports = {
 										if (blacklistFilter(sender)) {
 											console.log("Account On Blacklist...");
 										} else {
-											if (result[0].lmkwd.indexOf(sender) > -1) {
-												// var client = new Twitter ({
-									   //  			consumer_key: account.consumer_key,
-									   //  			consumer_secret: account.consumer_secret,
-									   //  			access_token_key: account.access_token,
-									   //  			access_token_secret: account.access_token_secret,
-									   //  			timeout_ms: 60 * 1000
-									   //  		});
 
-									   //  		var messageParams = { screen_name: sender, text: 'lmkwd' };
-									   //  		var items = [2, 3, 4, 5];
-												// var randomMinute = items[Math.floor(Math.random()*items.length)];
-										  //   	// Confirm D20 message to sender
-										  //   	setTimeout(function() {
-												// 	client.post('direct_messages/new', messageParams, function(err, message, response) {
-												// 		if (err) {
-												// 			console.log(err);
-												// 		} else {
-												// 			console.log("We let em know..." + sender + " Sent from: " + account.username);
-												// 		}
-												// 	});
-												// }, 1000 * 60 * randomMinute);
+											if (grantedAccounts.indexOf(sender) > -1 || checkFollowers(sender, account)) {
 
-												console.log("Would've sent lmkwd to " + sender + " from " + account.username);
-											} else {
-												var updateOne = function updateAddQue() {
-													collection.update(
-														{ _id:  account.username },
-														{ $push: { children: sender } }
-													) // Add sender to que
-												}
-												// REMOVE SENDER FROM HISTORY
-												// SO WHEN WE RECEIVE DONE FROM THEIR D20, IT DOESN'T RE-ADD THEM TO QUE
-												var updateTwo = function updateRemoveHistory() {
-													collection.update(
-														{ _id: account.username },
-														{ $pull: { history: sender } }
-													)
-												}
-												async.series([
-														function(callback) {
-															async.parallel([updateOne, updateTwo]);
-															callback();
-														},
-														function(callback) {
-															console.log("New Senders Added To Que!");
+												if (result[0].lmkwd.indexOf(sender) > -1) {
+													// var client = new Twitter ({
+										   //  			consumer_key: account.consumer_key,
+										   //  			consumer_secret: account.consumer_secret,
+										   //  			access_token_key: account.access_token,
+										   //  			access_token_secret: account.access_token_secret,
+										   //  			timeout_ms: 60 * 1000
+										   //  		});
+
+										   //  		var messageParams = { screen_name: sender, text: 'lmkwd' };
+										   //  		var items = [2, 3, 4, 5];
+													// var randomMinute = items[Math.floor(Math.random()*items.length)];
+											  //   	// Confirm D20 message to sender
+											  //   	setTimeout(function() {
+													// 	client.post('direct_messages/new', messageParams, function(err, message, response) {
+													// 		if (err) {
+													// 			console.log(err);
+													// 		} else {
+													// 			console.log("We let em know..." + sender + " Sent from: " + account.username);
+													// 		}
+													// 	});
+													// }, 1000 * 60 * randomMinute);
+
+													console.log("Would've sent lmkwd to " + sender + " from " + account.username);
+												} else {
+													var updateOne = function updateAddQue() {
+														collection.update(
+															{ _id:  account.username },
+															{ $push: { children: sender } }
+														) // Add sender to que
+													}
+													// REMOVE SENDER FROM HISTORY
+													// SO WHEN WE RECEIVE DONE FROM THEIR D20, IT DOESN'T RE-ADD THEM TO QUE
+													var updateTwo = function updateRemoveHistory() {
+														collection.update(
+															{ _id: account.username },
+															{ $pull: { history: sender } }
+														)
+													}
+													async.series([
+															function(callback) {
+																async.parallel([updateOne, updateTwo]);
+																callback();
+															},
+															function(callback) {
+																console.log("New Senders Added To Que!");
+																db.close();
+															}
+														],
+														function(error, data) {
+															console.log(error);
 															db.close();
 														}
-													],
-													function(error, data) {
-														console.log(error);
-														db.close();
-													}
-												);
+													);
+												}
+											} else {
+												console.log("Not Enough Followers");
 											}
 										}
 									}

@@ -214,28 +214,30 @@ module.exports = {
 										if (blacklistFilter(sender)) {
 											console.log("Account On Blacklist...");
 										} else {
-											if (result[0].lmkwd.indexOf(sender) > -1) {
-												var client = new Twitter ({
-									    			consumer_key: account.consumer_key,
-									    			consumer_secret: account.consumer_secret,
-									    			access_token_key: account.access_token,
-									    			access_token_secret: account.access_token_secret,
-									    			timeout_ms: 60 * 1000
-									    		});
+											// if (result[0].lmkwd.indexOf(sender) > -1) {
+											// 	var client = new Twitter ({
+									  //   			consumer_key: account.consumer_key,
+									  //   			consumer_secret: account.consumer_secret,
+									  //   			access_token_key: account.access_token,
+									  //   			access_token_secret: account.access_token_secret,
+									  //   			timeout_ms: 60 * 1000
+									  //   		});
 
-									    		var messageParams = { screen_name: sender, text: 'lmkwd' };
-									    		var items = [2, 3, 4, 5];
-												var randomMinute = items[Math.floor(Math.random()*items.length)];
-										    	// Confirm D20 message to sender
-										    	setTimeout(function() {
-													client.post('direct_messages/new', messageParams, function(err, message, response) {
-														if (err) {
-															console.log(err);
-														} else {
-															console.log("We let em know..." + sender + " Sent from: " + account.username);
-														}
-													});
-												}, 1000 * 60 * randomMinute);
+									  //   		var messageParams = { screen_name: sender, text: 'lmkwd' };
+									  //   		var items = [2, 3, 4, 5];
+											// 	var randomMinute = items[Math.floor(Math.random()*items.length)];
+										 //    	// Confirm D20 message to sender
+										 //    	setTimeout(function() {
+											// 		client.post('direct_messages/new', messageParams, function(err, message, response) {
+											// 			if (err) {
+											// 				console.log(err);
+											// 			} else {
+											// 				console.log("We let em know..." + sender + " Sent from: " + account.username);
+											// 			}
+											// 		});
+											// 	}, 1000 * 60 * randomMinute);
+
+											console.log("Would've sent lmkwd to " + sender + " from " + account.username);
 											} else {
 												var updateOne = function updateAddQue() {
 													collection.update(

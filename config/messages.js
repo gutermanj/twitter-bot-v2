@@ -51,7 +51,8 @@ module.exports = {
 	    function filter(uppcasedMessage) {
 		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS,", "FAVS,", "RTS!", "RT,",
 		    					"FAVORITES", "RTS?FAVS!", "TRADE", "RTS?", "RETWEETS?", "RETWEETS!", "RT?",
-		    					"RETWEET", "RETWEET?"];
+		    					"RETWEET", "RETWEET?", "RTS? FAVS, AD ON TOP NS 20", "RT TOP 3 LIKES! NS 15",
+		    					 "TRADE LIKES! NS 20", "RTS? 20NS", "RTS? 20 LMKWD"];
 
 		    if (filters.indexOf(uppcasedMessage) > -1) {
 		    	return true;

@@ -973,7 +973,7 @@ module.exports = {
 					console.log("Unable to connect to Mongo. Error: ", err);
 				} else {
 					var collection = db.collection('blacklist');
-						collection.find({}).toArray(function(err, result) {
+						collection.find().toArray(function(err, result) {
 							if (err) {
 								console.log(err);
 							} else {

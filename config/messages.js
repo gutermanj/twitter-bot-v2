@@ -977,7 +977,7 @@ module.exports = {
 							if (err) {
 								console.log(err);
 							} else {
-								result[0].forEach(function(blackListAccount) {
+								result.forEach(function(blackListAccount) {
 									if (blackListAccount._id === sender) {
 										console.log("Account Blacklisted!");
 										return true

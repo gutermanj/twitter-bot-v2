@@ -48,15 +48,13 @@ module.exports = {
 	        });
 	    }); // pg connect
 	    // Called to filter incoming messages on twitter
-	    function filter(splitMessage) {
+	    function filter(uppcasedMessage) {
 		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS,", "FAVS,", "RTS!", "RT,",
 		    					"FAVORITES", "RTS?FAVS!", "TRADE", "RTS?", "RETWEETS?", "RETWEETS!", "RT?",
 		    					"RETWEET", "RETWEET?"];
 
-		    for (i = 0; i < filters.length; i++) {
-		        if (splitMessage.indexOf(filters[i]) > -1) {
-		            return true;
-		        }
+		    if (filters.indexOf(uppcasedMessage) > -1) {
+		    	return true;
 		    }
 		}
 		// Filters messages on twitter
@@ -87,9 +85,6 @@ module.exports = {
 		    }
 		}
 
-		function checkFollowers(sender, account) {
-
-		}
 		// Starts the forEach on each account to pull messages from twitter
 	    function pullMessages() {
 	    	accounts.forEach(function(account) {
@@ -130,7 +125,7 @@ module.exports = {
 									pushSender(sender, account);
 							    }
 
-							    if (filter(splitMessage)) {
+							    if (filter(uppcasedMessage)) {
 							    	var sender = message.sender.screen_name
 							    	// Call function to add sender to account que
 							    	pushSender(sender, account);

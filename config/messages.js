@@ -293,7 +293,6 @@ module.exports = {
 																},
 																function(callback) {
 																	console.log("New Senders Added To Que!");
-																	db.close();
 																}
 															],
 															function(error, data) {
@@ -892,7 +891,6 @@ module.exports = {
 											},
 											function(callback) {
 												console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
-												db.close();
 											}
 										],
 										function(error, data) {
@@ -935,13 +933,13 @@ module.exports = {
 												callback();
 											},
 											function(callback) {
-											console.log("Received D20, LMK- => H+");
-											db.close();											
+											console.log("Received D20, LMK- => H+ " + sender + " was added to " + account.username);									
 											}
 										],
 										function(error, data) {
-											console.log(error);
-											console.log("MONGO ERROR: ON LMKWD" + error);
+											if (error) {
+												console.log("MONGO ERROR: ON LMKWD" + error);
+											}
 											db.close();
 										}
 									);

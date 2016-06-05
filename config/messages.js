@@ -1011,12 +1011,11 @@ module.exports = {
 							if (err) {
 								console.log(err);
 							} else {
-								result.forEach(function(blackListAccount) {
-									if (blackListAccount._id === sender) {
-										console.log("Account Blacklisted!");
-										return true
+								for (var i = 0; i < result.length; i++) {
+									if (result[i]._id === sender) {
+										return true;
 									}
-								});
+								}
 							} // else
 						}); // Grab current trader from que
 

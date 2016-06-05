@@ -887,7 +887,7 @@ module.exports = {
 
 									async.series([
 											function(callback) {
-												async.parallel([updateOne]);
+												async.parallel([updateOne, updateFive]);
 												callback();
 											},
 											function(callback) {

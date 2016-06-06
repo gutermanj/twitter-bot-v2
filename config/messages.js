@@ -1024,23 +1024,25 @@ module.exports = {
 
 
 		function messageSirBryan(sender, account) {
-			var client = new Twitter ({
-				consumer_key: account.consumer_key,
-    			consumer_secret: account.consumer_secret,
-    			access_token_key: account.access_token,
-    			access_token_secret: account.access_token_secret,
-    			timeout_ms: 60 * 1000
+			// NEW STUFF HERE AND BELOW
+
+			pg.connect(connectionString, function(err, client, done) {
+				if (err) {
+					return console.error('error fetching client from pool', err);
+				}
+
+				client.query('INSERT INTO lmkwd (sender, timestamp, account_id) VALUES ($1, DEFAULT, $2)', [sender, account.id], function(err, result) {
+					if (err) {
+						return console.error('error inserting user into lmkwd', err);
+					}
+
+					done();
+					console.log("Successfully added sender to lmkwd");
+
+				});
+
 			});
 
-			var messageParams = { screen_name: 'sirbryanthewise', text: "LMKWD or GET sent by" + sender };
-	    	// Confirm D20 message to sender
-			client.post('direct_messages/new', messageParams, function(err, message, response) {
-				if (err) {
-					console.log(err);
-				} else {
-					console.log("Messages Bryan.");
-				}
-			});
 		}
 
 	} // read: function()

@@ -569,6 +569,7 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
     var userCount = [];
     var accountCount = [];
     var manualAccountCount = [];
+    var allLmkwdNotifications = []
 
     
 
@@ -589,6 +590,8 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
 
         var manualAccounts = client.query("SELECT COUNT(*) FROM manualaccounts");
 
+        var lmkwdNotifications = client.query("SELECT * FROM manualaccounts JOIN lmkwd ON (manualaccounts.id = lmkwd.account_id)");
+
         // Stream results back one row at a time
         users.on('row', function(row) {
             userCount.push(row);
@@ -598,6 +601,15 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
         users.on('end', function() {
             res.locals.userCount = userCount[0];
             done();
+        });
+
+        lmkwdNotifications.on('row', function(row) {
+          allLmkwdNotifications.push(row);
+        });
+
+        lmkwdNotifications.on('end', function() {
+          done();
+          console.log(allLmkwdNotifications);
         });
 
 

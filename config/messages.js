@@ -137,10 +137,24 @@ module.exports = {
 
 							    if (lmkwdFilter(splitMessage)) {
 							    	var sender = message.sender.screen_name
+								    	MongoClient.connect(url, function(err, db) {
+											if (err) {
+												console.log("Unable to connect to Mongo. Error: ", err);
+											} else {
+												var collection = db.collection('accounts');
+												collection.find( { _id:  account.username } ).toArray(function(err, result) {
+													if (err) {
+														console.log(err);
+													} else {
+															if (result[0].children.indexOf(sender) < 0) {
+																messageSirBryan(sender, account);
+															}
+													} // else
+												}); // Grab current trader from que
+											}
+										}); // MongoClient
 							    	// Call function to message Bryan ( Missing Retweets )
-							    	messageSirBryan(sender, account);
 							    }
-
 		    				});
 		    			}
 		    		}); // client.get
@@ -204,12 +218,7 @@ module.exports = {
 												}
 											}); // MongoClient
 								    	// Call function to message Bryan ( Missing Retweets )
-								    	
-
 								    }
-
-
-
 			    				});
 		    				}
 				    	}

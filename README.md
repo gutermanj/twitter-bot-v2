@@ -1,5 +1,17 @@
 # TwitterBotV2
 
+<h2>How to start</h2>
+
+```
+git clone https://github.com/gutermanj/twitter-bot-production
+
+cd twitter-bot-production
+
+npm install
+
+npm start
+```
+
 
 #### Languages | Technologies
 

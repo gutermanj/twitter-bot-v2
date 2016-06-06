@@ -55,7 +55,7 @@ module.exports = {
 		    					 "TRADE LIKES! NS 20", "RTS? 20NS", "RTS? 20 LMKWD", "RT FAVS?NS 15"];
 
 		    for (i = 0; i < filters.length; i++) {
-		        if (uppcasedMessage.indexOf(filters[i]) > -1) {
+		        if (uppcasedMessage === filters[i]) {
 		            return true;
 		        }
 		    }

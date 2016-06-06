@@ -1007,6 +1007,46 @@ function startManualMarket() {
   }
 
 
+app.post('/api/v1/remove-lmkwd-notifications', function(req, res) {
+
+    var father = req.body.father;
+    var child = req.body.child;
+
+    var foundLmkwd = [];
+
+    pg.connect(connectionString, function(err, client, done) {
+        // Handle connection errors
+        if(err) {
+          done();
+          console.log(err);
+        }
+        // SQL Query > Last account created
+        var query = client.query('SELECT * FROM lmkwd INNER JOIN manualaccounts ON (lmkwd.account_id = manualaccounts.id) WHERE manualaccounts.username = $1 AND lmkwd.sender = $2', [father, child]);
+        // Stream results back one row at a time
+        query.on('row', function(row) {
+            foundLmkwd.push(row);
+        });
+        // After all data is returned, close connection and return results
+        query.on('end', function() {
+            removeFoundLmkwd();
+
+        });
+
+        function removeFoundLmkwd() {
+
+          var removeFromLmkwd = client.query('DELETE FROM lmkwd WHERE sender = $1 AND account_id = $2', [foundLmkwd[0].sender, foundLmkwd[0].account_id]);
+
+          removeFromLmkwd.on('end', function() {
+            console.log("Done removing from LMKWD notifications");
+            done();
+          });
+
+        }
+    }); // pg connect
+
+});
+
+
 app.post('/api/v1/add-que', function(req, res) {
 
    MongoClient.connect(url, function(err, db) {

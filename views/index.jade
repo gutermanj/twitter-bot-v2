@@ -309,7 +309,7 @@ html
                                 each value in lmkwd
                                   if value.username == val._id
                                     li
-                                      a(href='#')= value.sender
+                                      a(href='#', data-dad= val._id, data-child= value.sender).js-remove-lmkwd= value.sender
                           td N/A
               button.btn.btn-danger.js-new-blacklist-button Add Blacklist
               br

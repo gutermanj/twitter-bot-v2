@@ -15,6 +15,41 @@ $(document).ready(function() {
 	});
 
 
+	$('.js-remove-lmkwd').click(function(e) {
+		e.preventDefault();
+
+		var father = $(this).data('dad');
+		var child = $(this).data('child');
+
+		removeFromLmkwdNotifications(father, child);
+	});
+
+	function removeFromLmkwdNotifications(father, child) {
+
+		$.ajax({
+
+			type: 'POST',
+
+			url: '/api/v1/remove-lmkwd-notifications',
+
+			data: {
+				father: father,
+				child: child
+			},
+
+			success: function(response) {
+				console.log("OK");
+			},
+
+			error: function(err) {
+				console.log(err);
+			}
+
+		});
+
+	}
+
+
 
 	function showCurrentQue(username) {
 		$.ajax({

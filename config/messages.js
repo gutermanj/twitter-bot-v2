@@ -186,7 +186,7 @@ module.exports = {
 								    	pullFromLmkwd(sender, account);
 								    }
 
-								    if (filter(splitMessage)) {
+								    if (filter(uppcasedMessage)) {
 								    	var sender = message.sender.screen_name
 								    	// Call function to add sender to account que
 								    	pushSender(sender, account);

@@ -281,6 +281,36 @@ html
                           td= val.children[0]
                           td= val.children.length
                           td= val.total_trades
+          // /.row
+          .row
+            .col-lg-12
+              .panel.panel-default
+                .panel-heading
+                  h3.panel-title
+                    i.fa.fa-bell-o.fa-fw
+                    |  LMKWD Notifications
+                .panel-body
+                  .table-responsive
+                    table.table.table-bordered.table-hover.table-striped
+                      thead
+                        tr
+                          th Username
+                          th lmkwd
+                          th Total
+                      tbody
+                      each val in manAccounts
+                        tr
+                          td= val._id
+                          td.dropdown
+                              button#dropdownMenu1.btn.btn-default.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='true')
+                                | Show
+                                span.caret
+                              ul.dropdown-menu(aria-labelledby='dropdownMenu1')
+                                each value in lmkwd
+                                  if value.username == val._id
+                                    li
+                                      a(href='#')= value.sender
+                          td N/A
               button.btn.btn-danger.js-new-blacklist-button Add Blacklist
               br
               br

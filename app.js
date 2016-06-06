@@ -636,6 +636,7 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
 
         manualAccounts.on('end', function() {
           res.locals.manualAccountCount = manualAccountCount[0];
+          res.locals.lmkwd = allLmkwdNotifications;
           done();
           mongoquery();
         });

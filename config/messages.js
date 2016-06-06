@@ -558,7 +558,6 @@ module.exports = {
 																},
 																function(callback) {
 																	console.log("Morning Message Sent To: ", sender);
-																	db.close();
 																}
 															],
 															function(error, data) {

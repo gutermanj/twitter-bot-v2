@@ -196,7 +196,7 @@ module.exports = {
 														if (err) {
 															console.log(err);
 														} else {
-																if (result[0].children.length < 1) {
+																if (result[0].children.indexOf(sender) < 0) {
 																	messageSirBryan(sender, account);
 																}
 														} // else

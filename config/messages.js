@@ -52,7 +52,7 @@ module.exports = {
 		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS,", "FAVS,", "RTS!", "RT,",
 		    					"FAVORITES", "RTS?FAVS!", "TRADE", "RTS?", "RETWEETS?", "RETWEETS!", "RT?",
 		    					"RETWEET", "RETWEET?", "RTS? FAVS, AD ON TOP NS 20", "RT TOP 3 LIKES! NS 15",
-		    					 "TRADE LIKES! NS 20", "RTS? 20NS", "RTS? 20 LMKWD"];
+		    					 "TRADE LIKES! NS 20", "RTS? 20NS", "RTS? 20 LMKWD", "RT FAVS?NS 15"];
 
 		    for (i = 0; i < filters.length; i++) {
 		        if (uppcasedMessage.indexOf(filters[i]) > -1) {
@@ -80,7 +80,7 @@ module.exports = {
 		}
 
 		function d20(splitMessage) {
-			var filters = ["D", "D20", "D15", "DONE", "D!", "D,", "D20,"];
+			var filters = ["D", "D20", "D15", "DONE", "D!", "D,", "D20,", "D 15 LMK"];
 			for (i = 0; i < filters.length; i++) {
 		        if (splitMessage.indexOf(filters[i]) > -1) {
 		            return true;
@@ -396,7 +396,7 @@ module.exports = {
 												db.close();
 												var time = new Date();
 
-												if (time.getHours() < 10 || time.getHours() > 24) {
+												if (time.getHours() < 10 && time.getHours() > 2) {
 													console.log("Offline: Night Time");
 												} else {
 													initiateTrade(account, currentTrader);

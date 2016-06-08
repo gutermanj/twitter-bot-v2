@@ -52,7 +52,8 @@ module.exports = {
 		    var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS,", "FAVS,", "RTS!", "RT,",
 		    					"FAVORITES", "RTS?FAVS!", "TRADE", "RTS?", "RETWEETS?", "RETWEETS!", "RT?",
 		    					"RETWEET", "RETWEET?", "RTS? FAVS, AD ON TOP NS 20", "RT TOP 3 LIKES! NS 15",
-		    					 "TRADE LIKES! NS 20", "RTS? 20NS", "RTS? 20 LMKWD", "RT FAVS?NS 15"];
+		    					 "TRADE LIKES! NS 20", "RTS? 20NS", "RTS? 20 LMKWD", "RT FAVS?NS 15", "RETWEETS? NS 20",
+		    					 "RTS NS15 LMK", "RTS? FAVS LMKWD", "D20. FAVS. LMKWD", "RTS?FAVS! NS 20", "RTS? FAVS LMKWD"];
 
 		    for (i = 0; i < filters.length; i++) {
 		        if (uppcasedMessage === filters[i]) {

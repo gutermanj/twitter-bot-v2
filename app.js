@@ -403,7 +403,7 @@ app.post('/newaccount/manual', requireAdmin, function(req, res) {
           if (err) {
             console.log(err);
           } else {
-            console.log('Created que for: ', account.username);
+            console.log('Created que for: ', account._id);
           }
           //Close connection
           db.close();

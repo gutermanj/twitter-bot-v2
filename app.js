@@ -609,7 +609,6 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
 
         lmkwdNotifications.on('end', function() {
           done();
-          console.log(allLmkwdNotifications);
         });
 
 

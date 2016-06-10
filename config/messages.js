@@ -777,6 +777,14 @@ module.exports = {
 													outbound: currentTrader
 												}
 											})
+
+											collection.update({
+												_id: account.username
+											}, {
+												$push: {
+													history: currentTrader
+												}
+											})
 										}
 									});
 

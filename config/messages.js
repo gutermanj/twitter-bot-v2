@@ -710,6 +710,11 @@ module.exports = {
 													{ _id: account.username },
 													{ $pull: { outbound: currentTrader } }
 												)
+												
+												collection.update(
+													{ _id: account.username },
+													{ $push: { history: currentTrader } }
+												)
 											}
 										});
 

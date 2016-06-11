@@ -12,6 +12,15 @@ var history = [];
 var running = false;
 var mongoPool = require('./mongo-pool.js');
 
+
+/*
+1. Every morning at 9AM & 5PM it will fill the ques with every other account, 
+	add them to the outbound list
+	
+2. 
+
+*/
+
 new mongoPool.start();
 // Sets global db object from custom mongo module
 
@@ -126,10 +135,10 @@ module.exports = {
 												pullFromLmkwd(sender, account);
 											}
 
-											if (spacedFilter(uppcasedMessage)) {
-												var sender = message.sender.screen_name
-												pushSender(sender, account);
-											}
+											// if (spacedFilter(uppcasedMessage)) {
+											// 	var sender = message.sender.screen_name
+											// 	pushSender(sender, account);
+											// }
 
 											if (filter(uppcasedMessage)) {
 												var sender = message.sender.screen_name
@@ -200,10 +209,10 @@ module.exports = {
 													pushSender(sender, account);
 												}
 
-												if (spacedFilter(uppcasedMessage)) {
-													var sender = message.sender.screen_name
-													pushSender(sender, account);
-												}
+												// if (spacedFilter(uppcasedMessage)) {
+												// 	var sender = message.sender.screen_name
+												// 	pushSender(sender, account);
+												// }
 
 
 												if (lmkwdFilter(splitMessage)) {
@@ -249,8 +258,7 @@ module.exports = {
 									if (err) {
 										console.log("Mongo Error: Grabbing Account To Add Que -", err);
 									} else {
-										var query = result[0].children;
-										if (query.indexOf(sender) > -1) {
+										if (result[0].children.indexOf(sender) > -1) {
 											console.log("Sender already qued!");
 										} else {
 											if (blacklistFilter(sender)) {
@@ -274,7 +282,7 @@ module.exports = {
 														if (err) {
 															console.log("Users/Show", err)
 														} else {
-															if (user.followers_count > 100000) {
+															if (user.followers_count > 75000) {
 																grantedAccounts.push(sender);
 																accessGranted(sender, account);
 															} else {
@@ -333,20 +341,22 @@ module.exports = {
 																}
 															})
 														}
-														async.series([
-																function(callback) {
-																	async.parallel([updateOne, updateTwo]);
-																	callback();
-																},
-																function(callback) {
-																	console.log("New Senders Added To Que!");
+														if (result[0].outbound.indexOf(sender) < 0) { 
+															async.series([
+																	function(callback) {
+																		async.parallel([updateOne]);
+																		callback();
+																	},
+																	function(callback) {
+																		console.log("New Senders Added To Que!");
+																	}
+																],
+																function(error, data) {
+																	console.log(error);
+																	db.close();
 																}
-															],
-															function(error, data) {
-																console.log(error);
-																db.close();
-															}
-														);
+															);
+														}
 													}
 												}
 											}
@@ -367,13 +377,13 @@ module.exports = {
 					morningMessage();
 				});
 
-				schedule.scheduleJob({
-					hour: 7,
-					minute: 0
-				}, function() {
-					console.log("Sending Out Morning Lmkwd!");
-					morningMessageLmkwd();
-				});
+				// schedule.scheduleJob({
+				// 	hour: 7,
+				// 	minute: 0
+				// }, function() {
+				// 	console.log("Sending Out Morning Lmkwd!");
+				// 	morningMessageLmkwd();
+				// });
 
 				schedule.scheduleJob({
 					hour: 1,
@@ -608,7 +618,6 @@ module.exports = {
 																	},
 																	function(callback) {
 																		console.log("Morning Message Sent To: ", sender);
-																		db.close();
 																	}
 																],
 																function(error, data) {

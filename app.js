@@ -1062,8 +1062,8 @@ app.post('/api/v1/add-que', function(req, res) {
                     { _id:  req.body.username },
                     { $push: { outbound: req.body.sender } }
                   )
-                    console.log("New Senders Manually Added To Que!", req.body.sender);
-                db.close();
+                  console.log("New Senders Manually Added To Que!", req.body.sender);
+                  
                 return res.json("OK");
         } // else
       }); // MongoClient

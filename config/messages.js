@@ -17,6 +17,10 @@ new mongoPool.start();
 
 module.exports = {
 	read: function(manualRunning) {
+		// MAIN POOL FOR POSTGRES - Ends at bottom of module
+		pg.connect(connectionString, function(err, client, done) {
+			if (err) return console.log(err);
+
 			var grantedAccounts = [];
 
 			var currentQueCounter = 0;
@@ -47,6 +51,7 @@ module.exports = {
 							done();
 						});
 					}); // pg connect
+
 					// Called to filter incoming messages on twitter
 					function filter(uppcasedMessage) {
 						var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS,", "FAVS,", "RTS!", "RT,",
@@ -106,15 +111,14 @@ module.exports = {
 									if (err) {
 										console.log("direct_messages", err);
 									} else {
-										pg.connect(connectionString, function(err, client, done) {
+										var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'", function(err, result) {
 											if (err) {
-												done();
 												console.log(err);
 											} else {
-												var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");
 												done();
 											}
 										});
+											
 										messages.forEach(function(message) {
 											var splitMessage = message.text.toUpperCase().split(" ");
 											var uppcasedMessage = message.text.toUpperCase();
@@ -1172,6 +1176,7 @@ module.exports = {
 				});
 
 			}
+		}); // Postgres Pool!
 
 		} // read: function()
 }

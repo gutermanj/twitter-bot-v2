@@ -16,7 +16,7 @@ var mongoPool = require('./mongo-pool.js');
 /*
 1. Every morning at 9AM & 5PM it will fill the ques with every other account, 
 	add them to the outbound list
-	
+
 2. 
 
 */
@@ -61,7 +61,8 @@ module.exports = {
 						var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS,", "FAVS,", "RTS!", "RT,",
 							"FAVORITES", "RTS?FAVS!", "TRADE", "RTS?", "RETWEETS?", "RETWEETS!", "RT?",
 							"RETWEET", "RETWEET?", "RTS? FAVS, AD ON TOP NS 20", "RT TOP 3 LIKES! NS 15",
-							"TRADE LIKES! NS 20", "RTS? 20NS", "RTS? 20 LMKWD"
+							"TRADE LIKES! NS 20", "RTS? 20NS", "RTS? 20 LMKWD", "RTS? FAVS NS 20", "RT NS 20",
+							"RTS NS 20", "RETWEET FAVS! NS 15", "RTS? TOP 3 LIKES", "RETWEETS? FAVS NS 20"
 						];
 
 						for (i = 0; i < filters.length; i++) {
@@ -90,7 +91,9 @@ module.exports = {
 					}
 
 					function d20(splitMessage) {
-						var filters = ["D", "D20", "D15", "DONE", "D!", "D,", "D20,"];
+						var filters = ["D", "D20", "D15", "DONE", "D!", "D,", "D20,", "D LMKWD", "d20, lmkwd", "d15, lmkwd",
+									 "D LMK", "D2", "D1", "DLMK"
+									 ];
 						for (i = 0; i < filters.length; i++) {
 							if (splitMessage.indexOf(filters[i]) > -1) {
 								return true;

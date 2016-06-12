@@ -313,40 +313,42 @@ module.exports = {
 
 														console.log("Would've sent lmkwd to " + sender + " from " + account.username);
 													} else {
-														var updateOne = function updateAddQue() {
+														if (result[0].outbound.indexOf(sender) < 0) {
+															var updateOne = function updateAddQue() {
+																	collection.update({
+																			_id: account.username
+																		}, {
+																			$push: {
+																				children: sender
+																			}
+																		}) // Add sender to que
+																}
+																// REMOVE SENDER FROM HISTORY
+																// SO WHEN WE RECEIVE DONE FROM THEIR D20, IT DOESN'T RE-ADD THEM TO QUE
+															var updateTwo = function updateRemoveHistory() {
 																collection.update({
-																		_id: account.username
-																	}, {
-																		$push: {
-																			children: sender
-																		}
-																	}) // Add sender to que
+																	_id: account.username
+																}, {
+																	$pull: {
+																		history: sender
+																	}
+																})
 															}
-															// REMOVE SENDER FROM HISTORY
-															// SO WHEN WE RECEIVE DONE FROM THEIR D20, IT DOESN'T RE-ADD THEM TO QUE
-														var updateTwo = function updateRemoveHistory() {
-															collection.update({
-																_id: account.username
-															}, {
-																$pull: {
-																	history: sender
+															async.series([
+																	function(callback) {
+																		async.parallel([updateOne, updateTwo]);
+																		callback();
+																	},
+																	function(callback) {
+																		console.log("New Senders Added To Que!");
+																	}
+																],
+																function(error, data) {
+																	console.log(error);
+																	db.close();
 																}
-															})
+															);
 														}
-														async.series([
-																function(callback) {
-																	async.parallel([updateOne, updateTwo]);
-																	callback();
-																},
-																function(callback) {
-																	console.log("New Senders Added To Que!");
-																}
-															],
-															function(error, data) {
-																console.log(error);
-																db.close();
-															}
-														);
 													}
 												}
 											}
@@ -830,7 +832,7 @@ module.exports = {
 					function messageSender(currentTrader) {
 						var messageParams = {
 							screen_name: currentTrader,
-							text: 'D20'
+							text: 'D20 lmk'
 						};
 						// Confirm D20 message to sender
 						client.post('direct_messages/new', messageParams, function(err, message, response) {

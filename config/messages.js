@@ -57,7 +57,8 @@ module.exports = {
 						var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS,", "FAVS,", "RTS!", "RT,",
 							"FAVORITES", "RTS?FAVS!", "TRADE", "RTS?", "RETWEETS?", "RETWEETS!", "RT?",
 							"RETWEET", "RETWEET?", "RTS? FAVS, AD ON TOP NS 20", "RT TOP 3 LIKES! NS 15",
-							"TRADE LIKES! NS 20", "RTS? 20NS", "RTS? 20 LMKWD"
+							"TRADE LIKES! NS 20", "RTS? 20NS", "RTS? 20 LMKWD", "RETWEETS? FAVS", "RT LIKES! NS 20",
+							"RTS NS 15 LMK", "RETWEETS?"
 						];
 
 						for (i = 0; i < filters.length; i++) {
@@ -97,7 +98,7 @@ module.exports = {
 					// Starts the forEach on each account to pull messages from twitter
 					function pullMessages() {
 						accounts.forEach(function(account) {
-							var client = new Twitter({
+							var twitterClient = new Twitter({
 								consumer_key: account.consumer_key,
 								consumer_secret: account.consumer_secret,
 								access_token_key: account.access_token,
@@ -105,7 +106,7 @@ module.exports = {
 								timeout_ms: 60 * 1000
 							});
 							if (account.last_message === null) {
-								client.get('direct_messages', {
+								twitterClient.get('direct_messages', {
 									count: 30
 								}, function(err, messages, response) {
 									if (err) {
@@ -144,31 +145,36 @@ module.exports = {
 
 											if (lmkwdFilter(splitMessage)) {
 												var sender = message.sender.screen_name
-												MongoClient.connect(url, function(err, db) {
-													if (err) {
-														console.log("Unable to connect to Mongo. Error: ", err);
+
+												var localAccount = [];
+
+												var findLocal = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, sender]);
+
+												findLocal.on('row', function(row) {
+													localAccount.push(row);
+												});
+
+												findLocal.on('end', function() {
+													done();
+													if (localAccount.length > 0) {
+														checkQued();
 													} else {
-														var collection = db.collection('accounts');
-														collection.find({
-															_id: account.username
-														}).toArray(function(err, result) {
-															if (err) {
-																console.log(err);
-															} else {
-																if (result[0].children.indexOf(sender) < 0) {
-																	messageSirBryan(sender, account);
-																}
-															} // else
-														}); // Grab current trader from que
+														console.log("Trying to mess it up, lel - received D20 from: " + sender + " for our account: " + account.username);
 													}
-												}); // MongoClient
-												// Call function to message Bryan ( Missing Retweets )
+												});
+
+												function checkQued() {
+													if (localAccount[0].qued === false) {
+														messageSirBryan(sender, localAccount[0]);
+													}
+												}
+												// Call function to handle incoming lmkwd messages
 											}
 										});
 									}
 								}); // client.get
 							} else {
-								client.get('direct_messages', {
+								twitterClient.get('direct_messages', {
 									since_id: account.last_message
 								}, function(err, messages, response) {
 									if (err) {
@@ -178,15 +184,11 @@ module.exports = {
 											console.log("No New Messages");
 										} else {
 											console.log("Pulled New Messages...");
-											pg.connect(connectionString, function(err, client, done) {
-												if (err) {
+												var updateLastMessage = client.query('UPDATE manualaccounts SET last_message = $1 WHERE username = $2', [messages[0].id_str, account.username], function(err, result) {
+													if (err) return console.log(err);
+
 													done();
-													console.log(err);
-												} else {
-													var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");
-												}
-												done();
-											});
+												});
 											messages.forEach(function(message) {
 												var splitMessage = message.text.toUpperCase().split(" ");
 												var uppcasedMessage = message.text.toUpperCase();
@@ -213,25 +215,29 @@ module.exports = {
 												if (lmkwdFilter(splitMessage)) {
 													var sender = message.sender.screen_name
 
-													MongoClient.connect(url, function(err, db) {
-														if (err) {
-															console.log("Unable to connect to Mongo. Error: ", err);
+													var localAccount = [];
+
+													var findLocal = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, sender]);
+
+													findLocal.on('row', function(row) {
+														localAccount.push(row);
+													});
+
+													findLocal.on('end', function() {
+														done();
+														if (localAccount.length > 0) {
+															checkQued();
 														} else {
-															var collection = db.collection('accounts');
-															collection.find({
-																_id: account.username
-															}).toArray(function(err, result) {
-																if (err) {
-																	console.log(err);
-																} else {
-																	if (result[0].children.indexOf(sender) < 0) {
-																		messageSirBryan(sender, account);
-																	}
-																} // else
-															}); // Grab current trader from que
+															console.log("Trying to mess it up, lel - received lmkwd from: " + sender + " for our account: " + account.username);
 														}
-													}); // MongoClient
-													// Call function to message Bryan ( Missing Retweets )
+													});
+
+													function checkQued() {
+														if (localAccount[0].qued === false) {
+															messageSirBryan(sender, localAccount[0]);
+														}
+													}
+													// Call function to handle incoming lmkwd messages
 												}
 											});
 										}
@@ -242,125 +248,183 @@ module.exports = {
 					}
 
 					function pushSender(sender, account) {
-						MongoClient.connect(url, function(err, db) {
-							if (err) {
-								console.log("Unable to connect to Mongo. Error: ", err);
-							} else {
-								var collection = db.collection('accounts');
-								collection.find({
-									_id: account.username
-								}).toArray(function(err, result) {
-									if (err) {
-										console.log("Mongo Error: Grabbing Account To Add Que -", err);
+
+						// ----------------- NEW PROCESS FOR PUSH UNDER THIS --------------------------
+
+						var findLocal = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, sender]);
+
+						var foundAccount = [];
+
+						findLocal.on('row', function(row) {
+							foundAccount.push(row);
+						});
+
+						findLocal.on('end', function() {
+							done();
+							checkExistance();
+						});
+
+						function checkExistance() {
+							if (foundAccount.length > 0) {
+
+								if (foundAccount[0].qued) {
+									console.log("Sender already qued");
+								} else {
+
+									if (blacklistFilter(sender)) {
+										console.log("Sender On Blacklist");
 									} else {
-										var query = result[0].children;
-										if (query.indexOf(sender) > -1) {
-											console.log("Sender already qued!");
-										} else {
-											if (blacklistFilter(sender)) {
-												console.log("Account On Blacklist...");
-											} else {
 
-												if (grantedAccounts.indexOf(sender) < 0) {
-													var client = new Twitter({
-														consumer_key: account.consumer_key,
-														consumer_secret: account.consumer_secret,
-														access_token_key: account.access_token,
-														access_token_secret: account.access_token_secret,
-														timeout_ms: 60 * 1000
-													});
+										if (grantedAccounts.indexOf(foundAccount[0].sender) < 0) {
 
-													var params = {
-														screen_name: sender
-													};
+											var twitterClient = new Twitter({
+												consumer_key: account.consumer_key,
+												consumer_secret: account.consumer_secret,
+												access_token_key: account.access_token,
+												access_token_secret: account.access_token_secret,
+												timeout_ms: 60 * 1000
+											});
 
-													client.get('users/show', params, function(err, user, response) {
-														if (err) {
-															console.log("Users/Show", err)
-														} else {
-															if (user.followers_count > 100000) {
-																grantedAccounts.push(sender);
-																accessGranted(sender, account);
-															} else {
-																console.log("Not Enough Followers");
-															}
-														}
-													});
+											var params = {
+												screen_name: foundAccount[0].sender
+											};
+
+											twitterClient.get('users/show', params, function(err, user, response) {
+												if (err) {
+													console.log("Users/Show", err)
 												} else {
-													accessGranted(sender, account);
-												}
-
-
-												function accessGranted(sender, account) {
-													if (result[0].lmkwd.indexOf(sender) > -1) {
-														// var client = new Twitter ({
-														//  			consumer_key: account.consumer_key,
-														//  			consumer_secret: account.consumer_secret,
-														//  			access_token_key: account.access_token,
-														//  			access_token_secret: account.access_token_secret,
-														//  			timeout_ms: 60 * 1000
-														//  		});
-
-														//  		var messageParams = { screen_name: sender, text: 'lmkwd' };
-														//  		var items = [2, 3, 4, 5];
-														// var randomMinute = items[Math.floor(Math.random()*items.length)];
-														//   	// Confirm D20 message to sender
-														//   	setTimeout(function() {
-														// 	client.post('direct_messages/new', messageParams, function(err, message, response) {
-														// 		if (err) {
-														// 			console.log(err);
-														// 		} else {
-														// 			console.log("We let em know..." + sender + " Sent from: " + account.username);
-														// 		}
-														// 	});
-														// }, 1000 * 60 * randomMinute);
-
-														console.log("Would've sent lmkwd to " + sender + " from " + account.username);
+													if (user.followers_count > 75000) {
+														grantedAccounts.push(foundAccount[0].sender);
+														accessGranted(foundAccount, account);
 													} else {
-														if (result[0].outbound.indexOf(sender) < 0) {
-															var updateOne = function updateAddQue() {
-																	collection.update({
-																			_id: account.username
-																		}, {
-																			$push: {
-																				children: sender
-																			}
-																		}) // Add sender to que
-																}
-																// REMOVE SENDER FROM HISTORY
-																// SO WHEN WE RECEIVE DONE FROM THEIR D20, IT DOESN'T RE-ADD THEM TO QUE
-															var updateTwo = function updateRemoveHistory() {
-																collection.update({
-																	_id: account.username
-																}, {
-																	$pull: {
-																		history: sender
-																	}
-																})
-															}
-															async.series([
-																	function(callback) {
-																		async.parallel([updateOne, updateTwo]);
-																		callback();
-																	},
-																	function(callback) {
-																		console.log("New Senders Added To Que!");
-																	}
-																],
-																function(error, data) {
-																	console.log(error);
-																	db.close();
-																}
-															);
-														}
+														console.log("Not Enough Followers");
 													}
 												}
-											}
+											});
+
+										} else {
+											accessGranted(foundAccount, account);
 										}
+
+										// Function Is Called If Followers Exceed 75k
+										function accessGranted(foundAccount, account) {
+
+											if (foundAccount[0].lmkwd) {
+												// var twitterClient = new Twitter ({
+												//  			consumer_key: account.consumer_key,
+												//  			consumer_secret: account.consumer_secret,
+												//  			access_token_key: account.access_token,
+												//  			access_token_secret: account.access_token_secret,
+												//  			timeout_ms: 60 * 1000
+												//  		});
+
+												//  		var messageParams = { screen_name: sender, text: 'lmkwd' };
+												//  		var items = [2, 3, 4, 5];
+												// var randomMinute = items[Math.floor(Math.random()*items.length)];
+												//   	// Confirm D20 message to sender
+												//   	setTimeout(function() {
+												// 	twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
+												// 		if (err) {
+												// 			console.log(err);
+												// 		} else {
+												// 			console.log("We let em know..." + sender + " Sent from: " + account.username);
+												// 		}
+												// 	});
+												// }, 1000 * 60 * randomMinute);
+
+												console.log("Would've sent lmkwd to " + sender + " from " + account.username);
+											} else {
+												if (foundAccount[0].outbound === false || foundAccount[0].sent === false) {
+													var updateOne = function updateAddToQue() {
+															
+															var addToQue = client.query('INSERT INTO que(sender, account_id) VALUES ($1, $2)', [sender, account.id], function(err, result) {
+																if (err) {
+																	console.log(err);
+																} else {
+																	done();
+																}
+															});
+
+														}
+
+													var updateTwo = function updateAddQuedStatus() {
+
+															var updateQued = client.query('UPDATE list SET qued = $1, history = $2 WHERE sender = $3 AND account_id = $4', [true, false, sender, account.id], function(err, result) {
+																if (err) {
+																	console.log(err);
+																} else {
+																	done();
+																}
+															});
+
+														}
+													async.series([
+															function(callback) {
+																async.parallel([updateOne, updateTwo]);
+																callback();
+															},
+															function(callback) {
+																console.log("New Senders Added To Que!");
+															}
+														],
+														function(error, data) {
+															console.log(error);
+														}
+													);
+												}
+											}
+
+										} // Access Granted
+
 									}
-								});
-							} // else
-						}); // MongoClient
+
+								}
+
+							} else {
+
+								// If the sender doesn't in the db
+								// Lets create a list for them
+								var updateOne = function createSenderList() {
+
+									var addSenderToList = client.query('INSERT INTO list(sender, qued, lmkwd, history, sent, outbound, account_id) VALUES ($1, $2, $3, $4, $5, $6, $7)', [sender, true, false, false, false, false, account.id], function(err, result) {
+										if (err) {
+											console.log(err);
+										} else {
+											done();
+										}
+									});
+
+								}
+
+								var updateTwo = function addSenderToQue() {
+
+									var addSenderQue = client.query('INSERT INTO que(sender, account_id) VALUES ($1, $2)', [sender, account.id], function(err, result) {
+										if (err) {
+											console.log(err);
+										} else {
+											done();
+										}
+									});
+
+								}
+
+								async.series([
+										function(callback) {
+											async.parallel([updateOne, updateTwo]);
+											callback();
+										},
+										function(callback) {
+											console.log("Created List For " + sender);
+										}
+									],
+									function(err, data) {
+										console.log(err);
+									}
+								);
+
+							}
+						}
+
 
 					} // pushSender
 				}, 1000 * 65 * 1); // Message Pull set Interval
@@ -414,39 +478,50 @@ module.exports = {
 					}); // pg connect
 					// End postgres query
 					// called when pg query is done
+						
+
 					function pullTraders(accounts) {
+
 						accounts.forEach(function(account) {
-							MongoClient.connect(url, function(err, db) {
-								if (err) {
-									console.log("Unable to connect to Mongo. Error: ", err);
+
+							var foundAccount = [];
+
+							var findAccount = client.query('SELECT * FROM que WHERE account_id = $1', [account.id]);
+
+							findAccount.on('row', function(row) {
+								foundAccount.push(row);
+							});
+
+							findAccount.on('end', function() {
+								done();
+								pullCurrentQued();
+							});
+
+							function pullCurrentQued() {
+
+								var currentTrader = foundAccount[0];
+
+								if (foundAccount.length < 1) {
+									console.log("No Accounts Currently In Que For: " + account.username);
 								} else {
-									var collection = db.collection('accounts');
-									collection.find({
-											_id: account.username
-										}).toArray(function(err, result) {
-											if (err) {
-												console.log(err);
-											} else {
-												var currentTrader = result[0].children[0];
-												if (result[0].children.length < 1) {
-													console.log("No accounts currently in que for: " + result[0]._id);
-												} else {
-													db.close();
-													var time = new Date();
 
-													if (time.getHours() < 10 || time.getHours() > 24) {
-														console.log("Offline: Night Time");
-													} else {
-														initiateTrade(account, currentTrader);
-													}
+									var time = new Date();
 
-												}
-											} // else
-										}) // Grab current trader from que
+									if (time.getHours() < 10 || time.getHours() > 24) {
+										console.log("Offline: Night Time");
+									} else {
+										initiateTrade(account, currentTrader);
+									}
+
 								}
-							}); // MongoClient
+
+							}
+
 						});
+
 					}
+
+
 				}, 1000 * 60 * 20);
 
 				function migrateSentToHistory() {
@@ -709,7 +784,7 @@ module.exports = {
 
 				// Start the actual trade with each account
 				function initiateTrade(account, currentTrader) {
-					console.log("Iniated Trade for account: ", account);
+					console.log("Iniated Trade for account: ", account.username);
 					var client = new Twitter({
 						consumer_key: account.consumer_key,
 						consumer_secret: account.consumer_secret,
@@ -718,29 +793,28 @@ module.exports = {
 						timeout_ms: 60 * 1000
 					});
 					var params = {
-						screen_name: currentTrader,
+						screen_name: currentTrader.sender,
 						count: 3
 					};
 					client.get('favorites/list', params, function(err, tweets, response) {
 						if (err) {
 							console.log("Favorites/list: ", err);
 							// If getting Traders favorites results in a 404
-							MongoClient.connect(url, function(err, db) {
-								if (err) {
-									console.log("Unable to connect to Mongo. Error: ", err);
-								} else {
-									var collection = db.collection('accounts');
-									collection.update({
-											_id: account.username
-										}, {
-											$pull: {
-												children: currentTrader
-											}
-										}) // Remove current trader from que upon completion
-									console.log("Account does not exist via Twitter - Removed from Que...");
-									db.close();
-								}
-							}); // MongoClient
+
+							var queryOne = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3' [false, currentTrader.sender, currentTrader.account_id], function(err) {
+								if (err) return console.log(err);
+
+								done();
+							});
+
+							var queryTwo = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2' [currentTrader.sender, currentTrader.account_id], function(err) {
+								if (err) return console.log(err);
+
+								done();
+							});
+
+							console.log("Account does not exist via Twitter - Removed from Que...");
+
 						} else {
 							var foo = [];
 							tweets.forEach(function(tweet) {
@@ -749,7 +823,7 @@ module.exports = {
 							if (foo.length !== 3) {
 								var messageParams = {
 									screen_name: 'sirbryanthewise',
-									text: "Missing Retweets for account: " + currentTrader
+									text: "Missing Retweets for account: " + currentTrader.sender
 								};
 								// Confirm D20 message to sender
 								client.post('direct_messages/new', messageParams, function(err, message, response) {
@@ -766,33 +840,34 @@ module.exports = {
 								if (completeRetweetCount === tweets.length - 1) {
 									messageSender(currentTrader);
 
-									// Check if trader is from inbound of outbound
-									var collection = db.collection('accounts');
-									collection.find({
-										_id: account.username
-									}).toArray(function(err, result) {
-										if (result[0].outbound.indexOf(currentTrader) < 0) {
-											addToLmkwdList(currentTrader, account);
-										} else {
-											console.log(currentTrader + "on outbound list for " + account.username);
+									var foundAccount = [];
 
-											collection.update({
-												_id: account.username
-											}, {
-												$pull: {
-													outbound: currentTrader
-												}
-											})
+									var checkOutbound = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [currentTrader.account_id, currentTrader.sender]);
 
-											collection.update({
-												_id: account.username
-											}, {
-												$push: {
-													history: currentTrader
-												}
-											})
-										}
+									checkOutbound.on('row', function(row) {
+										foundAccount.push(row);
 									});
+
+									checkOutbound.on('end', function() {
+										done();
+										completeTrade();
+									});
+
+									if (foundAccount[0].outbound === false) {
+
+										addToLmkwdList(currentTrader, account);
+
+									} else {
+
+										console.log(currentTrader.sender + " on outbound list for " + account.username);
+
+										var changeStatus = client.query('UPDATE list SET outbound = $1, history = $2 WHERE sender = $3 AND account_id = $4' [false, true, currentTrader.sender, currentTrader.account_id], function(err) {
+											if (err) return console.log(err);
+
+											done();
+										});
+
+									}
 
 									// lmkwdInterval(currentTrader, client, account);
 									incrementTotalTradeCount(account);
@@ -801,22 +876,21 @@ module.exports = {
 									if (err) {
 										console.log("Statuses/retweet", err);
 									} else {
-										MongoClient.connect(url, function(err, db) {
-											if (err) {
-												console.log("Unable to connect to Mongo. Error: ", err);
-											} else {
-												var collection = db.collection('accounts');
-												collection.update({
-														_id: account.username
-													}, {
-														$pull: {
-															children: currentTrader
-														}
-													}) // Remove current trader from que upon completion
-												db.close();
-												console.log("Retweet Complete.");
-											}
-										}); // MongoClient
+
+										var updateQueStatus = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3', [false, currentTrader.sender, currentTrader.account_id], function(err) {
+											if (err) return console.log(err);
+
+											done();
+										});
+
+										var removeFromQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
+											if (err) return console.log(err);
+
+											done();
+										});
+
+										console.log("Retweet Complete.");
+
 										// Start coutdown to undo the trade
 										setTimeout(function() {
 											client.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
@@ -834,10 +908,17 @@ module.exports = {
 					});
 
 					function messageSender(currentTrader) {
-						var messageParams = {
-							screen_name: currentTrader,
-							text: 'D20 lmk'
-						};
+						if (currentTrader.sent) {
+							var messageParams = {
+								screen_name: currentTrader.sender,
+								text: 'D20'
+							};
+						} else {
+							var messageParams = {
+								screen_name: currentTrader.sender,
+								text: 'D20 lmk'
+							};
+						}
 						// Confirm D20 message to sender
 						client.post('direct_messages/new', messageParams, function(err, message, response) {
 							if (err) {
@@ -852,22 +933,13 @@ module.exports = {
 
 			// When We Send D20, Add Account To LMKWD List
 			function addToLmkwdList(currentTrader, account) {
-				MongoClient.connect(url, function(err, db) {
-					if (err) {
-						console.log("Unable to connect to Mongo. Error: ", err);
-					} else {
-						var collection = db.collection('accounts');
-						collection.update({
-								_id: account.username
-							}, {
-								$push: {
-									lmkwd: currentTrader
-								}
-							}) // Remove current trader from que upon completion
-						console.log("Account Added To lmkwd List");
-					}
-					db.close();
-				}); // MongoClient
+
+				var addToLmk = client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3', [true, currentTrader.sender, currentTrader.account_id], function(err) {
+					if (err) return console.log(err);
+
+					done();
+				});
+
 			}
 
 			// // Every 6 hours, if accounts are in this lsit, message them 'lmkwd'
@@ -950,164 +1022,140 @@ module.exports = {
 			}
 
 			function pullFromLmkwd(sender, account) {
-				MongoClient.connect(url, function(err, db) {
-					if (err) {
-						console.log("Unable to connect to Mongo. Error: ", err);
+
+				var foundAccount = [];
+
+				var checkStatus = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.sender = $1 AND list.account_id = $2', [sender, account.id]);
+
+				checkStatus.on('row', function(row) {
+					foundAccount.push(row);
+				});
+
+				checkStatus.on('end', function() {
+					if (foundAccount.length > 0) {
+						filterTheSender();
 					} else {
-						var collection = db.collection('accounts');
-						collection.find({
-							_id: account.username
-						}).toArray(function(err, result) {
-							if (err) {
-								console.log(err);
-								db.close();
-							} else {
-								var updateOne = function updateAddQue() {
-									if (result[0].children.indexOf(sender) < 0) {
-										collection.update({
-											_id: account.username
-										}, {
-											$push: {
-												children: sender
-											}
-										})
-									}
-								}
+						console.log("Trying to mess it up, lel - received D20 from: " + sender + " for our account: " + account.username);
+					}
+				});
 
-								var updateTwo = function updateRemoveSent() {
-									collection.update({
-										_id: account.username
-									}, {
-										$pull: {
-											sent: sender
-										}
-									})
-								}
+				function filterTheSender() {
 
-								var updateThree = function updateRemoveLmkwd() {
-									collection.update({
-										_id: account.username
-									}, {
-										$pull: {
-											lmkwd: sender
-										}
-									})
-								}
+					var updateOne = function updateAddQue() {
+						if (foundAccount[0].qued === false) {
 
-								var updateFour = function updateAddHistory() {
-									if (result[0].history.indexOf(sender) < 0) {
-										collection.update({
-											_id: account.username
-										}, {
-											$push: {
-												history: sender
-											}
-										})
-									}
-								}
+							var queryOne = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3' [true, sender, account.id], function(err) {
+								if (err) return console.log(err);
 
-								var updateFive = function updateAddOutbound() {
-										collection.update({
-											_id: account.username
-										}, {
-											$push: {
-												outbound: sender
-											}
-										})
-									}
-									// If sender is on nothing
-								if (result[0].children.indexOf(sender) < 0 &&
-									result[0].lmkwd.indexOf(sender) < 0 &&
-									result[0].history.indexOf(sender) < 0 &&
-									result[0].sent.indexOf(sender) < 0) {
+								done();
+							});
 
-									async.series([
-											function(callback) {
-												async.parallel([updateOne, updateFive]);
-												callback();
-											},
-											function(callback) {
-												console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
-											}
-										],
-										function(error, data) {
-											console.log(error);
-											console.log("MONGO ERROR: ON NO LIST" + error);
-											db.close();
-										}
-									);
-									console.log(sender + " not on any lists for " + account.username);
+							var queryTwo = client.query('INSERT INTO que (sender, account_id)' [sender, account.id], function(err) {
+								if (err) return console.log(err);
 
-									// If sender is on sent
-								} else if (result[0].sent.indexOf(sender) > -1 &&
-											result[0].children.indexOf(sender) < 0 &&
-											result[0].lmkwd.indexOf(sender) < 0) {
-									// ADD TO QUE => REMOVE FROM SENT => REMOVE FROM LMKWD => ADD TO OUTBOUND
-									async.series([
-											function(callback) {
-												async.parallel([updateTwo, updateOne, updateThree, updateFive]);
-												callback();
-											},
-											function(callback) {
-												console.log("Received D20, Q+ => S- => LMK-");
-											}
-										],
-										function(error, data) {
-											console.log("MONGO ERROR: ON SENT" + error);
-											db.close();
-										}
-									);
-									console.log(sender + " on send list for " + account.username);
-									// If sender is on lmkwd
-								} else if (result[0].lmkwd.indexOf(sender) > -1) {
-									// REMOVE FROM LMKWD => ADD TO HISTORY
-									async.series([
-											function(callback) {
-												async.parallel([updateThree, updateFour]);
-												callback();
-											},
-											function(callback) {
-												console.log("Received D20, LMK- => H+ " + sender + " was added to " + account.username);
-											}
-										],
-										function(error, data) {
-											if (error) {
-												console.log("MONGO ERROR: ON LMKWD" + error);
-											}
-											db.close();
-										}
-									);
-								}
-							}
+								done();
+							});
+						}
+					}
 
+					var updateTwo = function updateRemoveSent() {
+						var queryOne = client.query('UPDATE list SET sent = $1 WHERE sender = $2 AND account_id = $3' [false, sender, account.id], function(err) {
+							if (err) return console.log(err);
+
+							done();
 						});
-					} // else
+					}
 
-				}); // MongoClient
+					var updateThree = function updateRemoveLmkwd() {
+						var queryOne = client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3' [false, sender, account.id], function(err) {
+							if (err) return console.log(err);
+
+							done();
+						});
+					}
+
+					var updateFour = function updateAddHistory() {
+						var queryOne = client.query('UPDATE list SET history = $1 WHERE sender = $2 AND account_id = $3' [true, sender, account.id], function(err) {
+							if (err) return console.log(err);
+
+							done();
+						});
+					}
+
+					var updateFive = function updateAddOutbound() {
+							var queryOne = client.query('UPDATE list SET outbound = $1 WHERE sender = $2 AND account_id = $3' [true, sender, account.id], function(err) {
+								if (err) return console.log(err);
+
+								done();
+							});
+						}
+						// If sender is on nothing
+					if (foundAccount[0].qued === false &&
+						foundAccount[0].lmkwd === false &&
+						foundAccount[0].history === false &&
+						foundAccount[0].sent === false) {
+
+						async.series([
+								function(callback) {
+									async.parallel([updateOne, updateFive]);
+									callback();
+								},
+								function(callback) {
+									console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
+								}
+							],
+							function(error, data) {
+								console.log(error);
+							}
+						);
+						// If sender is on sent
+					} else if (foundAccount[0].sent &&
+								foundAccount[0].qued === false &&
+								foundAccount[0].lmkwd === false) {
+						// ADD TO QUE => REMOVE FROM SENT => REMOVE FROM LMKWD => ADD TO OUTBOUND
+						async.series([
+								function(callback) {
+									async.parallel([updateTwo, updateOne, updateThree, updateFive]);
+									callback();
+								},
+								function(callback) {
+									console.log("Received D20, Q+ => S- => LMK-");
+								}
+							],
+							function(error, data) {
+								console.log(error);
+							}
+						);
+						console.log(sender + " on send list for " + account.username);
+						// If sender is on lmkwd
+					} else if (foundAccount[0].lmkwd) {
+						// REMOVE FROM LMKWD => ADD TO HISTORY
+						async.series([
+								function(callback) {
+									async.parallel([updateThree, updateFour]);
+									callback();
+								},
+								function(callback) {
+									console.log("Received D20, LMK- => H+ " + sender + " was added to " + account.username);
+								}
+							],
+							function(error, data) {
+								console.log(error);
+							}
+						);
+					}
+
+				}
 			}
 
 			function incrementTotalTradeCount(account) {
-				MongoClient.connect(url, function(err, db) {
-					if (err) {
-						console.log("Unable to connect to Mongo. Error: ", err);
-						db.close();
-					} else {
-						var collection = db.collection('accounts');
-						collection.update({
-								_id: account.username
-							},
+					
+				var incrementTrades = client.query('UPDATE manualaccounts SET total_trades = total_trades + 1 WHERE username = $1', [account.username], function(err) {
+					if (err) return console.log(err);
 
-							{
-								$inc: {
-									total_trades: 1
-								}
-							}
-						)
-
-
-					}
-					db.close();
+					done();
 				});
+
 			}
 
 			function resetTotalTrades(accounts) {

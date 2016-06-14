@@ -112,7 +112,7 @@ module.exports = {
 									if (err) {
 										console.log("direct_messages", err);
 									} else {
-										var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'", function(err, result));
+										var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");
 											
 										messages.forEach(function(message) {
 											var splitMessage = message.text.toUpperCase().split(" ");

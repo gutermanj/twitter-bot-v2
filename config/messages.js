@@ -178,15 +178,13 @@ module.exports = {
 											console.log("No New Messages");
 										} else {
 											console.log("Pulled New Messages...");
-												var updateLastMessage = client.query('UPDATE manualaccounts SET last_message = $1 WHERE username = $2', [messages[0].id_str, account.username], function(err, result) {
-													if (err) return console.log(err);
-												});
+											var updateLastMessage = client.query('UPDATE manualaccounts SET last_message = $1 WHERE username = $2', [messages[0].id_str, account.username]);
+
 											messages.forEach(function(message) {
 												var splitMessage = message.text.toUpperCase().split(" ");
 												var uppcasedMessage = message.text.toUpperCase();
 												// Convert received messages
 
-												if (d20(splitMessage)) {
 													var sender = message.sender.screen_name
 														// Call function to deal with D20
 													pullFromLmkwd(sender, account);
@@ -852,7 +850,7 @@ module.exports = {
 									if (err) {
 										console.log("Statuses/retweet", err);
 									} 
-									
+
 									var updateQueStatus = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3', [false, currentTrader.sender, currentTrader.account_id], function(err) {
 										if (err) return console.log(err);
 									});
@@ -1015,14 +1013,10 @@ module.exports = {
 
 							var queryOne = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3' [true, sender, account.id], function(err) {
 								if (err) return console.log(err);
-
-								done();
 							});
 
 							var queryTwo = client.query('INSERT INTO que (sender, account_id)' [sender, account.id], function(err) {
 								if (err) return console.log(err);
-
-								done();
 							});
 						}
 					}
@@ -1030,32 +1024,24 @@ module.exports = {
 					var updateTwo = function updateRemoveSent() {
 						var queryOne = client.query('UPDATE list SET sent = $1 WHERE sender = $2 AND account_id = $3' [false, sender, account.id], function(err) {
 							if (err) return console.log(err);
-
-							done();
 						});
 					}
 
 					var updateThree = function updateRemoveLmkwd() {
 						var queryOne = client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3' [false, sender, account.id], function(err) {
 							if (err) return console.log(err);
-
-							done();
 						});
 					}
 
 					var updateFour = function updateAddHistory() {
 						var queryOne = client.query('UPDATE list SET history = $1 WHERE sender = $2 AND account_id = $3' [true, sender, account.id], function(err) {
 							if (err) return console.log(err);
-
-							done();
 						});
 					}
 
 					var updateFive = function updateAddOutbound() {
 							var queryOne = client.query('UPDATE list SET outbound = $1 WHERE sender = $2 AND account_id = $3' [true, sender, account.id], function(err) {
 								if (err) return console.log(err);
-
-								done();
 							});
 						}
 						// If sender is on nothing

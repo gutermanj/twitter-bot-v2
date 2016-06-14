@@ -585,13 +585,6 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
         // SQL Query > Last account created
         var users = client.query("SELECT COUNT(*) FROM users");
 
-        // haha, account count
-        var accounts = client.query("SELECT COUNT(*) FROM accounts");
-
-        var manualAccounts = client.query("SELECT COUNT(*) FROM manualaccounts");
-
-        var lmkwdNotifications = client.query("SELECT * FROM manualaccounts JOIN lmkwd ON (manualaccounts.id = lmkwd.account_id)");
-
         // Stream results back one row at a time
         users.on('row', function(row) {
             userCount.push(row);
@@ -601,44 +594,60 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
         users.on('end', function() {
             res.locals.userCount = userCount[0];
             done();
+            lmkwdQuery();
         });
 
-        lmkwdNotifications.on('row', function(row) {
-          allLmkwdNotifications.push(row);
-        });
+        function lmkwdQuery() {
+           var lmkwdNotifications = client.query("SELECT * FROM manualaccounts JOIN lmkwd ON (manualaccounts.id = lmkwd.account_id)");
 
-        lmkwdNotifications.on('end', function() {
-          done();
-        });
+          lmkwdNotifications.on('row', function(row) {
+            allLmkwdNotifications.push(row);
+          });
 
-
-
-        // Stream results back one row at a time
-        accounts.on('row', function(row) {
-          accountCount.push(row);
-        });
-
-        // After all data is returned, close connection and return results
-        accounts.on('end', function() {
+          lmkwdNotifications.on('end', function() {
             done();
-            res.locals.running = running;
-            res.locals.manualRunning = manualRunning;
-            res.locals.accountCount = accountCount[0];
-            // splitAccounts(res);
+            accountsQuery();
+          });
 
-            
-        });
+        }
 
-        manualAccounts.on('row', function(row) {
-          manualAccountCount.push(row);
-        });
 
-        manualAccounts.on('end', function() {
-          res.locals.manualAccountCount = manualAccountCount[0];
-          res.locals.lmkwd = allLmkwdNotifications;
-          done();
-          eachManualAccountQuery();
-        });
+        function accountsQuery() {
+           // haha, account count
+          var accounts = client.query("SELECT COUNT(*) FROM accounts");
+
+          // Stream results back one row at a time
+          accounts.on('row', function(row) {
+            accountCount.push(row);
+          });
+
+          // After all data is returned, close connection and return results
+          accounts.on('end', function() {
+              done();
+              res.locals.running = running;
+              res.locals.manualRunning = manualRunning;
+              res.locals.accountCount = accountCount[0];
+              manualAccountsQuery();
+              // splitAccounts(res);
+
+              
+          });
+        }
+
+        function manualAccountsQuery() {
+           var manualAccounts = client.query("SELECT COUNT(*) FROM manualaccounts");
+
+          manualAccounts.on('row', function(row) {
+            manualAccountCount.push(row);
+          });
+
+          manualAccounts.on('end', function() {
+            res.locals.manualAccountCount = manualAccountCount[0];
+            res.locals.lmkwd = allLmkwdNotifications;
+            done();
+            eachManualAccountQuery();
+          });
+        }
 
     
 
@@ -655,8 +664,8 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
 
       getAccounts.on('end', function() {
           res.locals.manAccounts = allManualAccounts;
-          res.render('index');
           done();
+          res.render('index');
 
       });
 

@@ -149,7 +149,6 @@ module.exports = {
 												});
 
 												findLocal.on('end', function() {
-													done();
 													if (localAccount.length > 0) {
 														checkQued();
 													} else {
@@ -213,7 +212,6 @@ module.exports = {
 													});
 
 													findLocal.on('end', function() {
-														done();
 														if (localAccount.length > 0) {
 															checkQued();
 														} else {

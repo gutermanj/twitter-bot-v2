@@ -851,29 +851,28 @@ module.exports = {
 								twitterClient.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
 									if (err) {
 										console.log("Statuses/retweet", err);
-									} else {
+									} 
+									
+									var updateQueStatus = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3', [false, currentTrader.sender, currentTrader.account_id], function(err) {
+										if (err) return console.log(err);
+									});
 
-										var updateQueStatus = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3', [false, currentTrader.sender, currentTrader.account_id], function(err) {
-											if (err) return console.log(err);
+									var removeFromQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
+										if (err) return console.log(err);
+									});
+
+									console.log("Retweet Complete.");
+
+									// Start coutdown to undo the trade
+									setTimeout(function() {
+										twitterClient.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
+											if (err) {
+												console.log("statuses/destroy: ", err);
+											} else {
+												console.log("Unretweet Complete.");
+											}
 										});
-
-										var removeFromQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
-											if (err) return console.log(err);
-										});
-
-										console.log("Retweet Complete.");
-
-										// Start coutdown to undo the trade
-										setTimeout(function() {
-											twitterClient.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
-												if (err) {
-													console.log("statuses/destroy: ", err);
-												} else {
-													console.log("Unretweet Complete.");
-												}
-											});
 										}, 1000 * 60 * 19.7); // Destroy retweet
-									}
 								}); // retweet post
 							}); // tweets for each
 						}

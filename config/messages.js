@@ -472,50 +472,44 @@ module.exports = {
 						});
 						// After all data is returned, close connection and return results
 						query.on('end', function() {
-							pullTraders(accounts);
 							console.log("Prepared Traders");
+
+								accounts.forEach(function(account) {
+
+									var foundAccount = [];
+
+									var findAccount = client.query('SELECT * FROM que WHERE account_id = $1', [account.id]);
+
+									findAccount.on('row', function(row) {
+										foundAccount.push(row);
+									});
+
+									findAccount.on('end', function() {
+										console.log("Done Pulling Que - Ready To Trade")
+										var currentTrader = foundAccount[0];
+
+										if (foundAccount.length < 1) {
+											console.log("No Accounts Currently In Que For: " + account.username);
+										} else {
+
+											var time = new Date();
+
+											if (time.getHours() < 10 || time.getHours() > 24) {
+												console.log("Offline: Night Time");
+											} else {
+												initiateTrade(account, currentTrader);
+											}
+
+										}
+									});
+
+								});
+
 							done();
 						});
 					}); // pg connect
 					// End postgres query
 					// called when pg query is done
-						
-
-					function pullTraders(accounts) {
-
-						accounts.forEach(function(account) {
-
-							var foundAccount = [];
-
-							var findAccount = client.query('SELECT * FROM que WHERE account_id = $1', [account.id]);
-
-							findAccount.on('row', function(row) {
-								foundAccount.push(row);
-							});
-
-							findAccount.on('end', function() {
-								console.log("Done Pulling Que - Ready To Trade")
-								var currentTrader = foundAccount[0];
-
-								if (foundAccount.length < 1) {
-									console.log("No Accounts Currently In Que For: " + account.username);
-								} else {
-
-									var time = new Date();
-
-									if (time.getHours() < 10 || time.getHours() > 24) {
-										console.log("Offline: Night Time");
-									} else {
-										initiateTrade(account, currentTrader);
-									}
-
-								}
-							});
-
-						});
-
-					}
-
 
 				}, 1000 * 60 * 20);
 

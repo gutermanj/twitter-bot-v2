@@ -48,13 +48,13 @@ var url = 'mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13'
 // query.on('end', function() { client.end(); });
 
 // Connect to the database
-// client.connect(function(err, db) {
-//   if (err) {
-//     console.log('Something went wrong while connecting to the db');
-//   } else {
-//     console.log('Connected to db, sweeeet!');
-//   }
-// });
+client.connect(function(err, db) {
+  if (err) {
+    console.log('Something went wrong while connecting to the db');
+  } else {
+    console.log('Connected to db, sweeeet!');
+  }
+});
 
 MongoClient.connect(url, function (err, db) {
   if (err) {

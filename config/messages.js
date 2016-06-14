@@ -848,7 +848,7 @@ module.exports = {
 											});
 
 										}
-										
+
 									});
 
 									
@@ -896,7 +896,7 @@ module.exports = {
 						} else {
 							var messageParams = {
 								screen_name: currentTrader.sender,
-								text: 'D20 lmk'
+								text: 'D20'
 							};
 						}
 						// Confirm D20 message to sender

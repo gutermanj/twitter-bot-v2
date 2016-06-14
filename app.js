@@ -1052,7 +1052,7 @@ app.post('/api/v1/add-que', function(req, res) {
 
       console.log(req.body.username);
 
-      foundOne = [];
+      var foundOne = [];
 
       var checkExistence = client.query('SELECT * FROM list WHERE list.sender = $1 AND list.account_id = $2', [req.body.sender, req.body.username]);
 
@@ -1066,6 +1066,7 @@ app.post('/api/v1/add-que', function(req, res) {
           updateList();
         } else {
           createNewList();
+          console.log(foundOne);
         }
       });
 

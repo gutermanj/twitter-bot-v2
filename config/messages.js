@@ -774,7 +774,7 @@ module.exports = {
 				// Start the actual trade with each account
 				function initiateTrade(account, currentTrader) {
 					console.log("Iniated Trade for account: ", account.username);
-					var client = new Twitter({
+					var twitterClient = new Twitter({
 						consumer_key: account.consumer_key,
 						consumer_secret: account.consumer_secret,
 						access_token_key: account.access_token,
@@ -785,7 +785,7 @@ module.exports = {
 						screen_name: currentTrader.sender,
 						count: 3
 					};
-					client.get('favorites/list', params, function(err, tweets, response) {
+					twitterClient.get('favorites/list', params, function(err, tweets, response) {
 						if (err) {
 							console.log("Favorites/list: ", err);
 							// If getting Traders favorites results in a 404
@@ -815,7 +815,7 @@ module.exports = {
 									text: "Missing Retweets for account: " + currentTrader.sender
 								};
 								// Confirm D20 message to sender
-								client.post('direct_messages/new', messageParams, function(err, message, response) {
+								twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
 									if (err) {
 										console.log(err);
 									} else {
@@ -861,7 +861,7 @@ module.exports = {
 									// lmkwdInterval(currentTrader, client, account);
 									incrementTotalTradeCount(account);
 								}
-								client.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
+								twitterClient.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
 									if (err) {
 										console.log("Statuses/retweet", err);
 									} else {

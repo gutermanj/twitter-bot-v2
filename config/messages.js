@@ -792,14 +792,10 @@ module.exports = {
 
 							var queryOne = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3' [false, currentTrader.sender, currentTrader.account_id], function(err) {
 								if (err) return console.log(err);
-
-								done();
 							});
 
 							var queryTwo = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2' [currentTrader.sender, currentTrader.account_id], function(err) {
 								if (err) return console.log(err);
-
-								done();
 							});
 
 							console.log("Account does not exist via Twitter - Removed from Que...");
@@ -838,7 +834,6 @@ module.exports = {
 									});
 
 									checkOutbound.on('end', function() {
-										done();
 										completeTrade();
 									});
 
@@ -852,8 +847,6 @@ module.exports = {
 
 										var changeStatus = client.query('UPDATE list SET outbound = $1, history = $2 WHERE sender = $3 AND account_id = $4' [false, true, currentTrader.sender, currentTrader.account_id], function(err) {
 											if (err) return console.log(err);
-
-											done();
 										});
 
 									}
@@ -868,21 +861,17 @@ module.exports = {
 
 										var updateQueStatus = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3', [false, currentTrader.sender, currentTrader.account_id], function(err) {
 											if (err) return console.log(err);
-
-											done();
 										});
 
 										var removeFromQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
 											if (err) return console.log(err);
-
-											done();
 										});
 
 										console.log("Retweet Complete.");
 
 										// Start coutdown to undo the trade
 										setTimeout(function() {
-											client.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
+											twitterClient.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
 												if (err) {
 													console.log("statuses/destroy: ", err);
 												} else {
@@ -909,7 +898,7 @@ module.exports = {
 							};
 						}
 						// Confirm D20 message to sender
-						client.post('direct_messages/new', messageParams, function(err, message, response) {
+						twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
 							if (err) {
 								console.log(err);
 							} else {
@@ -925,8 +914,6 @@ module.exports = {
 
 				var addToLmk = client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3', [true, currentTrader.sender, currentTrader.account_id], function(err) {
 					if (err) return console.log(err);
-
-					done();
 				});
 
 			}

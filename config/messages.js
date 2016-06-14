@@ -473,6 +473,7 @@ module.exports = {
 						// After all data is returned, close connection and return results
 						query.on('end', function() {
 							pullTraders(accounts);
+							console.log("Prepared Traders");
 							done();
 						});
 					}); // pg connect
@@ -493,7 +494,7 @@ module.exports = {
 							});
 
 							findAccount.on('end', function() {
-								done();
+								console.log("Done Pulling Que - Ready To Trade")
 								var currentTrader = foundAccount[0];
 
 								if (foundAccount.length < 1) {

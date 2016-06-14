@@ -178,8 +178,7 @@ module.exports = {
 											console.log("No New Messages");
 										} else {
 											console.log("Pulled New Messages...");
-												var updateLastMessage = client.query('UPDATE manualaccounts SET last_message = $1 WHERE username = $2', [messages[0].id_str, account.username]);
-											messages.forEach(function(message) {
+												var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");											messages.forEach(function(message) {
 												var splitMessage = message.text.toUpperCase().split(" ");
 												var uppcasedMessage = message.text.toUpperCase();
 												// Convert received messages

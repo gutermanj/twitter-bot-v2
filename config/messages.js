@@ -834,22 +834,24 @@ module.exports = {
 									});
 
 									checkOutbound.on('end', function() {
-										completeTrade();
-									});
 
-									if (foundAccount[0].outbound === false) {
+										if (foundAccount[0].outbound === false) {
 
 										addToLmkwdList(currentTrader, account);
 
-									} else {
+										} else {
 
-										console.log(currentTrader.sender + " on outbound list for " + account.username);
+											console.log(currentTrader.sender + " on outbound list for " + account.username);
 
-										var changeStatus = client.query('UPDATE list SET outbound = $1, history = $2 WHERE sender = $3 AND account_id = $4' [false, true, currentTrader.sender, currentTrader.account_id], function(err) {
-											if (err) return console.log(err);
-										});
+											var changeStatus = client.query('UPDATE list SET outbound = $1, history = $2 WHERE sender = $3 AND account_id = $4' [false, true, currentTrader.sender, currentTrader.account_id], function(err) {
+												if (err) return console.log(err);
+											});
 
-									}
+										}
+										
+									});
+
+									
 
 									// lmkwdInterval(currentTrader, client, account);
 									incrementTotalTradeCount(account);

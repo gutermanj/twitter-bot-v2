@@ -494,11 +494,6 @@ module.exports = {
 
 							findAccount.on('end', function() {
 								done();
-								pullCurrentQued();
-							});
-
-							function pullCurrentQued() {
-
 								var currentTrader = foundAccount[0];
 
 								if (foundAccount.length < 1) {
@@ -514,8 +509,7 @@ module.exports = {
 									}
 
 								}
-
-							}
+							});
 
 						});
 

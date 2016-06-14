@@ -112,13 +112,7 @@ module.exports = {
 									if (err) {
 										console.log("direct_messages", err);
 									} else {
-										var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'", function(err, result) {
-											if (err) {
-												console.log(err);
-											} else {
-												done();
-											}
-										});
+										var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'", function(err, result));
 											
 										messages.forEach(function(message) {
 											var splitMessage = message.text.toUpperCase().split(" ");
@@ -186,8 +180,6 @@ module.exports = {
 											console.log("Pulled New Messages...");
 												var updateLastMessage = client.query('UPDATE manualaccounts SET last_message = $1 WHERE username = $2', [messages[0].id_str, account.username], function(err, result) {
 													if (err) return console.log(err);
-
-													done();
 												});
 											messages.forEach(function(message) {
 												var splitMessage = message.text.toUpperCase().split(" ");

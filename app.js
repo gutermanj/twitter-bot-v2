@@ -1028,7 +1028,6 @@ app.post('/api/v1/remove-lmkwd-notifications', function(req, res) {
         });
         // After all data is returned, close connection and return results
         query.on('end', function() {
-            done();
             removeFoundLmkwd();
 
         });
@@ -1039,7 +1038,6 @@ app.post('/api/v1/remove-lmkwd-notifications', function(req, res) {
 
           removeFromLmkwd.on('end', function() {
             console.log("Done removing from LMKWD notifications");
-            done();
           });
 
         }
@@ -1063,7 +1061,6 @@ app.post('/api/v1/add-que', function(req, res) {
       });
 
       checkExistence.on('end', function() {
-        done();
 
         if (foundOne.length > 0) {
           updateList();
@@ -1077,7 +1074,6 @@ app.post('/api/v1/add-que', function(req, res) {
           var addToQue = client.query('UPDATE list SET qued = $1, outbound = $2 WHERE sender = $3 AND account_id = $4', [true, true, req.body.sender, req.body.username], function(err) {
             if (err) return console.log(err);
 
-            done();
           });
 
       }
@@ -1087,7 +1083,6 @@ app.post('/api/v1/add-que', function(req, res) {
           var addToQue = client.query('INSERT INTO list(sender, qued, lmkwd, history, sent, outbound, account_id) VALUES ($1, $2, $3, $4, $5, $6, $7)', [req.body.sender, true, false, false, false, true, req.body.username], function(err) {
             if (err) return console.log(err);
 
-            done();
           });
 
       }
@@ -1097,7 +1092,6 @@ app.post('/api/v1/add-que', function(req, res) {
           if (err) return console.log(err);
 
           res.json(req.body.username + " Added To Que");
-          done();
       });
 
     // }); pg
@@ -1189,14 +1183,12 @@ app.post('/api/v1/remove-from-que', function(req, res) {
     var removeFromQue = client.query('UPDATE list SET qued = $1, outbound = $2 WHERE sender = $3 AND account_id = $4', [false, false, req.body.username, req.body.dad_id], function(err) {
       if (err) return console.log(err);
 
-      done();
     });
 
     var removeFromActualQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [req.body.username, req.body.dad_id], function(err) {
         if (err) return console.log(err);
 
         res.json(req.body.username + " Removed From Que");
-        done();
     });
 
   // }); pg
@@ -1213,7 +1205,6 @@ app.post('/api/v1/remove-from-sent', function(req, res) {
           if (err) return console.log(err);
 
           res.json(req.body.username + " Removed From Sent");
-          done();
         });
 
     // }); pg
@@ -1230,7 +1221,6 @@ app.post('/api/v1/remove-from-lmkwd', function(req, res) {
           if (err) return console.log(err);
 
           res.json(req.body.username + " Removed From Lmkwd");
-          done();
         });
 
     // }); pg
@@ -1247,7 +1237,6 @@ app.post('/api/v1/remove-from-rts', function(req, res) {
           if (err) return console.log(err);
 
           res.json(req.body.username + " Removed From History");
-          done();
         });
 
     // }); pg

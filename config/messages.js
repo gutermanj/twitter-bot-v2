@@ -178,13 +178,13 @@ module.exports = {
 											console.log("No New Messages");
 										} else {
 											console.log("Pulled New Messages...");
-											var updateLastMessage = client.query('UPDATE manualaccounts SET last_message = $1 WHERE username = $2', [messages[0].id_str, account.username]);
-
+												var updateLastMessage = client.query('UPDATE manualaccounts SET last_message = $1 WHERE username = $2', [messages[0].id_str, account.username]);
 											messages.forEach(function(message) {
 												var splitMessage = message.text.toUpperCase().split(" ");
 												var uppcasedMessage = message.text.toUpperCase();
 												// Convert received messages
 
+												if (d20(splitMessage)) {
 													var sender = message.sender.screen_name
 														// Call function to deal with D20
 													pullFromLmkwd(sender, account);

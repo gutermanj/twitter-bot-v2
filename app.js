@@ -574,13 +574,13 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
     
 
     // Get a Postgres client from the connection pool
-    pg.connect(connectionString, function(err, client, done) {
-        // Handle connection errors
-        if(err) {
-          done();
-          console.log(err);
-          return res.status(500).json({ success: false, data: err});
-        }
+    // pg.connect(connectionString, function(err, client, done) {
+    //     // Handle connection errors
+    //     if(err) {
+    //       done();
+    //       console.log(err);
+    //       return res.status(500).json({ success: false, data: err});
+    //     }
 
         // SQL Query > Last account created
         var users = client.query("SELECT COUNT(*) FROM users");
@@ -593,7 +593,6 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
         // After all data is returned, close connection and return results
         users.on('end', function() {
             res.locals.userCount = userCount[0];
-            done();
             lmkwdQuery();
         });
 
@@ -605,7 +604,6 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
           });
 
           lmkwdNotifications.on('end', function() {
-            done();
             accountsQuery();
           });
 
@@ -623,7 +621,6 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
 
           // After all data is returned, close connection and return results
           accounts.on('end', function() {
-              done();
               res.locals.running = running;
               res.locals.manualRunning = manualRunning;
               res.locals.accountCount = accountCount[0];
@@ -644,7 +641,6 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
           manualAccounts.on('end', function() {
             res.locals.manualAccountCount = manualAccountCount[0];
             res.locals.lmkwd = allLmkwdNotifications;
-            done();
             eachManualAccountQuery();
           });
         }
@@ -664,7 +660,6 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
 
       getAccounts.on('end', function() {
           res.locals.manAccounts = allManualAccounts;
-          done();
           res.render('index');
 
       });
@@ -672,7 +667,7 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
 
     }
 
-    });
+    // });
     
 
 
@@ -1019,12 +1014,12 @@ app.post('/api/v1/remove-lmkwd-notifications', function(req, res) {
 
     var foundLmkwd = [];
 
-    pg.connect(connectionString, function(err, client, done) {
-        // Handle connection errors
-        if(err) {
-          done();
-          console.log(err);
-        }
+    // pg.connect(connectionString, function(err, client, done) {
+    //     // Handle connection errors
+    //     if(err) {
+    //       done();
+    //       console.log(err);
+    //     }
         // SQL Query > Last account created
         var query = client.query('SELECT * FROM lmkwd INNER JOIN manualaccounts ON (lmkwd.account_id = manualaccounts.id) WHERE manualaccounts.username = $1 AND lmkwd.sender = $2', [father, child]);
         // Stream results back one row at a time
@@ -1033,6 +1028,7 @@ app.post('/api/v1/remove-lmkwd-notifications', function(req, res) {
         });
         // After all data is returned, close connection and return results
         query.on('end', function() {
+            done();
             removeFoundLmkwd();
 
         });
@@ -1047,14 +1043,14 @@ app.post('/api/v1/remove-lmkwd-notifications', function(req, res) {
           });
 
         }
-    }); // pg connect
+    // }); // pg connect
 
 });
 
 
 app.post('/api/v1/add-que', function(req, res) {
 
-    pg.connect(connectionString, function(err, client, done) {
+    // pg.connect(connectionString, function(err, client, done) {
 
       console.log(req.body.username);
 
@@ -1104,13 +1100,13 @@ app.post('/api/v1/add-que', function(req, res) {
           done();
       });
 
-    });
+    // }); pg
 
 });
 
 app.post('/api/v1/add-lmkwd', function(req, res) {
 
-    pg.connect(connectionString, function(err, client, done) {
+    // pg.connect(connectionString, function(err, client, done) {
 
         var updateLmkwd = client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3', [true, req.body.sender, req.body.username], function(err) {
 
@@ -1121,13 +1117,13 @@ app.post('/api/v1/add-lmkwd', function(req, res) {
 
         });
 
-    });
+    // }); pg
 
 });
 
 app.post('/api/v1/add-history', function(req, res) {
 
-    pg.connect(connectionString, function(err, client, done) {
+    // pg.connect(connectionString, function(err, client, done) {
 
         var updateLmkwd = client.query('UPDATE list SET history = $1 WHERE sender = $2 AND account_id = $3', [true, req.body.sender, req.body.username], function(err) {
 
@@ -1138,13 +1134,13 @@ app.post('/api/v1/add-history', function(req, res) {
 
         });
 
-    });
+    // }); pg
 
 });
 
 app.post('/api/v1/show-que', function(req, res) {
 
-  pg.connect(connectionString, function(err, client, done) {
+  // pg.connect(connectionString, function(err, client, done) {
 
       var showQue = client.query('SELECT * FROM manualaccounts JOIN list ON (manualaccounts.id = list.account_id) WHERE manualaccounts.username = $1', [req.body.username]);
 
@@ -1159,7 +1155,7 @@ app.post('/api/v1/show-que', function(req, res) {
         done();
       });
 
-  });
+  // }); pg
 
 });
 
@@ -1186,7 +1182,7 @@ app.post('/api/v1/show-lmkwd', function(req, res) {
 
 app.post('/api/v1/remove-from-que', function(req, res) {
 
-  pg.connect(connectionString, function(err, client, done) {
+  // pg.connect(connectionString, function(err, client, done) {
 
     console.log(req.body.dad_id);
 
@@ -1203,13 +1199,13 @@ app.post('/api/v1/remove-from-que', function(req, res) {
         done();
     });
 
-  });
+  // }); pg
 
 });
 
 app.post('/api/v1/remove-from-sent', function(req, res) {
 
-    pg.connect(connectionString, function(err, client, done) {
+    // pg.connect(connectionString, function(err, client, done) {
 
         console.log(req.body.dad_id);
 
@@ -1220,13 +1216,13 @@ app.post('/api/v1/remove-from-sent', function(req, res) {
           done();
         });
 
-    });
+    // }); pg
 
 });
 
 app.post('/api/v1/remove-from-lmkwd', function(req, res) {
 
-    pg.connect(connectionString, function(err, client, done) {
+    // pg.connect(connectionString, function(err, client, done) {
 
         console.log(req.body.dad_id);
 
@@ -1237,13 +1233,13 @@ app.post('/api/v1/remove-from-lmkwd', function(req, res) {
           done();
         });
 
-    });
+    // }); pg
 
 });
 
 app.post('/api/v1/remove-from-rts', function(req, res) {
 
-    pg.connect(connectionString, function(err, client, done) {
+    // pg.connect(connectionString, function(err, client, done) {
 
         console.log(req.body.dad_id);
 
@@ -1254,7 +1250,7 @@ app.post('/api/v1/remove-from-rts', function(req, res) {
           done();
         });
 
-    });
+    // }); pg
 
 });
 

@@ -271,15 +271,11 @@ html
                       thead
                         tr
                           th Username
-                          th Queued
-                          th Q
                           th #
                       tbody
                       each val in manAccounts
                         tr
-                          td.js-manual-que-add(data-username=val._id)= val._id
-                          td= val.children[0]
-                          td= val.children.length
+                          td.js-manual-que-add(data-username=val.username, data-dad_id=val.id)= val.username
                           td= val.total_trades
           // /.row
           .row

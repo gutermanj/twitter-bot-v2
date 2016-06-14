@@ -72,7 +72,6 @@ MongoClient.connect(url, function (err, db) {
 
 
 
-
 var session = require('express-session');
 var FirebaseStore = require('connect-firebase')(session);
 
@@ -212,6 +211,7 @@ app.use(function(req, res, next){
   console.log(timestamp);
 
 // END TIMESTAMP
+
 
 
 
@@ -637,36 +637,33 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
           res.locals.manualAccountCount = manualAccountCount[0];
           res.locals.lmkwd = allLmkwdNotifications;
           done();
-          mongoquery();
+          eachManualAccountQuery();
         });
 
-    });
+    
 
 
-    function mongoquery() {
-      MongoClient.connect('mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13', function (err, db) {
-        if (err) {
-          console.log('Unable to connect to the mongoDB server. Error:', err);
-        } else {
+    function eachManualAccountQuery() {
 
-          var collection = db.collection('accounts');
+      var allManualAccounts = [];
 
-          collection.find({}).toArray(function(err, result) {
-                if (err) {
-                  console.log(err);
-                } else {
-                  res.locals.manAccounts = result;
-                  db.close();
+      var getAccounts = client.query('SELECT * FROM manualaccounts');
 
-                  res.render('index');
-                }
-          });
-
-          //Close connection
-          
-        }
+      getAccounts.on('row', function(row) {
+          allManualAccounts.push(row);
       });
+
+      getAccounts.on('end', function() {
+          res.locals.manAccounts = allManualAccounts;
+          res.render('index');
+          done();
+
+      });
+
+
     }
+
+    });
     
 
 
@@ -1048,83 +1045,111 @@ app.post('/api/v1/remove-lmkwd-notifications', function(req, res) {
 
 app.post('/api/v1/add-que', function(req, res) {
 
-   MongoClient.connect(url, function(err, db) {
-        if (err) {
-          console.log("Unable to connect to Mongo. Error: ", err);
-        } else {
-          var collection = db.collection('accounts');
-                collection.update(
-                      { _id:  req.body.username },
-                      { $push: { children: req.body.sender } }
-                    ) // Add sender to que
+    pg.connect(connectionString, function(err, client, done) {
 
-                collection.update(
-                    { _id:  req.body.username },
-                    { $push: { outbound: req.body.sender } }
-                  )
-                  console.log("New Senders Manually Added To Que!", req.body.sender);
-                  
-                return res.json("OK");
-        } // else
-      }); // MongoClient
+      console.log(req.body.username);
+
+      foundOne = [];
+
+      var checkExistence = client.query('SELECT * FROM list WHERE list.sender = $1 AND list.account_id = $2', [req.body.sender, req.body.username]);
+
+      checkExistence.on('row', function(row) {
+        foundOne.push(row);
+      });
+
+      checkExistence.on('end', function() {
+        done();
+
+        if (foundOne.length > 0) {
+          updateList();
+        } else {
+          createNewList();
+        }
+      });
+
+      function updateList() {
+
+          var addToQue = client.query('UPDATE list SET qued = $1, outbound = $2 WHERE sender = $3 AND account_id = $4', [true, true, req.body.sender, req.body.username], function(err) {
+            if (err) return console.log(err);
+
+            done();
+          });
+
+      }
+
+      function createNewList() {
+
+          var addToQue = client.query('INSERT INTO list(sender, qued, lmkwd, history, sent, outbound, account_id) VALUES ($1, $2, $3, $4, $5, $6, $7)', [req.body.sender, true, false, false, false, true, req.body.username], function(err) {
+            if (err) return console.log(err);
+
+            done();
+          });
+
+      }
+
+
+      var removeFromActualQue = client.query('INSERT INTO que (sender, account_id) VALUES ($1, $2)', [req.body.sender, req.body.username], function(err) {
+          if (err) return console.log(err);
+
+          res.json(req.body.username + " Added To Que");
+          done();
+      });
+
+    });
 
 });
 
 app.post('/api/v1/add-lmkwd', function(req, res) {
 
-   MongoClient.connect(url, function(err, db) {
-        if (err) {
-          console.log("Unable to connect to Mongo. Error: ", err);
-        } else {
-          var collection = db.collection('accounts');
-                collection.update(
-                      { _id:  req.body.username },
-                      { $push: { lmkwd: req.body.sender } }
-                    ) // Add sender to que
-                    console.log("New Senders Manually Added To lmkwd!", req.body.sender);
-                db.close();
-                return res.json("OK");
-        } // else
-      }); // MongoClient
+    pg.connect(connectionString, function(err, client, done) {
+
+        var updateLmkwd = client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3', [true, req.body.sender, req.body.username], function(err) {
+
+            if (err) return console.log(err);
+
+            return res.json(req.body.sender + " Added To Lmkwd");
+            done();
+
+        });
+
+    });
 
 });
 
 app.post('/api/v1/add-history', function(req, res) {
 
-   MongoClient.connect(url, function(err, db) {
-        if (err) {
-          console.log("Unable to connect to Mongo. Error: ", err);
-        } else {
-          var collection = db.collection('accounts');
-                collection.update(
-                      { _id:  req.body.username },
-                      { $push: { history: req.body.sender } }
-                    ) // Add sender to que
-                    console.log("New Senders Manually Added To history!", req.body.sender);
-                db.close();
-                return res.json("OK");
-        } // else
-      }); // MongoClient
+    pg.connect(connectionString, function(err, client, done) {
+
+        var updateLmkwd = client.query('UPDATE list SET history = $1 WHERE sender = $2 AND account_id = $3', [true, req.body.sender, req.body.username], function(err) {
+
+            if (err) return console.log(err);
+
+            return res.json(req.body.sender + " Added To History");
+            done();
+
+        });
+
+    });
 
 });
 
 app.post('/api/v1/show-que', function(req, res) {
 
-  MongoClient.connect(url, function(err, db) {
-    if (err) {
-      console.log(err);
-    } else {
-      var collection = db.collection('accounts');
-        collection.findOne( { _id: req.body.username }, function(err, result) {
-          if (err) {
-            console.log(err);
-          } else {
-            return res.json(result);
-            db.close();
-          }
-        });
-        
-    }
+  pg.connect(connectionString, function(err, client, done) {
+
+      var showQue = client.query('SELECT * FROM manualaccounts JOIN list ON (manualaccounts.id = list.account_id) WHERE manualaccounts.username = $1', [req.body.username]);
+
+      var que = [];
+
+      showQue.on('row', function(row) {
+          que.push(row);
+      });
+
+      showQue.on('end', function() {
+        return res.json(que);
+        done();
+      });
+
   });
 
 });
@@ -1152,18 +1177,22 @@ app.post('/api/v1/show-lmkwd', function(req, res) {
 
 app.post('/api/v1/remove-from-que', function(req, res) {
 
-  MongoClient.connect(url, function(err, db) {
-    
-    if (err) {
-      console.log(err);
-    } else {
-        var collection = db.collection('accounts');
-          collection.update(
-            { _id:  req.body.dad },
-            { $pull: { children: req.body.username } }
-          ) // Remove current trader from que upon completion
-          db.close();
-    }
+  pg.connect(connectionString, function(err, client, done) {
+
+    console.log(req.body.dad_id);
+
+    var removeFromQue = client.query('UPDATE list SET qued = $1, outbound = $2 WHERE sender = $3 AND account_id = $4', [false, false, req.body.username, req.body.dad_id], function(err) {
+      if (err) return console.log(err);
+
+      done();
+    });
+
+    var removeFromActualQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [req.body.username, req.body.dad_id], function(err) {
+        if (err) return console.log(err);
+
+        res.json(req.body.username + " Removed From Que");
+        done();
+    });
 
   });
 
@@ -1171,58 +1200,52 @@ app.post('/api/v1/remove-from-que', function(req, res) {
 
 app.post('/api/v1/remove-from-sent', function(req, res) {
 
-  MongoClient.connect(url, function(err, db) {
-    
-    if (err) {
-      console.log(err);
-    } else {
-        var collection = db.collection('accounts');
-          collection.update(
-            { _id:  req.body.dad },
-            { $pull: { sent: req.body.username } }
-          ) // Remove current trader from que upon completion
-          db.close();
-    }
+    pg.connect(connectionString, function(err, client, done) {
 
-  });
+        console.log(req.body.dad_id);
+
+        var removeFromQue = client.query('UPDATE list SET sent = $1 WHERE sender = $2 AND account_id = $3', [false, req.body.username, req.body.dad_id], function(err) {
+          if (err) return console.log(err);
+
+          res.json(req.body.username + " Removed From Sent");
+          done();
+        });
+
+    });
 
 });
 
 app.post('/api/v1/remove-from-lmkwd', function(req, res) {
 
-  MongoClient.connect(url, function(err, db) {
-    
-    if (err) {
-      console.log(err);
-    } else {
-        var collection = db.collection('accounts');
-          collection.update(
-            { _id:  req.body.dad },
-            { $pull: { lmkwd: req.body.username } }
-          ) // Remove current trader from que upon completion
-          db.close();
-    }
+    pg.connect(connectionString, function(err, client, done) {
 
-  });
+        console.log(req.body.dad_id);
+
+        var removeFromQue = client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3', [false, req.body.username, req.body.dad_id], function(err) {
+          if (err) return console.log(err);
+
+          res.json(req.body.username + " Removed From Lmkwd");
+          done();
+        });
+
+    });
 
 });
 
 app.post('/api/v1/remove-from-rts', function(req, res) {
 
-  MongoClient.connect(url, function(err, db) {
-    
-    if (err) {
-      console.log(err);
-    } else {
-        var collection = db.collection('accounts');
-          collection.update(
-            { _id:  req.body.dad },
-            { $pull: { history: req.body.username } }
-          ) // Remove current trader from que upon completion
-          db.close();
-    }
+    pg.connect(connectionString, function(err, client, done) {
 
-  });
+        console.log(req.body.dad_id);
+
+        var removeFromQue = client.query('UPDATE list SET history = $1 WHERE sender = $2 AND account_id = $3', [false, req.body.username, req.body.dad_id], function(err) {
+          if (err) return console.log(err);
+
+          res.json(req.body.username + " Removed From History");
+          done();
+        });
+
+    });
 
 });
 
@@ -1244,6 +1267,8 @@ app.post('/api/v1/blacklist', function(req, res) {
   });
 
 });
+
+
 
 
 app.get('/api/v1/toggle', requireAdmin, function(req, res) {

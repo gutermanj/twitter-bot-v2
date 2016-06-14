@@ -1,11 +1,17 @@
 $(document).ready(function() {
 
+	$.ajaxSetup({
+  		async: true
+	});
+
 	$('.js-manual-que-add').on('click', function() {
 		var username = $(this).data('username');
+		console.log(username);
+		var id = $(this).data('dad_id');
 		var sender = "Potato";
 		$('#show-new-que-modal').modal('toggle');
 		var input = `
-			<input value='${username}' class='js-new-que-username form-control'>
+			<input value='${id}' class='js-new-que-username form-control'>
 		`
 		$('.js-new-que-account-input').html(input);
 		$('.js-new-que-sender').val("");
@@ -63,89 +69,92 @@ $(document).ready(function() {
 			},
 
 			success: function(response) {
-				console.log(response.children);
-				var dad = response._id;
-				console.log(dad);
-				var children = response.children;
-				var lmkwd_list = response.lmkwd;
-				var rts_list = response.history;
-				var sent_list = response.sent;
+				console.log(response);
+				var dad = response[0].username;
+				var dad_id = response[0].id;
 
 				$('.js-current-que').empty();
 				$('.js-current-history').empty();
 				$('.js-current-lmkwd').empty();
 				$('.js-current-sent').empty();
 
-				children.forEach(function(child) {
-					var html = `
+				response.forEach(function(sender) {
+
+					if (sender.qued) {
+
+						var html = `
 						<div class='js-que-parent'>
-							<b style='margin-left: 20px;'>${child}</b>
-							<span style='margin-left: 20px; cursor: pointer;' aria-hidden='true' class='js-remove-from-que' data-username='${child}'>x</span>
+							<b style='margin-left: 20px;'>${sender.sender}</b>
+							<span style='margin-left: 20px; cursor: pointer;' aria-hidden='true' class='js-remove-from-que' data-username='${sender.sender}'>x</span>
 							<hr style='width: 50%; margin-left: -0%;'>
 						</div>
 					`
 
 					$('.js-current-que').append(html);
-				});
 
-				sent_list.forEach(function(sent) {
+					}
+
+
+				if (sender.sent) {
 					var html = `
 						<div class='js-que-parent'>
-							<b style='margin-left: 20px; color: lightgray;'>${sent}</b>
-							<span style='margin-left: 20px; cursor: pointer;' aria-hidden='true' class='js-remove-from-sent' data-username='${sent}'>x</span>
+							<b style='margin-left: 20px; color: lightgray;'>${sender.sender}</b>
+							<span style='margin-left: 20px; cursor: pointer;' aria-hidden='true' class='js-remove-from-sent' data-username='${sender.sender}'>x</span>
 							<hr style='width: 50%; margin-left: -0%;'>
 						</div>
 					`
 
 					$('.js-current-sent').append(html);
-				});
+				}
 
-				lmkwd_list.forEach(function(child) {
+				if (sender.lmkwd) {
 					var html = `
 						<div class='js-que-parent'>
-							<b style='margin-left: 20px;'>${child}</b>
-							<span style='margin-left: 20px; cursor: pointer;' aria-hidden='true' class='js-remove-from-lmkwd' data-username='${child}'>x</span>
+							<b style='margin-left: 20px;'>${sender.sender}</b>
+							<span style='margin-left: 20px; cursor: pointer;' aria-hidden='true' class='js-remove-from-lmkwd' data-username='${sender.sender}'>x</span>
 							<hr style='width: 50%; margin-left: -0%;'>
 						</div>
 					`
 
 					$('.js-current-lmkwd').append(html);
-				});
+				}
 
-				rts_list.forEach(function(child) {
+				if (sender.history) {
 					var html = `
 						<div class='js-que-parent'>
-							<b style='margin-left: 20px;'>${child}</b>
-							<span style='margin-left: 20px; cursor: pointer;' aria-hidden='true' class='js-remove-from-rts' data-username='${child}'>x</span>
+							<b style='margin-left: 20px;'>${sender.sender}</b>
+							<span style='margin-left: 20px; cursor: pointer;' aria-hidden='true' class='js-remove-from-rts' data-username='${sender.sender}'>x</span>
 							<hr style='width: 50%; margin-left: -0%;'>
 						</div>
 					`
 
 					$('.js-current-history').append(html);
+				}
+
 				});
 
 				$('.js-remove-from-que').on('click', function() {
 					var username = $(this).data('username');
 					$(this).html('<span>Removed</span>')
-					removeFromQue(username, dad);
+					removeFromQue(username, dad_id);
 				});
 
 				$('.js-remove-from-sent').on('click', function() {
 					var username = $(this).data('username');
 					$(this).html('<span>Removed</span>')
-					removeFromSent(username, dad);
+					removeFromSent(username, dad_id);
 				});
 
 				$('.js-remove-from-lmkwd').on('click', function() {
 					var username = $(this).data('username');
 					$(this).html('<span>Removed</span>')
-					removeFromLmkwd(username, dad);
+					removeFromLmkwd(username, dad_id);
 				});
 
 				$('.js-remove-from-rts').on('click', function() {
 					var username = $(this).data('username');
 					$(this).html('<span>Removed</span>')
-					removeFromRts(username, dad);
+					removeFromRts(username, dad_id);
 				});
 
 			},
@@ -184,7 +193,7 @@ $(document).ready(function() {
 
 	});
 
-	function removeFromQue(username, dad) {
+	function removeFromQue(username, dad_id) {
 		
 		$.ajax({
 
@@ -194,7 +203,7 @@ $(document).ready(function() {
 
 			data: {
 				username: username,
-				dad: dad
+				dad_id: dad_id
 			},
 
 			success: function(response) {
@@ -209,7 +218,7 @@ $(document).ready(function() {
 
 	}
 
-		function removeFromLmkwd(username, dad) {
+		function removeFromLmkwd(username, dad_id) {
 		
 		$.ajax({
 
@@ -219,7 +228,7 @@ $(document).ready(function() {
 
 			data: {
 				username: username,
-				dad: dad
+				dad_id: dad_id
 			},
 
 			success: function(response) {
@@ -234,7 +243,7 @@ $(document).ready(function() {
 
 	}
 
-	function removeFromSent(username, dad) {
+	function removeFromSent(username, dad_id) {
 		
 		$.ajax({
 
@@ -244,7 +253,7 @@ $(document).ready(function() {
 
 			data: {
 				username: username,
-				dad: dad
+				dad_id: dad_id
 			},
 
 			success: function(response) {
@@ -259,7 +268,7 @@ $(document).ready(function() {
 
 	}
 
-	function removeFromRts(username, dad) {
+	function removeFromRts(username, dad_id) {
 		
 		$.ajax({
 
@@ -269,7 +278,7 @@ $(document).ready(function() {
 
 			data: {
 				username: username,
-				dad: dad
+				dad_id: dad_id
 			},
 
 			success: function(response) {

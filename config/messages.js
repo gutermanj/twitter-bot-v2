@@ -429,29 +429,29 @@ module.exports = {
 					} // pushSender
 				}, 1000 * 65 * 1); // Message Pull set Interval
 				console.log("currentQue Started!");
-				schedule.scheduleJob({
-					hour: 5,
-					minute: 0
-				}, function() {
-					console.log("Sending Out Morning Rts!");
-					morningMessage();
-				});
+				// schedule.scheduleJob({
+				// 	hour: 5,
+				// 	minute: 0
+				// }, function() {
+				// 	console.log("Sending Out Morning Rts!");
+				// 	morningMessage();
+				// });
 
-				schedule.scheduleJob({
-					hour: 7,
-					minute: 0
-				}, function() {
-					console.log("Sending Out Morning Lmkwd!");
-					morningMessageLmkwd();
-				});
+				// schedule.scheduleJob({
+				// 	hour: 7,
+				// 	minute: 0
+				// }, function() {
+				// 	console.log("Sending Out Morning Lmkwd!");
+				// 	morningMessageLmkwd();
+				// });
 
-				schedule.scheduleJob({
-					hour: 1,
-					minute: 0
-				}, function() {
-					console.log("Migrating Sent Back To History");
-					migrateSentToHistory();
-				});
+				// schedule.scheduleJob({
+				// 	hour: 1,
+				// 	minute: 0
+				// }, function() {
+				// 	console.log("Migrating Sent Back To History");
+				// 	migrateSentToHistory();
+				// });
 
 				// Main Set Interval
 				currentQue = setInterval(function() {

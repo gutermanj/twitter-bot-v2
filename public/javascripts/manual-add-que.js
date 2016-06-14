@@ -1,9 +1,5 @@
 $(document).ready(function() {
 
-	$.ajaxSetup({
-  		async: true
-	});
-
 	$('.js-manual-que-add').on('click', function() {
 		var username = $(this).data('username');
 		console.log(username);
@@ -12,6 +8,9 @@ $(document).ready(function() {
 		$('#show-new-que-modal').modal('toggle');
 		var input = `
 			<input value='${id}' class='js-new-que-username form-control'>
+			<br>
+			<h4>Account: ${username}</h4>
+			<hr>
 		`
 		$('.js-new-que-account-input').html(input);
 		$('.js-new-que-sender').val("");

@@ -987,7 +987,7 @@ module.exports = {
 								if (err) return console.log(err);
 							});
 
-							var queryTwo = client.query('INSERT INTO que (sender, account_id)', [sender, account.id], function(err) {
+							var queryTwo = client.query('INSERT INTO que (sender, account_id) VALUES ($1, $2)', [sender, account.id], function(err) {
 								if (err) return console.log(err);
 							});
 						}

@@ -983,30 +983,30 @@ module.exports = {
 					var updateOne = function updateAddQue() {
 						if (foundAccount[0].qued === false) {
 
-							var queryOne = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3' [true, sender, account.id], function(err) {
+							var queryOne = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3', [true, sender, account.id], function(err) {
 								if (err) return console.log(err);
 							});
 
-							var queryTwo = client.query('INSERT INTO que (sender, account_id)' [sender, account.id], function(err) {
+							var queryTwo = client.query('INSERT INTO que (sender, account_id)', [sender, account.id], function(err) {
 								if (err) return console.log(err);
 							});
 						}
 					}
 
 					var updateTwo = function updateRemoveSent() {
-						client.query('UPDATE list SET sent = $1 WHERE sender = $2 AND account_id = $3' [false, sender, account.id]);
+						client.query('UPDATE list SET sent = $1 WHERE sender = $2 AND account_id = $3', [false, sender, account.id]);
 					}
 
 					var updateThree = function updateRemoveLmkwd() {
-						client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3' [false, sender, account.id]);
+						client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3', [false, sender, account.id]);
 					}
 
 					var updateFour = function updateAddHistory() {
-						client.query('UPDATE list SET history = $1 WHERE sender = $2 AND account_id = $3' [true, sender, account.id]);
+						client.query('UPDATE list SET history = $1 WHERE sender = $2 AND account_id = $3', [true, sender, account.id]);
 					}
 
 					var updateFive = function updateAddOutbound() {
-						client.query('UPDATE list SET outbound = $1 WHERE sender = $2 AND account_id = $3' [true, sender, account.id]);
+						client.query('UPDATE list SET outbound = $1 WHERE sender = $2 AND account_id = $3', [true, sender, account.id]);
 					}
 						// If sender is on nothing
 					if (foundAccount[0].qued === false &&

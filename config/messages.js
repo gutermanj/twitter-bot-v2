@@ -994,28 +994,20 @@ module.exports = {
 					}
 
 					var updateTwo = function updateRemoveSent() {
-						var queryOne = client.query('UPDATE list SET sent = $1 WHERE sender = $2 AND account_id = $3' [false, sender, account.id], function(err) {
-							if (err) return console.log(err);
-						});
+						client.query('UPDATE list SET sent = $1 WHERE sender = $2 AND account_id = $3' [false, sender, account.id]);
 					}
 
 					var updateThree = function updateRemoveLmkwd() {
-						var queryOne = client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3' [false, sender, account.id], function(err) {
-							if (err) return console.log(err);
-						});
+						client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3' [false, sender, account.id]);
 					}
 
 					var updateFour = function updateAddHistory() {
-						var queryOne = client.query('UPDATE list SET history = $1 WHERE sender = $2 AND account_id = $3' [true, sender, account.id], function(err) {
-							if (err) return console.log(err);
-						});
+						client.query('UPDATE list SET history = $1 WHERE sender = $2 AND account_id = $3' [true, sender, account.id]);
 					}
 
 					var updateFive = function updateAddOutbound() {
-							var queryOne = client.query('UPDATE list SET outbound = $1 WHERE sender = $2 AND account_id = $3' [true, sender, account.id], function(err) {
-								if (err) return console.log(err);
-							});
-						}
+						client.query('UPDATE list SET outbound = $1 WHERE sender = $2 AND account_id = $3' [true, sender, account.id]);
+					}
 						// If sender is on nothing
 					if (foundAccount[0].qued === false &&
 						foundAccount[0].lmkwd === false &&
@@ -1077,9 +1069,7 @@ module.exports = {
 
 			function incrementTotalTradeCount(account) {
 					
-				var incrementTrades = client.query('UPDATE manualaccounts SET total_trades = total_trades + 1 WHERE username = $1', [account.username], function(err) {
-					if (err) return console.log(err);
-				});
+				var incrementTrades = client.query('UPDATE manualaccounts SET total_trades = total_trades + 1 WHERE username = $1', [account.username]);
 
 			}
 

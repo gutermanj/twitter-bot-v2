@@ -456,7 +456,7 @@ module.exports = {
 
 											var time = new Date();
 
-											if (time.getHours() < 10 || time.getHours() > 24) {
+											if (time.getHours() < 7 || time.getHours() > 24) {
 												console.log("Offline: Night Time");
 											} else {
 												initiateTrade(account, currentTrader);

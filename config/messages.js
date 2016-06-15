@@ -247,7 +247,6 @@ module.exports = {
 						});
 
 						findLocal.on('end', function() {
-							done();
 							checkExistance();
 						});
 
@@ -324,25 +323,13 @@ module.exports = {
 												if (foundAccount[0].outbound === false || foundAccount[0].sent === false) {
 													var updateOne = function updateAddToQue() {
 															
-															var addToQue = client.query('INSERT INTO que(sender, account_id) VALUES ($1, $2)', [sender, account.id], function(err, result) {
-																if (err) {
-																	console.log(err);
-																} else {
-																	done();
-																}
-															});
+															var addToQue = client.query('INSERT INTO que(sender, account_id) VALUES ($1, $2)', [sender, account.id]);
 
 														}
 
 													var updateTwo = function updateAddQuedStatus() {
 
-															var updateQued = client.query('UPDATE list SET qued = $1, history = $2 WHERE sender = $3 AND account_id = $4', [true, false, sender, account.id], function(err, result) {
-																if (err) {
-																	console.log(err);
-																} else {
-																	done();
-																}
-															});
+															var updateQued = client.query('UPDATE list SET qued = $1, history = $2 WHERE sender = $3 AND account_id = $4', [true, false, sender, account.id]);
 
 														}
 													async.series([
@@ -373,25 +360,13 @@ module.exports = {
 								// Lets create a list for them
 								var updateOne = function createSenderList() {
 
-									var addSenderToList = client.query('INSERT INTO list(sender, qued, lmkwd, history, sent, outbound, account_id) VALUES ($1, $2, $3, $4, $5, $6, $7)', [sender, true, false, false, false, false, account.id], function(err, result) {
-										if (err) {
-											console.log(err);
-										} else {
-											done();
-										}
-									});
+									var addSenderToList = client.query('INSERT INTO list(sender, qued, lmkwd, history, sent, outbound, account_id) VALUES ($1, $2, $3, $4, $5, $6, $7)', [sender, true, false, false, false, false, account.id]);
 
 								}
 
 								var updateTwo = function addSenderToQue() {
 
-									var addSenderQue = client.query('INSERT INTO que(sender, account_id) VALUES ($1, $2)', [sender, account.id], function(err, result) {
-										if (err) {
-											console.log(err);
-										} else {
-											done();
-										}
-									});
+									var addSenderQue = client.query('INSERT INTO que(sender, account_id) VALUES ($1, $2)', [sender, account.id]);
 
 								}
 
@@ -1104,8 +1079,6 @@ module.exports = {
 					
 				var incrementTrades = client.query('UPDATE manualaccounts SET total_trades = total_trades + 1 WHERE username = $1', [account.username], function(err) {
 					if (err) return console.log(err);
-
-					done();
 				});
 
 			}

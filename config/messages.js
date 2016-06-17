@@ -879,6 +879,10 @@ module.exports = {
 					if (err) return console.log(err);
 				});
 
+				var removeFromQue = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3', [false, currentTrader.sender, currentTrader.account_id], function(err) {
+					if (err) return console.log(err);
+				});
+
 			}
 
 			// // Every 6 hours, if accounts are in this lsit, message them 'lmkwd'
@@ -1012,7 +1016,8 @@ module.exports = {
 					if (foundAccount[0].qued === false &&
 						foundAccount[0].lmkwd === false &&
 						foundAccount[0].history === false &&
-						foundAccount[0].sent === false) {
+						foundAccount[0].sent === false &&
+						foundAccount[0].outbound === false) {
 
 						async.series([
 								function(callback) {

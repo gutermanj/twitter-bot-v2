@@ -823,14 +823,6 @@ module.exports = {
 										console.log("Statuses/retweet", err);
 									} 
 
-									var updateQueStatus = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3', [false, currentTrader.sender, currentTrader.account_id], function(err) {
-										if (err) return console.log(err);
-									});
-
-									var removeFromQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
-										if (err) return console.log(err);
-									});
-
 									console.log("Retweet Complete.");
 
 									// Start coutdown to undo the trade
@@ -842,7 +834,7 @@ module.exports = {
 												console.log("Unretweet Complete.");
 											}
 										});
-										}, 1000 * 60 * 19.7); // Destroy retweet
+									}, 1000 * 60 * 19.7); // Destroy retweet
 								}); // retweet post
 							}); // tweets for each
 						}
@@ -879,7 +871,11 @@ module.exports = {
 					if (err) return console.log(err);
 				});
 
-				var removeFromQue = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3', [false, currentTrader.sender, currentTrader.account_id], function(err) {
+				var updateQuedList = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3', [false, currentTrader.sender, currentTrader.account_id], function(err) {
+					if (err) return console.log(err);
+				});
+
+				var removeFromQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
 					if (err) return console.log(err);
 				});
 

@@ -31,8 +31,6 @@ var connectionString = 'postgres://zqjwdkhttstwfx:ykFbgDKz8eTpXM3CCyim6Zyw-m@ec2
 // var connectionString = process.env.DATABASE_URL || 'postgres://postgres:potato@localhost:5432/twitterbot';
 
 
-console.log("Change supervisor back to forever for production and remove me!");
-
 var client = new pg.Client(connectionString);
 
 var MongoClient = mongodb.MongoClient;
@@ -208,7 +206,6 @@ app.use(function(req, res, next){
   var current_month = months[date.getMonth()];
   var year = date.getYear() - 100
   var timestamp = current_day + " " + hours + ":" + minutes + " " + dateOrNight + ", " + current_month + " " + current_date + " " + "20" + year;
-  console.log(timestamp);
 
 // END TIMESTAMP
 
@@ -464,7 +461,6 @@ app.post('/signin', function(req, res) {
               if (bcrypt.compareSync(req.body.password, user.password)) {
                 req.session.user = user; // Set the session
                 res.locals.user = user;
-                console.log("LOGIN QUERY RESULTS: " + user);
                 res.redirect('/me');
               } else {
                 // If they don't match
@@ -527,7 +523,6 @@ app.post('/admin/signin', function(req, res) {
               if (bcrypt.compareSync(req.body.password, user.password)) {
                 req.session.user = user; // Set the session
                 res.locals.user = user;
-                console.log("LOGIN QUERY RESULTS: " + user);
                 res.redirect('/dashboard');
               } else {
                 // If they don't match

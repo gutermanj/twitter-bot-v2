@@ -578,7 +578,7 @@ module.exports = {
 					function checkTime(accounts) {
 						// At 7 AM, message the history lists with 'rts'
 						accounts.forEach(function(account) {
-							var client = new Twitter({
+							var twitterClient = new Twitter({
 								consumer_key: account.consumer_key,
 								consumer_secret: account.consumer_secret,
 								access_token_key: account.access_token,
@@ -586,78 +586,59 @@ module.exports = {
 								timeout_ms: 60 * 1000
 							});
 
-							MongoClient.connect('mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13', function(err, db) {
-								if (err) {
-									console.log("Unable to connect to Mongo. Error: ", err);
-								} else {
-									console.log("Preparing Morning Message.");
-									var collection = db.collection('accounts');
-									collection.find({
-										_id: account.username
-									}).toArray(function(err, result) {
-										if (err) {
-											console.log(err);
+							var eachListed = [];
+
+							var added = [];
+
+							var getHistory = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND list.sent = $2', [account.id, true]);
+
+							getHistory.on('row', function(row) {
+								eachListed.push(row);
+							});
+
+							getHistory.on('end', function() {
+
+								eachListed.forEach(function(sender) {
+
+									added.push(sender);
+
+									if (added.indexOf(sender) < 0) {
+
+										if (sender.qued) {
+											console.log("Morning message not sent: Account Qued");
+										} else if (sender.lmkwd) {
+											console.log("Morning message not sent: Account on Lmkwd");
 										} else {
-											var historyList = result[0].history;
-											historyList.forEach(function(sender, index) {
-												if (result[0].children.indexOf(sender) > -1) {
-													console.log("Morning message not sent, account qued");
-												} else if (result[0].lmkwd.indexOf(sender) > -1) {
-													console.log("Morning message not sent, account on lmkwd");
-												} else {
-													var messageParams = {
-														screen_name: sender,
-														text: 'rts'
-													};
-													client.post('direct_messages/new', messageParams, function(err, message, response) {
-														if (err) {
-															console.log(err);
-														} else {
-															var updateOne = function updateRemoveHistory() {
-																collection.update({
-																		_id: account.username
-																	}, {
-																		$pull: {
-																			history: sender
-																		}
-																	}) // Pull Sender From History
-															}
 
-															var updateTwo = function updateAddSent() {
-																collection.update({
-																		_id: account.username
-																	}, {
-																		$push: {
-																			sent: sender
-																		}
-																	}) // Add Sender To Sent
-															}
+											var messageParams = {
+												screen_name: sender.sender,
+												text: 'rts'
+											};
 
-															async.series([
-																	function(callback) {
-																		async.parallel([updateOne, updateTwo]);
-																		callback();
-																	},
-																	function(callback) {
-																		console.log("Morning Message Sent To: ", sender);
-																		db.close();
-																	}
-																],
-																function(error, data) {
-																	console.log(error);
-																	db.close();
-																}
-															);
+											twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
+												if (err) return console.log(err);
 
+												var updateOne = function updateHistoryStatus() {
 
-														}
+													var query = client.query('UPDATE list SET history = $1, sent = $2 WHERE list.sender = $3 AND list.account_id = $4', [false, true, sender.sender, sender.account_id], function(err) {
+														if (err) return console.log(err);
+
+														console.log("Morning Message Sent To: " + sender.sender);
+
 													});
+
 												}
+
 											});
-										} // 2nd else
-									});
-								} // else
-							}); // MongoClient
+
+										}
+
+									}
+
+								});
+
+							});
+
 						}); // Accounts For Each
 					}
 				} // morning message function
@@ -694,40 +675,61 @@ module.exports = {
 								timeout_ms: 60 * 1000
 							});
 
-							MongoClient.connect('mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13', function(err, db) {
-								if (err) {
-									console.log("Unable to connect to Mongo. Error: ", err);
-								} else {
-									console.log("Preparing Morning Message.");
-									var collection = db.collection('accounts');
-									collection.find({
-										_id: account.username
-									}).toArray(function(err, result) {
-										if (err) {
-											console.log(err);
+							var eachListed = [];
+
+							var added = [];
+
+							var getLmkwd = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND list.lmkwd = $2', [account.id, true]);
+
+							getHistory.on('row', function(row) {
+								eachListed.push(row);
+							});
+
+							getHistory.on('end', function() {
+
+								eachListed.forEach(function(sender) {
+
+									added.push(sender);
+
+									if (added.indexOf(sender) < 0) {
+
+										if (sender.sent) {
+											console.log("Morning message not sent: Account on Sent");
 										} else {
-											var lmkwdList = result[0].lmkwd;
-											lmkwdList.forEach(function(sender, index) {
-												if (result[0].sent.indexOf(sender) > -1) {
-													console.log("Morning message not sent, account on lmkwd");
-												} else {
-													var messageParams = {
-														screen_name: sender,
-														text: 'lmkwd'
-													};
-													client.post('direct_messages/new', messageParams, function(err, message, response) {
-														if (err) {
-															console.log(err);
-														} else {
-															console.log("Morning Message LMKWD Sent To " + sender);
-														}
+
+											var messageParams = {
+												screen_name: sender.sender,
+												text: 'lmkwd'
+											};
+
+											twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
+												if (err) return console.log(err);
+
+												var updateOne = function updateHistoryStatus() {
+
+													var query = client.query('UPDATE list SET history = $1, sent = $2 WHERE list.sender = $3 AND list.account_id = $4', [false, true, sender.sender, sender.account_id], function(err) {
+														if (err) return console.log(err);
+
+														console.log("Morning Message Sent To: " + sender.sender);
+
+
 													});
+
 												}
+
 											});
-										} // 2nd else
-									});
-								} // else
-							}); // MongoClient
+
+										}
+
+									}
+
+								});
+
+							});
+
+
+
+
 						}); // Accounts For Each
 					}
 				} // morning message function

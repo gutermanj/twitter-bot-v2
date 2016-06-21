@@ -752,11 +752,11 @@ module.exports = {
 							console.log("Favorites/list: ", err);
 							// If getting Traders favorites results in a 404
 
-							var queryOne = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3' [false, currentTrader.sender, currentTrader.account_id], function(err) {
+							var queryOne = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3', [false, currentTrader.sender, currentTrader.account_id], function(err) {
 								if (err) return console.log(err);
 							});
 
-							var queryTwo = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2' [currentTrader.sender, currentTrader.account_id], function(err) {
+							var queryTwo = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
 								if (err) return console.log(err);
 							});
 
@@ -805,7 +805,7 @@ module.exports = {
 
 											console.log(currentTrader.sender + " on outbound list for " + account.username);
 
-											var changeStatus = client.query('UPDATE list SET outbound = $1, history = $2, qued = $5 WHERE sender = $3 AND account_id = $4' [false, true, currentTrader.sender, currentTrader.account_id, false], function(err) {
+											var changeStatus = client.query('UPDATE list SET outbound = $1, history = $2, qued = $5 WHERE sender = $3 AND account_id = $4', [false, true, currentTrader.sender, currentTrader.account_id, false], function(err) {
 												if (err) return console.log(err);
 											});
 

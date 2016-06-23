@@ -399,13 +399,13 @@ module.exports = {
 					morningMessage();
 				});
 
-				schedule.scheduleJob({
-					hour: 7,
-					minute: 0
-				}, function() {
-					console.log("Sending Out Morning Lmkwd!");
-					morningMessageLmkwd();
-				});
+				// schedule.scheduleJob({
+				// 	hour: 7,
+				// 	minute: 0
+				// }, function() {
+				// 	console.log("Sending Out Morning Lmkwd!");
+				// 	morningMessageLmkwd();
+				// });
 
 				// schedule.scheduleJob({
 				// 	hour: 1,

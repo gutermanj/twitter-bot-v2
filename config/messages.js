@@ -667,7 +667,7 @@ module.exports = {
 					function checkTime(accounts) {
 						// At 7 AM, message the history lists with 'rts'
 						accounts.forEach(function(account) {
-							var client = new Twitter({
+							var twitterClient = new Twitter({
 								consumer_key: account.consumer_key,
 								consumer_secret: account.consumer_secret,
 								access_token_key: account.access_token,

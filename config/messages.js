@@ -614,16 +614,14 @@ module.exports = {
 											twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
 												if (err) return console.log(err);
 
-												var updateOne = function updateHistoryStatus() {
 
-													var query = client.query('UPDATE list SET history = $1, sent = $2 WHERE list.sender = $3 AND list.account_id = $4', [false, true, sender.sender, sender.account_id], function(err) {
-														if (err) return console.log(err);
+												var query = client.query('UPDATE list SET history = $1, sent = $2 WHERE list.sender = $3 AND list.account_id = $4', [false, true, sender.sender, sender.account_id], function(err) {
+													if (err) return console.log(err);
 
-														console.log("Morning Message Sent To: " + sender.sender);
+													console.log("Morning Message Sent To: " + sender.sender);
 
-													});
+												});
 
-												}
 
 											});
 
@@ -1031,6 +1029,9 @@ module.exports = {
 						);
 						// If sender is on sent
 					} else if (foundAccount[0].sent &&
+								foundAccount[0].qued === false &&
+								foundAccount[0].lmkwd === false ||
+								foundAccount[0].history &&
 								foundAccount[0].qued === false &&
 								foundAccount[0].lmkwd === false) {
 						// ADD TO QUE => REMOVE FROM SENT => REMOVE FROM LMKWD => ADD TO OUTBOUND

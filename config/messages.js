@@ -392,7 +392,7 @@ module.exports = {
 				}, 1000 * 65 * 1); // Message Pull set Interval
 				console.log("currentQue Started!");
 				schedule.scheduleJob({
-					hour: 5,
+					hour: 7,
 					minute: 0
 				}, function() {
 					console.log("Sending Out Morning Rts!");
@@ -556,12 +556,6 @@ module.exports = {
 
 				function morningMessage() {
 					var accounts = [];
-					pg.connect(connectionString, function(err, client, done) {
-						// Handle connection errors
-						if (err) {
-							done();
-							console.log(err);
-						}
 						// SQL Query > Last account created
 						var query = client.query("SELECT * FROM manualAccounts");
 						// Stream results back one row at a time
@@ -570,12 +564,13 @@ module.exports = {
 						});
 						// After all data is returned, close connection and return results
 						query.on('end', function() {
-							done();
 							console.log("Accounts Ready.");
 							checkTime(accounts);
 						});
-					}); // pg connect
-					function checkTime(accounts) {
+					
+				} // morning message function
+
+				function checkTime(accounts) {
 						// At 7 AM, message the history lists with 'rts'
 						accounts.forEach(function(account) {
 							var twitterClient = new Twitter({
@@ -585,12 +580,13 @@ module.exports = {
 								access_token_secret: account.access_token_secret,
 								timeout_ms: 60 * 1000
 							});
+							console.log('starting rts messages from: ' + account.username);
 
 							var eachListed = [];
 
 							var added = [];
 
-							var getHistory = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND list.sent = $2', [account.id, true]);
+							var getHistory = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND list.history = $2', [account.id, true]);
 
 							getHistory.on('row', function(row) {
 								eachListed.push(row);
@@ -600,9 +596,9 @@ module.exports = {
 
 								eachListed.forEach(function(sender) {
 
-									added.push(sender);
-
 									if (added.indexOf(sender) < 0) {
+
+										added.push(sender);
 
 										if (sender.qued) {
 											console.log("Morning message not sent: Account Qued");
@@ -641,7 +637,6 @@ module.exports = {
 
 						}); // Accounts For Each
 					}
-				} // morning message function
 
 				function morningMessageLmkwd() {
 					var accounts = [];
@@ -661,10 +656,10 @@ module.exports = {
 						query.on('end', function() {
 							done();
 							console.log("Accounts Ready.");
-							checkTime(accounts);
+							checkTimePart2(accounts);
 						});
 					}); // pg connect
-					function checkTime(accounts) {
+					function checkTimePart2(accounts) {
 						// At 7 AM, message the history lists with 'rts'
 						accounts.forEach(function(account) {
 							var twitterClient = new Twitter({

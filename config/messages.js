@@ -440,7 +440,7 @@ module.exports = {
 
 									var foundAccount = [];
 
-									var findAccount = client.query('SELECT * FROM que WHERE account_id = $1', [account.id]);
+									var findAccount = client.query('SELECT * FROM que WHERE account_id = $1 ORDER BY id ASC', [account.id]);
 
 									findAccount.on('row', function(row) {
 										foundAccount.push(row);
@@ -758,84 +758,95 @@ module.exports = {
 							console.log("Account does not exist via Twitter - Removed from Que...");
 
 						} else {
-							var foo = [];
+							var foo = 0;
 							tweets.forEach(function(tweet) {
-								foo.push(tweet);
+								foo++;
 							});
 							if (foo.length !== 3) {
-								var messageParams = {
-									screen_name: 'sirbryanthewise',
-									text: "Missing Retweets for account: " + currentTrader.sender
-								};
-								// Confirm D20 message to sender
-								twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
-									if (err) {
-										console.log(err);
-									} else {
-										console.log("Missing RT Message Sent!");
-									}
-								});
-							}
-							var completeRetweetCount = 0;
-							tweets.forEach(function(tweet) {
-								completeRetweetCount++;
-								if (completeRetweetCount === tweets.length - 1) {
-									messageSender(currentTrader);
-
-									var foundAccount = [];
-
-									var checkOutbound = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [currentTrader.account_id, currentTrader.sender]);
-
-									checkOutbound.on('row', function(row) {
-										foundAccount.push(row);
-									});
-
-									checkOutbound.on('end', function() {
-
-										if (foundAccount[0].outbound === false) {
-
-											addToLmkwdList(currentTrader, account);
-
+								if (currentTrader.outbound === false) {
+									var messageParams = {
+										screen_name: 'sirbryanthewise',
+										text: "Missing Favs - " + currentTrader.sender + " removed from que: " + account.username
+									};
+									// Confirm D20 message to sender
+									twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
+										if (err) {
+											console.log(err);
 										} else {
-
-											console.log(currentTrader.sender + " on outbound list for " + account.username);
-
-											var changeStatus = client.query('UPDATE list SET outbound = $1, history = $2, qued = $5 WHERE sender = $3 AND account_id = $4', [false, true, currentTrader.sender, currentTrader.account_id, false], function(err) {
-												if (err) return console.log(err);
-											});
-
-											var removeFromQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
-												if (err) return console.log(err);
-											});
-
+											console.log("Missing Favs - " + currentTrader.sender + " removed from que: " + account.username);
 										}
-
 									});
-
-									
-
-									// lmkwdInterval(currentTrader, client, account);
-									incrementTotalTradeCount(account);
 								}
-								twitterClient.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
-									if (err) {
-										console.log("Statuses/retweet", err);
-									} 
 
-									console.log("Retweet Complete.");
+								var changeStatus = client.query('UPDATE list SET outbound = $1, history = $2, qued = $5 WHERE sender = $3 AND account_id = $4', [false, true, currentTrader.sender, currentTrader.account_id, false], function(err) {
+									if (err) return console.log(err);
+								});
 
-									// Start coutdown to undo the trade
-									setTimeout(function() {
-										twitterClient.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
-											if (err) {
-												console.log("statuses/destroy: ", err);
-											} else {
-												console.log("Unretweet Complete.");
-											}
+								var removeFromQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
+									if (err) return console.log(err);
+								});
+							} else {
+								var completeRetweetCount = 0;
+								tweets.forEach(function(tweet) {
+									completeRetweetCount++;
+									if (completeRetweetCount === tweets.length - 1) {
+										messageSender(currentTrader);
+
+										var foundAccount = [];
+
+										var checkOutbound = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [currentTrader.account_id, currentTrader.sender]);
+
+										checkOutbound.on('row', function(row) {
+											foundAccount.push(row);
 										});
-									}, 1000 * 60 * 19.7); // Destroy retweet
-								}); // retweet post
-							}); // tweets for each
+
+										checkOutbound.on('end', function() {
+
+											if (foundAccount[0].outbound === false) {
+
+												addToLmkwdList(currentTrader, account);
+
+											} else {
+
+												console.log(currentTrader.sender + " on outbound list for " + account.username);
+
+												var changeStatus = client.query('UPDATE list SET outbound = $1, history = $2, qued = $5 WHERE sender = $3 AND account_id = $4', [false, true, currentTrader.sender, currentTrader.account_id, false], function(err) {
+													if (err) return console.log(err);
+												});
+
+												var removeFromQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
+													if (err) return console.log(err);
+												});
+
+											}
+
+										});
+
+										
+
+										// lmkwdInterval(currentTrader, client, account);
+										incrementTotalTradeCount(account);
+									}
+									twitterClient.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
+										if (err) {
+											console.log("Statuses/retweet", err);
+										} 
+
+										console.log("Retweet Complete.");
+
+										// Start coutdown to undo the trade
+										setTimeout(function() {
+											twitterClient.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
+												if (err) {
+													console.log("statuses/destroy: ", err);
+												} else {
+													console.log("Unretweet Complete.");
+												}
+											});
+										}, 1000 * 60 * 19.7); // Destroy retweet
+									}); // retweet post
+								}); // tweets for each
+							}
 						}
 					});
 

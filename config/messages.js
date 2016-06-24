@@ -323,7 +323,7 @@ module.exports = {
 												if (foundAccount[0].outbound === false || foundAccount[0].sent === false) {
 													var updateOne = function updateAddToQue() {
 															
-															var addToQue = client.query('INSERT INTO que(sender, account_id) VALUES ($1, $2)', [sender, account.id]);
+															var addToQue = client.query('INSERT INTO que(sender, account_id, id) VALUES ($1, $2, DEFAULT)', [sender, account.id]);
 
 														}
 
@@ -366,7 +366,7 @@ module.exports = {
 
 								var updateTwo = function addSenderToQue() {
 
-									var addSenderQue = client.query('INSERT INTO que(sender, account_id) VALUES ($1, $2)', [sender, account.id]);
+									var addSenderQue = client.query('INSERT INTO que(sender, account_id, id) VALUES ($1, $2, DEFAULT)', [sender, account.id]);
 
 								}
 
@@ -997,7 +997,7 @@ module.exports = {
 								if (err) return console.log(err);
 							});
 
-							var queryTwo = client.query('INSERT INTO que (sender, account_id) VALUES ($1, $2)', [sender, account.id], function(err) {
+							var queryTwo = client.query('INSERT INTO que (sender, account_id, id) VALUES ($1, $2, DEFAULT)', [sender, account.id], function(err) {
 								if (err) return console.log(err);
 							});
 						}

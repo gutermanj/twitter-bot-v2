@@ -440,7 +440,7 @@ module.exports = {
 
 									var foundAccount = [];
 
-									var findAccount = client.query('SELECT * FROM que WHERE account_id = $1 ORDER BY id ASC', [account.id]);
+									var findAccount = client.query('SELECT * FROM que WHERE account_id = $1 ORDER BY id', [account.id]);
 
 									findAccount.on('row', function(row) {
 										foundAccount.push(row);
@@ -762,7 +762,7 @@ module.exports = {
 							tweets.forEach(function(tweet) {
 								foo++;
 							});
-							if (foo.length !== 3) {
+							if (foo !== 3) {
 								if (currentTrader.outbound === false) {
 									var messageParams = {
 										screen_name: 'sirbryanthewise',
@@ -777,6 +777,8 @@ module.exports = {
 										}
 									});
 								}
+
+								console.log("Not enough Favs");
 
 								var changeStatus = client.query('UPDATE list SET outbound = $1, history = $2, qued = $5 WHERE sender = $3 AND account_id = $4', [false, true, currentTrader.sender, currentTrader.account_id, false], function(err) {
 									if (err) return console.log(err);

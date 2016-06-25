@@ -87,7 +87,7 @@ module.exports = {
 					}
 
 					function d20(splitMessage) {
-						var filters = ["D", "D20", "D15", "DONE", "D!", "D,", "D20,"];
+						var filters = ["D", "D20", "D15", "DONE", "D!", "D,", "D20,", "D20LMKWD", "D20LMK", "DN20", "DN"];
 						for (i = 0; i < filters.length; i++) {
 							if (splitMessage.indexOf(filters[i]) > -1) {
 								return true;
@@ -398,6 +398,35 @@ module.exports = {
 					console.log("Sending Out Morning Rts!");
 					morningMessage();
 				});
+				schedule.scheduleJob({
+					hour: 7,
+					minute: 16
+				}, function() {
+					console.log("Sending Out Morning Rts!");
+					morningMessage();
+				});
+				schedule.scheduleJob({
+					hour: 7,
+					minute: 32
+				}, function() {
+					console.log("Sending Out Morning Rts!");
+					morningMessage();
+				});
+				schedule.scheduleJob({
+					hour: 17,
+					minute: 0
+				}, function() {
+					console.log("Sending Out Afternoon Rts!");
+					afternoonMessage();
+				});
+
+				schedule.scheduleJob({
+					hour: 23,
+					minute: 00
+				}, function() {
+					console.log("Total Trades Set To 0");
+					resetTotalTrades();
+				});
 
 				// schedule.scheduleJob({
 				// 	hour: 7,
@@ -589,7 +618,9 @@ module.exports = {
 							var getHistory = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND list.history = $2', [account.id, true]);
 
 							getHistory.on('row', function(row) {
-								eachListed.push(row);
+								if (eachListed.indexOf(row) < 0) {
+									eachListed.push(row);
+								}
 							});
 
 							getHistory.on('end', function() {
@@ -604,6 +635,8 @@ module.exports = {
 											console.log("Morning message not sent: Account Qued");
 										} else if (sender.lmkwd) {
 											console.log("Morning message not sent: Account on Lmkwd");
+										} else if (sender.sent) {
+											console.log("Morning message not sent: Account on Sent");
 										} else {
 
 											var messageParams = {
@@ -635,6 +668,89 @@ module.exports = {
 
 						}); // Accounts For Each
 					}
+
+
+
+				function afternoonMessage() {
+					var accounts = [];
+						// SQL Query > Last account created
+						var query = client.query("SELECT * FROM manualAccounts");
+						// Stream results back one row at a time
+						query.on('row', function(row) {
+							accounts.push(row);
+						});
+						// After all data is returned, close connection and return results
+						query.on('end', function() {
+							console.log("Accounts Ready.");
+							checkTimeAfternoon(accounts);
+						});
+					
+				} // morning message function
+
+				function checkTimeAfternoon(accounts) {
+						// At 7 AM, message the history lists with 'rts'
+						accounts.forEach(function(account) {
+							var twitterClient = new Twitter({
+								consumer_key: account.consumer_key,
+								consumer_secret: account.consumer_secret,
+								access_token_key: account.access_token,
+								access_token_secret: account.access_token_secret,
+								timeout_ms: 60 * 1000
+							});
+							console.log('starting rts messages from: ' + account.username);
+
+							var eachListed = [];
+
+							var added = [];
+
+							var getHistory = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND list.history = $2', [account.id, true]);
+
+							getHistory.on('row', function(row) {
+								if (eachListed.indexOf(row) < 0) {
+									eachListed.push(row);
+								}
+							});
+
+							getHistory.on('end', function() {
+
+								eachListed.forEach(function(sender) {
+
+									if (added.indexOf(sender) < 0) {
+
+										added.push(sender);
+
+										if (sender.qued) {
+											console.log("Morning message not sent: Account Qued");
+										} else if (sender.lmkwd) {
+											console.log("Morning message not sent: Account on Lmkwd");
+										} else if (sender.history) {
+											console.log("Morning message not sent: Account on History");
+										} else if (sender.sent) {
+
+											var messageParams = {
+												screen_name: sender.sender,
+												text: 'rts'
+											};
+
+											twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
+												if (err) return console.log(err);
+
+											});
+
+										}
+
+									}
+
+								});
+
+							});
+
+						}); // Accounts For Each
+					}
+
+
+
+
 
 				function morningMessageLmkwd() {
 					var accounts = [];
@@ -1090,24 +1206,7 @@ module.exports = {
 			}
 
 			function resetTotalTrades(accounts) {
-				MongoClient.connect(url, function(err, db) {
-					if (err) {
-						console.log("Unable to connect to Mongo. Error: ", err);
-					} else {
-						var collection = db.collection('accounts');
-						accounts.forEach(function(account) {
-							collection.update({
-								_id: account.username
-							}, {
-								$set: {
-									'total_trades': 0
-								}
-							})
-						});
-
-					}
-					db.close();
-				});
+				var resetTrades = client.query('UPDATE list SET total_trades = 0');
 			}
 
 			function blacklistFilter(sender) {

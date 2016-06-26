@@ -1206,7 +1206,7 @@ module.exports = {
 			}
 
 			function resetTotalTrades(accounts) {
-				var resetTrades = client.query('UPDATE list SET total_trades = 0');
+				var resetTrades = client.query('UPDATE manualaccounts SET total_trades = 0');
 			}
 
 			function blacklistFilter(sender) {

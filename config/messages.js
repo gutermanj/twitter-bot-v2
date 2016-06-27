@@ -110,7 +110,7 @@ module.exports = {
 									count: 30
 								}, function(err, messages, response) {
 									if (err) {
-										console.log("direct_messages", err);
+										console.log("direct_messages " + err + ": " + account.username);
 									} else {
 										var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");
 											
@@ -171,7 +171,7 @@ module.exports = {
 									since_id: account.last_message
 								}, function(err, messages, response) {
 									if (err) {
-										console.log("direct_messages", err);
+										console.log("direct_messages " + err + ": " + account.username);
 									} else {
 										if (messages.length < 1) {
 											console.log("No New Messages");
@@ -277,7 +277,7 @@ module.exports = {
 
 											twitterClient.get('users/show', params, function(err, user, response) {
 												if (err) {
-													console.log("Users/Show", err)
+													console.log("Users/Show", err);
 												} else {
 													if (user.followers_count > 75000) {
 														grantedAccounts.push(foundAccount[0].sender);
@@ -627,9 +627,9 @@ module.exports = {
 
 								eachListed.forEach(function(sender) {
 
-									if (added.indexOf(sender) < 0) {
+									if (added.indexOf(sender.sender) < 0) {
 
-										added.push(sender);
+										added.push(sender.sender);
 
 										if (sender.qued) {
 											console.log("Morning message not sent: Account Qued");
@@ -715,9 +715,9 @@ module.exports = {
 
 								eachListed.forEach(function(sender) {
 
-									if (added.indexOf(sender) < 0) {
+									if (added.indexOf(sender.sender) < 0) {
 
-										added.push(sender);
+										added.push(sender.sender);
 
 										if (sender.qued) {
 											console.log("Morning message not sent: Account Qued");

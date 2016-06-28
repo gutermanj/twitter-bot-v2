@@ -703,7 +703,7 @@ module.exports = {
 
 							var added = [];
 
-							var getHistory = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND list.history = $2', [account.id, true]);
+							var getHistory = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND list.sent = $2', [account.id, true]);
 
 							getHistory.on('row', function(row) {
 								if (eachListed.indexOf(row) < 0) {
@@ -725,7 +725,7 @@ module.exports = {
 											console.log("Morning message not sent: Account on Lmkwd");
 										} else if (sender.history) {
 											console.log("Morning message not sent: Account on History");
-										} else if (sender.sent) {
+										} else {
 
 											var messageParams = {
 												screen_name: sender.sender,

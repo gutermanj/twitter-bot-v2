@@ -414,7 +414,7 @@ module.exports = {
 				});
 				schedule.scheduleJob({
 					hour: 17,
-					minute: 0
+					minute: 05
 				}, function() {
 					console.log("Sending Out Afternoon Rts!");
 					morningMessage();

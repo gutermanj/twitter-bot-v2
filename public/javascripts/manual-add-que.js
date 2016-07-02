@@ -464,6 +464,23 @@ $(document).ready(function() {
 	}
 
 
+$('.js-send-rts').on('click', function() {
+
+	$.ajax({
+
+		url: '/api/v1/send-rts',
+
+		success: function(response) {
+			console.log(response);
+		},
+
+		error: function(err) {
+			console.log(err);
+		}
+
+	});
+
+});
 
 
 

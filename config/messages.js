@@ -87,7 +87,8 @@ module.exports = {
 					}
 
 					function d20(splitMessage) {
-						var filters = ["D", "D20", "D15", "DONE", "D!", "D,", "D20,", "D20LMKWD", "D20LMK", "DN20", "DN"];
+						var filters = ["D", "D20", "D15", "DONE", "D!", "D,", "D20,", "D20LMKWD", "D20LMK", "DN20", "DN", "DLMKWD", "DLML",
+										"D15LMK", "F15", "F20", "D20,LMKWD"];
 						for (i = 0; i < filters.length; i++) {
 							if (splitMessage.indexOf(filters[i]) > -1) {
 								return true;

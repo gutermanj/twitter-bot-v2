@@ -1663,6 +1663,97 @@ app.get('/api/v1/records', requireAdmin, function(req, res) {
 });
 
 
+app.get('/api/v1/send-rts', requireAdmin, function(req, res) {
+
+    var accounts = [];
+    // SQL Query > Last account created
+    var query = client.query("SELECT * FROM manualAccounts");
+    // Stream results back one row at a time
+    query.on('row', function(row) {
+      accounts.push(row);
+    });
+    // After all data is returned, close connection and return results
+    query.on('end', function() {
+      console.log("Accounts Ready.");
+      checkTime(accounts);
+    });
+
+
+    function checkTime(accounts) {
+      // At 7 AM, message the history lists with 'rts'
+      accounts.forEach(function(account) {
+        var twitterClient = new Twitter({
+          consumer_key: account.consumer_key,
+          consumer_secret: account.consumer_secret,
+          access_token_key: account.access_token,
+          access_token_secret: account.access_token_secret,
+          timeout_ms: 60 * 1000
+        });
+        console.log('Initializing rts message from: ' + account.username);
+
+        var eachListed = [];
+
+        var added = [];
+
+        var getHistory = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND list.history = $2', [account.id, true]);
+
+        getHistory.on('row', function(row) {
+          if (eachListed.indexOf(row) < 0) {
+            eachListed.push(row);
+          }
+        });
+
+        getHistory.on('end', function() {
+
+          eachListed.forEach(function(sender) {
+
+            if (added.indexOf(sender.sender) < 0) {
+
+              added.push(sender.sender);
+
+              if (sender.qued) {
+                console.log("Morning message not sent: Account Qued");
+              } else if (sender.lmkwd) {
+                console.log("Morning message not sent: Account on Lmkwd");
+              } else if (sender.sent) {
+                console.log("Morning message not sent: Account on Sent");
+              } else {
+
+                var messageParams = {
+                  screen_name: sender.sender,
+                  text: 'rts'
+                };
+
+                twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
+                  if (err) return console.log(err);
+
+
+                  var query = client.query('UPDATE list SET history = $1, sent = $2 WHERE list.sender = $3 AND list.account_id = $4', [false, true, sender.sender, sender.account_id], function(err) {
+                    if (err) return console.log(err);
+
+                    console.log("Manual Morning Message Sent To: " + sender.sender);
+
+                  });
+
+
+                });
+
+              }
+
+            }
+
+          });
+
+        });
+
+      }); // Accounts For Each
+
+      res.json('Successfully Sent Rts');
+    }
+
+});
+
+
 
 
 

@@ -54,7 +54,7 @@ module.exports = {
 
 					// Called to filter incoming messages on twitter
 					function filter(uppcasedMessage) {
-						var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RTS,", "FAVS,", "RTS!", "RT,",
+						var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RT!", "RTS,", "FAVS,", "RTS!", "RT,",
 							"FAVORITES", "RTS?FAVS!", "TRADE", "RTS?", "RETWEETS?", "RETWEETS!", "RT?",
 							"RETWEET", "RETWEET?", "RTS? FAVS, AD ON TOP NS 20", "RT TOP 3 LIKES! NS 15",
 							"TRADE LIKES! NS 20", "RTS? 20NS", "RTS? 20 LMKWD", "RETWEETS? FAVS", "RT LIKES! NS 20",
@@ -1103,7 +1103,35 @@ module.exports = {
 					if (foundAccount.length > 0) {
 						filterTheSender();
 					} else {
-						console.log("Trying to mess it up, lel - received D20 from: " + sender + " for our account: " + account.username);
+						
+						// If the sender doesn't in the db
+						// Lets create a list for them
+						var updateOne = function createSenderList() {
+
+							var addSenderToList = client.query('INSERT INTO list(sender, qued, lmkwd, history, sent, outbound, account_id) VALUES ($1, $2, $3, $4, $5, $6, $7)', [sender, true, false, false, false, false, account.id]);
+
+						}
+
+						var updateTwo = function addSenderToQue() {
+
+							var addSenderQue = client.query('INSERT INTO que(sender, account_id, id) VALUES ($1, $2, DEFAULT)', [sender, account.id]);
+
+						}
+
+						async.series([
+								function(callback) {
+									async.parallel([updateOne, updateTwo]);
+									callback();
+								},
+								function(callback) {
+									console.log("Created List For " + sender + ": Sent D20 To Us...");
+								}
+							],
+							function(err, data) {
+								console.log(err);
+							}
+						);
+
 					}
 				});
 

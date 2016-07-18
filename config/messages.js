@@ -393,21 +393,21 @@ module.exports = {
 				}, 1000 * 65 * 1); // Message Pull set Interval
 				console.log("currentQue Started!");
 				schedule.scheduleJob({
-					hour: 7,
+					hour: 9,
 					minute: 0
 				}, function() {
 					console.log("Sending Out Morning Rts!");
 					morningMessage();
 				});
 				schedule.scheduleJob({
-					hour: 7,
+					hour: 9,
 					minute: 16
 				}, function() {
 					console.log("Sending Out Morning Rts!");
 					morningMessage();
 				});
 				schedule.scheduleJob({
-					hour: 7,
+					hour: 9,
 					minute: 32
 				}, function() {
 					console.log("Sending Out Morning Rts!");

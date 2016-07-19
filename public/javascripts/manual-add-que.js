@@ -482,6 +482,24 @@ $('.js-send-rts').on('click', function() {
 
 });
 
+$('.js-send-lmkwd').on('click', function() {
+
+	$.ajax({
+
+		url: '/api/v1/send-lmkwd',
+
+		success: function(response) {
+			console.log(response);
+		},
+
+		error: function(err) {
+			console.log(err);
+		}
+
+	});
+
+});
+
 
 
 

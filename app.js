@@ -282,65 +282,65 @@ app.post('/signup', function(req, res, next) {
   });
 
 
-app.get('/admin/signup', function(req, res) {
-  res.render('admin-signup');
-});
+// app.get('/admin/signup', function(req, res) {
+//   res.render('admin-signup');
+// });
 
-app.post('/admin/signup', function(req, res, next) {
+// app.post('/admin/signup', function(req, res, next) {
   
-   // Turning that password into something funky
-    var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
+//    // Turning that password into something funky
+//     var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
 
 
 
-    var results = [];
+//     var results = [];
 
-    // Grab data from http request
-    var data = {
-      username: req.body.username,
-      email: req.body.email,
-      password: hash,
-      complete: false,
-      admin: true
-    };
+//     // Grab data from http request
+//     var data = {
+//       username: req.body.username,
+//       email: req.body.email,
+//       password: hash,
+//       complete: false,
+//       admin: true
+//     };
 
-    if (req.body.password === req.body.password_confirmation) {
+//     if (req.body.password === req.body.password_confirmation) {
 
-      // Get a Postgres client from the connection pool
-      pg.connect(connectionString, function(err, client, done) {
-          // Handle connection errors
-          if(err) {
-            done();
-            console.log(err);
-            return res.status(500).json({ success: false, data: err});
-          }
+//       // Get a Postgres client from the connection pool
+//       pg.connect(connectionString, function(err, client, done) {
+//           // Handle connection errors
+//           if(err) {
+//             done();
+//             console.log(err);
+//             return res.status(500).json({ success: false, data: err});
+//           }
 
-          // SQL Query > Create new row for an account
-          client.query("INSERT INTO users(username, email, password, complete, admin) values($1, $2, $3, $4, $5)", [data.username, data.email, data.password, data.complete, data.admin]);
-
-
-          // SQL Query > Last account created
-          var query = client.query("SELECT * FROM accounts ORDER BY id DESC LIMIT 1");
-
-          // Stream results back one row at a time
-          query.on('row', function(row) {
-              results.push(row);
-          });
-
-          // After all data is returned, close connection and return results
-          query.on('end', function() {
-              done();
-              req.session.user = data;
-              res.redirect('/dashboard');
-          });
+//           // SQL Query > Create new row for an account
+//           client.query("INSERT INTO users(username, email, password, complete, admin) values($1, $2, $3, $4, $5)", [data.username, data.email, data.password, data.complete, data.admin]);
 
 
-      }); // pg connect
-    } else {
-      res.redirect('/admin/signup');
-    }
+//           // SQL Query > Last account created
+//           var query = client.query("SELECT * FROM accounts ORDER BY id DESC LIMIT 1");
 
-  });
+//           // Stream results back one row at a time
+//           query.on('row', function(row) {
+//               results.push(row);
+//           });
+
+//           // After all data is returned, close connection and return results
+//           query.on('end', function() {
+//               done();
+//               req.session.user = data;
+//               res.redirect('/dashboard');
+//           });
+
+
+//       }); // pg connect
+//     } else {
+//       res.redirect('/admin/signup');
+//     }
+
+//   });
 
 
 

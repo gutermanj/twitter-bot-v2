@@ -109,71 +109,72 @@ module.exports = {
 							});
 							if (account.last_message === null) {
 								twitterClient.get('direct_messages', {
-									count: 30
+									count: 1
 								}, function(err, messages, response) {
 									if (err) {
-										console.log("direct_messages " + err + ": " + account.username);
+										console.log("direct_messages: " + account.username);
 									} else {
 										var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");
 											
-										messages.forEach(function(message) {
-											var splitMessage = message.text.toUpperCase().split(" ");
-											var uppcasedMessage = message.text.toUpperCase();
-											// Convert received messages
+										console.log("Set new Last Message ID for: " + account.username);
 
-											if (d20(splitMessage)) {
-												var sender = message.sender.screen_name
-													// Call function to deal with D20
-												pullFromLmkwd(sender, account);
-											}
+										// messages.forEach(function(message) {
+										// 	var splitMessage = message.text.toUpperCase().split(" ");
+										// 	var uppcasedMessage = message.text.toUpperCase();
+										// 	// Convert received messages
 
-											if (spacedFilter(uppcasedMessage)) {
-												var sender = message.sender.screen_name
-												pushSender(sender, account);
-											}
+										// 	if (d20(splitMessage)) {
+										// 		var sender = message.sender.screen_name
+										// 			// Call function to deal with D20
+										// 		pullFromLmkwd(sender, account);
+										// 	}
 
-											if (filter(uppcasedMessage)) {
-												var sender = message.sender.screen_name
-													// Call function to add sender to account que
-												pushSender(sender, account);
-											}
+										// 	if (spacedFilter(uppcasedMessage)) {
+										// 		var sender = message.sender.screen_name
+										// 		pushSender(sender, account);
+										// 	}
+
+										// 	if (filter(uppcasedMessage)) {
+										// 		var sender = message.sender.screen_name
+										// 			// Call function to add sender to account que
+										// 		pushSender(sender, account);
+										// 	}
 
 
-											if (lmkwdFilter(splitMessage)) {
-												var sender = message.sender.screen_name
+										// 	if (lmkwdFilter(splitMessage)) {
+										// 		var sender = message.sender.screen_name
 
-												var localAccount = [];
+										// 		var localAccount = [];
 
-												var findLocal = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, sender]);
+										// 		var findLocal = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, sender]);
 
-												findLocal.on('row', function(row) {
-													localAccount.push(row);
-												});
+										// 		findLocal.on('row', function(row) {
+										// 			localAccount.push(row);
+										// 		});
 
-												findLocal.on('end', function() {
-													if (localAccount.length > 0) {
-														checkQued();
-													} else {
-														console.log("Trying to mess it up, lel - received D20 from: " + sender + " for our account: " + account.username);
-													}
-												});
+										// 		findLocal.on('end', function() {
+										// 			if (localAccount.length > 0) {
+										// 				checkQued();
+										// 			}
+										// 		});
 
-												function checkQued() {
-													if (localAccount[0].qued === false) {
-														messageSirBryan(sender, localAccount[0]);
-													}
-												}
-												// Call function to handle incoming lmkwd messages
-											}
-										});
+										// 		function checkQued() {
+										// 			if (localAccount[0].qued === false) {
+										// 				messageSirBryan(sender, localAccount[0]);
+										// 			}
+										// 		}
+										// 		// Call function to handle incoming lmkwd messages
+										// 	}
+										// });
+
 									}
-								}); // client.get
+								}); // Twitterclient.get
 							} else {
 								twitterClient.get('direct_messages', {
 									since_id: account.last_message
 								}, function(err, messages, response) {
 									if (err) {
-										console.log("direct_messages " + err + ": " + account.username);
+										console.log("direct_messages error: " + account.username);
 									} else {
 										if (messages.length < 1) {
 											console.log("No New Messages");

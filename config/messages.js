@@ -2,6 +2,7 @@ var Twitter = require('twitter');
 var mongodb = require('mongodb');
 var async = require("async");
 var schedule = require('node-schedule');
+var wordfilter = require('wordfilter');
 var pg = require('pg');
 pg.defaults.ssl = true;
 var connectionString = 'postgres://zqjwdkhttstwfx:ykFbgDKz8eTpXM3CCyim6Zyw-m@ec2-54-235-246-67.compute-1.amazonaws.com:5432/d43r3ued3buhe1';

@@ -8,6 +8,7 @@ var bcrypt = require('bcryptjs');
 var assert = require('assert');
 var Twit = require('twit');
 var Twitter = require('twitter');
+var TwitterLogin = require('node-twitter-api');
 var flash = require('connect-flash');
 var manual = require('./config/manual.js'); // Include manual config file 
 var messages = require('./config/messages.js');
@@ -1843,6 +1844,37 @@ app.get('/api/v1/send-lmkwd', requireAdmin, function(req, res) {
 
 });
 
+var twitterLoginClient = new TwitterLogin({
+
+    consumerKey: 'DRVRY2btjcAPSxfioHtZvMI7H',
+    consumerSecret: 'P6S6ryN0DiXYUotQtaPKZjWn7eWDFBypY0YQ4dPMZCxcMwdWAP',
+    callback: 'twitter-callback'
+
+});
+
+var _requestSecret;
+
+app.get('/request-token', function(req, res) {
+
+    twitterLoginClient.getRequestToken(function(err, requestToken, requestSecret) {
+
+        if (err)
+                res.status(500).send(err);
+            else {
+                _requestSecret = requestSecret;
+                res.redirect("https://api.twitter.com/oauth/authenticate?oauth_token=" + requestToken);
+        }
+
+    });
+
+});
+
+app.get('/twitter-callback', function(req, res) {
+
+    console.log("Almost There");
+    res.render('twitter-callback.html');
+
+});
 
 
 

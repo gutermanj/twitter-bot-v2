@@ -501,6 +501,38 @@ $('.js-send-lmkwd').on('click', function() {
 });
 
 
+// ADD ACCOUNT THROUGH TWITTER
+
+
+
+$('.js-add-account').on('click', function() {
+
+	$.ajax({
+
+		url: '/request-token',
+
+		success: function(respone) {
+
+			console.log("User sent to login with Twitter");
+
+		},
+
+		error: function(err) {
+			console.log(err);
+		}
+
+	});
+
+});
+
+
+
+
+
+
+
+
+
 
 
 

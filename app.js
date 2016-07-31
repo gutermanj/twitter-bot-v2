@@ -1848,7 +1848,7 @@ var twitterLoginClient = new TwitterLogin({
 
     consumerKey: 'DRVRY2btjcAPSxfioHtZvMI7H',
     consumerSecret: 'P6S6ryN0DiXYUotQtaPKZjWn7eWDFBypY0YQ4dPMZCxcMwdWAP',
-    callback: 'http://localhost:3000/twitter-callback'
+    callback: 'http://162.243.249.75:3000/twitter-callback'
 
 });
 

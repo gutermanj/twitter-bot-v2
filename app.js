@@ -1848,7 +1848,7 @@ var twitterLoginClient = new TwitterLogin({
 
     consumerKey: 'DRVRY2btjcAPSxfioHtZvMI7H',
     consumerSecret: 'P6S6ryN0DiXYUotQtaPKZjWn7eWDFBypY0YQ4dPMZCxcMwdWAP',
-    callback: 'twitter-callback'
+    callback: 'http://localhost:3000/twitter-callback'
 
 });
 
@@ -1872,11 +1872,69 @@ app.get('/request-token', function(req, res) {
 app.get('/twitter-callback', function(req, res) {
 
     console.log("Almost There");
-    res.render('twitter-callback.html');
+    res.redirect('/access-token?oauth_token=' + req.query.oauth_token + '&oauth_verifier=' + req.query.oauth_verifier);
 
 });
 
+app.get("/access-token", function(req, res) {
+        var requestToken = req.query.oauth_token,
+        verifier = req.query.oauth_verifier;
 
+        twitterLoginClient.getAccessToken(requestToken, _requestSecret, verifier, function(err, accessToken, accessSecret) {
+            if (err)
+                res.status(500).send(err);
+            else
+                twitterLoginClient.verifyCredentials(accessToken, accessSecret, function(err, user) {
+                    if (err)
+                        res.status(500).send(err);
+                    else
+                      req.session.latestAccessToken = accessToken;
+                      req.session.latestAccessSecret = accessSecret;
+
+                      res.redirect('/create-account');
+                });
+        });
+});
+
+
+
+app.get('/create-account', function(req, res) {
+    var latestAccessToken = req.session.latestAccessToken;
+    var latestAccessSecret = req.session.latestAccessSecret;
+
+    res.locals.latestAccessToken = latestAccessToken;
+    res.locals.latestAccessSecret = latestAccessSecret;
+
+    res.render('create-account');
+
+});
+
+var mainConsumerKey = 'DRVRY2btjcAPSxfioHtZvMI7H';
+var mainConsumerSecret = 'P6S6ryN0DiXYUotQtaPKZjWn7eWDFBypY0YQ4dPMZCxcMwdWAP';
+
+app.get('/create-account-db', function(req, res) {
+
+    var data = {
+      username: req.query.username,
+      email: null,
+      password: null,
+      consumer_key: mainConsumerKey,
+      consumer_secret: mainConsumerSecret,
+      access_token: req.query.accessToken,
+      access_token_secret: req.query.accessSecret,
+      timestamp: null,
+      admin: false
+    }
+
+    var query = client.query("INSERT INTO manualaccounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin) values($1, $2, $3, $4, $5, $6, $7, $8, $9)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.timestamp, data.admin]);
+
+    query.on('end', function() {
+
+      res.send("OK");
+
+    });
+
+});
 
 
 

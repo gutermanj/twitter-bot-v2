@@ -1,0 +1,48 @@
+html
+  head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+    meta(name='description', content='')
+    meta(name='author', content='')
+    title Twitter Bot | Dashboard
+    // Bootstrap Core CSS
+    link(href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css', rel='stylesheet')
+    // Custom CSS
+    link(href='stylesheets/sb-admin.css', rel='stylesheet')
+    // Morris Charts CSS
+    link(href='stylesheets/plugins/morris.css', rel='stylesheet')
+    // Custom Fonts
+    link(href='font-awesome/css/font-awesome.min.css', rel='stylesheet', type='text/css')
+    link(href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css', rel='stylesheet')
+    link(href='stylesheets/bootstrap-switch.min.css', rel='stylesheet')
+
+    
+
+    // My Styles
+    link(href='stylesheets/index-style.css', rel='stylesheet')
+  body
+    .col-sm-6(style='margin-left: 25%;')
+        .modal-dialog(role='document')
+        .modal-content
+          .modal-header
+            h4#myModalLabel.modal-title Add an Account
+          .modal-body
+            .js-new-que-form
+              br
+              label Username
+              input.js-username.form-control
+              br
+              label Access Token
+              input.js-access-token.form-control(disabled, value=latestAccessToken)
+              br
+              label Access Secret
+              input.js-access-secret.form-control(disabled, value=latestAccessSecret)
+              
+
+          .modal-footer
+            a.btn.btn-danger(type='button', href='/dashboard') Back
+            a.btn.btn-primary.js-create-account(type='button', href='/dashboard') Create
+
+  script(src='javascripts/jquery.js')
+  script(src='javascripts/create-account.js')

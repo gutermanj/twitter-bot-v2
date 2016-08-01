@@ -1957,7 +1957,27 @@ app.get('/create-account-db', function(req, res) {
 
           if (appsFiltered === apps.length) {
 
-            createAccount();
+            var data = {
+              username: req.query.username,
+              email: null,
+              password: null,
+              consumer_key: availableApp[0].consumer_key,
+              consumer_secret: availableApp[0].consumer_secret,
+              access_token: req.query.accessToken,
+              access_token_secret: req.query.accessSecret,
+              timestamp: null,
+              admin: false
+            }
+
+            var query = client.query("INSERT INTO manualaccounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin) values($1, $2, $3, $4, $5, $6, $7, $8, $9)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.timestamp, data.admin]);
+
+            query.on('end', function() {
+
+              var incrementAmount = client.query('UPDATE apps SET amount = amount + 1 WHERE app_name = $1', [availableApp[0].app_name]);
+
+              res.send("OK");
+
+            });
 
           }
           
@@ -1975,27 +1995,6 @@ app.get('/create-account-db', function(req, res) {
 
     function createAccount() {
 
-      var data = {
-        username: req.query.username,
-        email: null,
-        password: null,
-        consumer_key: availableApp[0].consumer_key,
-        consumer_secret: availableApp[0].consumer_secret,
-        access_token: req.query.accessToken,
-        access_token_secret: req.query.accessSecret,
-        timestamp: null,
-        admin: false
-      }
-
-      var query = client.query("INSERT INTO manualaccounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin) values($1, $2, $3, $4, $5, $6, $7, $8, $9)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.timestamp, data.admin]);
-
-      query.on('end', function() {
-
-        var incrementAmount = client.query('UPDATE apps SET amount = amount + 1 WHERE app_name = $1', [availableApp[0].app_name]);
-
-        res.send("OK");
-
-      });
 
     }
 

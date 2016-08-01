@@ -1951,18 +1951,12 @@ app.get('/create-account-db', function(req, res) {
 
     findKeys.on('end', function() {
 
-        var appsFiltered = 0;
-
-        apps.forEach(function(app) {
-
-          if (appsFiltered === apps.length) {
-
             var data = {
               username: req.query.username,
               email: null,
               password: null,
-              consumer_key: availableApp[0].consumer_key,
-              consumer_secret: availableApp[0].consumer_secret,
+              consumer_key: apps[0].consumer_key,
+              consumer_secret: apps[0].consumer_secret,
               access_token: req.query.accessToken,
               access_token_secret: req.query.accessSecret,
               timestamp: null,
@@ -1980,16 +1974,6 @@ app.get('/create-account-db', function(req, res) {
             });
 
           }
-          
-          appsFiltered++;
-
-          if (app.amount < 15) {
-
-              availableApp.push(app);
-
-          }
-
-        });
 
     });
 

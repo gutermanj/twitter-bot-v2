@@ -1837,7 +1837,6 @@ app.get('/api/v1/send-lmkwd', requireAdmin, function(req, res) {
     });
 
       res.json('Successfully Sent Lmkwd');
-    }
 
 });
 

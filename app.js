@@ -1967,7 +1967,7 @@ app.get('/create-account-db', function(req, res) {
 
             query.on('end', function() {
 
-              var incrementAmount = client.query('UPDATE apps SET amount = amount + 1 WHERE app_name = $1', [availableApp[0].app_name]);
+              var incrementAmount = client.query('UPDATE apps SET amount = amount + 1 WHERE app_name = $1', [apps[0].app_name]);
 
               res.send("OK");
 

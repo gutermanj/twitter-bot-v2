@@ -1973,8 +1973,6 @@ app.get('/create-account-db', function(req, res) {
 
             });
 
-          }
-
     });
 
     function createAccount() {

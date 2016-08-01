@@ -264,8 +264,6 @@ module.exports = {
 										console.log("Sender On Blacklist");
 									} else {
 
-										if (grantedAccounts.indexOf(foundAccount[0].sender) < 0) {
-
 											var twitterClient = new Twitter({
 												consumer_key: account.consumer_key,
 												consumer_secret: account.consumer_secret,
@@ -283,7 +281,6 @@ module.exports = {
 													console.log("Users/Show", err);
 												} else {
 													if (user.followers_count > 75000) {
-														grantedAccounts.push(foundAccount[0].sender);
 														accessGranted(foundAccount, account);
 													} else {
 														console.log("Not Enough Followers");
@@ -291,9 +288,6 @@ module.exports = {
 												}
 											});
 
-										} else {
-											accessGranted(foundAccount, account);
-										}
 
 										// Function Is Called If Followers Exceed 75k
 										function accessGranted(foundAccount, account) {
@@ -1174,19 +1168,19 @@ module.exports = {
 						foundAccount[0].sent === false &&
 						foundAccount[0].outbound === false) {
 
-						async.series([
-								function(callback) {
-									async.parallel([updateOne, updateFive]);
-									callback();
-								},
-								function(callback) {
-									console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
-								}
-							],
-							function(error, data) {
-								console.log(error);
-							}
-						);
+						// async.series([
+						// 		function(callback) {
+						// 			async.parallel([updateOne, updateFive]);
+						// 			callback();
+						// 		},
+						// 		function(callback) {
+						// 			console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
+						// 		}
+						// 	],
+						// 	function(error, data) {
+						// 		console.log(error);
+						// 	}
+						// );
 						// If sender is on sent
 					} else if (foundAccount[0].sent &&
 								foundAccount[0].qued === false &&

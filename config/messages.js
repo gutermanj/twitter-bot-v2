@@ -942,24 +942,35 @@ module.exports = {
 										// lmkwdInterval(currentTrader, client, account);
 										incrementTotalTradeCount(account);
 									}
-									twitterClient.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
-										if (err) {
-											console.log("Statuses/retweet", err);
-										} 
 
-										console.log("Retweet Complete.");
+									wordfilter.addWords(['BIT.LY', 'SEX', 'PORN', 'KIM K', 'KIM KARDASHIAN', 'MIA K', 'MIA KHALIFA',
+															'VIRGIN', 'NUDE', 'HOOKUP', 'VAGINA', 'S3X', 'HORNY']);
 
-										// Start coutdown to undo the trade
-										setTimeout(function() {
-											twitterClient.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
-												if (err) {
-													console.log("statuses/destroy: ", err);
-												} else {
-													console.log("Unretweet Complete.");
-												}
-											});
-										}, 1000 * 60 * 19.7); // Destroy retweet
-									}); // retweet post
+
+									if (wordfilter.blacklisted(tweet.text)) {
+										console.log('Tweet Contains Blacklisted Words');
+									} else {
+
+										twitterClient.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
+											if (err) {
+												console.log("Statuses/retweet", err);
+											} 
+
+											console.log("Retweet Complete.");
+
+											// Start coutdown to undo the trade
+											setTimeout(function() {
+												twitterClient.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
+													if (err) {
+														console.log("statuses/destroy: ", err);
+													} else {
+														console.log("Unretweet Complete.");
+													}
+												});
+											}, 1000 * 60 * 19.7); // Destroy retweet
+											
+										}); // retweet post
+									}
 								}); // tweets for each
 							}
 						}

@@ -1955,7 +1955,7 @@ app.get('/create-account-db', function(req, res) {
 
         apps.forEach(function(app) {
 
-          if (appsFiltered === apps.length) {
+          if (appsFiltered === apps.length - 1) {
 
             createAccount();
 

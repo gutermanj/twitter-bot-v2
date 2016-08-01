@@ -1768,12 +1768,7 @@ app.get('/api/v1/send-lmkwd', requireAdmin, function(req, res) {
     // After all data is returned, close connection and return results
     query.on('end', function() {
       console.log("Accounts Ready.");
-      checkTime(accounts);
-    });
-
-
-    function checkTime(accounts) {
-      // At 7 AM, message the history lists with 'rts'
+     
       accounts.forEach(function(account) {
         var twitterClient = new Twitter({
           consumer_key: account.consumer_key,
@@ -1838,6 +1833,8 @@ app.get('/api/v1/send-lmkwd', requireAdmin, function(req, res) {
         });
 
       }); // Accounts For Each
+
+    });
 
       res.json('Successfully Sent Lmkwd');
     }

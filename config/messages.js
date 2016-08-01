@@ -3,6 +3,7 @@ var mongodb = require('mongodb');
 var async = require("async");
 var schedule = require('node-schedule');
 var wordfilter = require('wordfilter');
+var TwitterLogin = require('node-twitter-api');
 var pg = require('pg');
 pg.defaults.ssl = true;
 var connectionString = 'postgres://zqjwdkhttstwfx:ykFbgDKz8eTpXM3CCyim6Zyw-m@ec2-54-235-246-67.compute-1.amazonaws.com:5432/d43r3ued3buhe1';
@@ -12,6 +13,12 @@ var url = 'mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13'
 var history = [];
 var running = false;
 var mongoPool = require('./mongo-pool.js');
+
+// var twitterAuthClient = new TwitterLogin({
+//     consumerKey: account.consumer_key,
+//     consumerSecret: account.consumer_secret,
+//     callback: 'http://localhost:3000/'
+// });
 
 new mongoPool.start();
 // Sets global db object from custom mongo module
@@ -108,11 +115,20 @@ module.exports = {
 								timeout_ms: 60 * 1000
 							});
 							if (account.last_message === null) {
-								twitterClient.get('direct_messages', {
+
+								var twitterAuthClient = new TwitterLogin({
+								    consumerKey: account.consumer_key,
+								    consumerSecret: account.consumer_secret,
+								    callback: 'http://localhost:3000/'
+								});
+
+								twitterAuthClient.favorites('list', {
 									count: 1
-								}, function(err, messages, response) {
+								}, 	account.access_token,
+									account.access_token_secret,
+								function(err, messages, response) {
 									if (err) {
-										console.log("direct_messages: " + account.username);
+										console.log("direct_messages: " + account.username, err);
 									} else {
 										var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");
 											
@@ -170,11 +186,20 @@ module.exports = {
 									}
 								}); // Twitterclient.get
 							} else {
-								twitterClient.get('direct_messages', {
+
+								var twitterAuthClient = new TwitterLogin({
+								    consumerKey: account.consumer_key,
+								    consumerSecret: account.consumer_secret,
+								    callback: 'http://localhost:3000/'
+								});
+
+								twitterAuthClient.favorites('list', {
 									since_id: account.last_message
-								}, function(err, messages, response) {
+								}, account.access_token,
+								   account.access_token_secret,
+								function(err, messages, response) {
 									if (err) {
-										console.log("direct_messages error: " + account.username);
+										console.log("direct_messages error: " + account.username, err);
 									} else {
 										if (messages.length < 1) {
 											console.log("No New Messages");
@@ -264,19 +289,20 @@ module.exports = {
 										console.log("Sender On Blacklist");
 									} else {
 
-											var twitterClient = new Twitter({
-												consumer_key: account.consumer_key,
-												consumer_secret: account.consumer_secret,
-												access_token_key: account.access_token,
-												access_token_secret: account.access_token_secret,
-												timeout_ms: 60 * 1000
+											var twitterAuthClient = new TwitterLogin({
+											    consumerKey: account.consumer_key,
+											    consumerSecret: account.consumer_secret,
+											    callback: 'http://localhost:3000/'
 											});
 
 											var params = {
 												screen_name: foundAccount[0].sender
 											};
 
-											twitterClient.get('users/show', params, function(err, user, response) {
+											twitterAuthClient.users('show', params, 
+												account.access_token, 
+												account.access_token_secret,
+												function(err, user, response) {
 												if (err) {
 													console.log("Users/Show", err);
 												} else {
@@ -386,7 +412,7 @@ module.exports = {
 
 
 					} // pushSender
-				}, 1000 * 65 * 1); // Message Pull set Interval
+				}, 1000 * 15); // Message Pull set Interval
 				console.log("currentQue Started!");
 				schedule.scheduleJob({
 					hour: 9,
@@ -641,7 +667,17 @@ module.exports = {
 												text: 'rts'
 											};
 
-											twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
+											var twitterAuthClient = new TwitterLogin({
+											    consumerKey: account.consumer_key,
+											    consumerSecret: account.consumer_secret,
+											    callback: 'http://localhost:3000/'
+											});
+
+											twitterAuthClient.direct_messages('new', messageParams, 
+												account.access_token, 
+												account.access_token_secret, 
+												function(err, message, response) {
+
 												if (err) return console.log(err);
 
 
@@ -724,12 +760,22 @@ module.exports = {
 											console.log("Morning message not sent: Account on History");
 										} else {
 
+											var twitterAuthClient = new TwitterLogin({
+											    consumerKey: account.consumer_key,
+											    consumerSecret: account.consumer_secret,
+											    callback: 'http://localhost:3000/'
+											});
+
 											var messageParams = {
 												screen_name: sender.sender,
 												text: 'rts'
 											};
 
-											twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
+											twitterAuthClient.direct_messages('new', messageParams,
+												account.access_token,
+												account.access_token_secret,
+												function(err, message, response) {
+
 												if (err) return console.log(err);
 
 											});
@@ -803,12 +849,22 @@ module.exports = {
 											console.log("Morning message not sent: Account on Sent");
 										} else {
 
+											var twitterAuthClient = new TwitterLogin({
+											    consumerKey: account.consumer_key,
+											    consumerSecret: account.consumer_secret,
+											    callback: 'http://localhost:3000/'
+											});
+
 											var messageParams = {
 												screen_name: sender.sender,
 												text: 'lmkwd'
 											};
 
-											twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
+											twitterAuthClient.direct_messages('new', messageParams,
+												account.access_token,
+												account.access_token_secret,
+												function(err, message, response) {
+
 												if (err) return console.log(err);
 
 												var updateOne = function updateHistoryStatus() {
@@ -851,11 +907,22 @@ module.exports = {
 						access_token_secret: account.access_token_secret,
 						timeout_ms: 60 * 1000
 					});
+
+					var twitterAuthClient = new TwitterLogin({
+					    consumerKey: account.consumer_key,
+					    consumerSecret: account.consumer_secret,
+					    callback: 'http://localhost:3000/'
+					});
+
 					var params = {
 						screen_name: currentTrader.sender,
 						count: 3
 					};
-					twitterClient.get('favorites/list', params, function(err, tweets, response) {
+					twitterAuthClient.favorites('list', params, 
+						account.access_token,
+						account.access_token_secret,
+						function(err, tweets, response) {
+
 						if (err) {
 							console.log("Favorites/list: ", err);
 							// If getting Traders favorites results in a 404
@@ -882,7 +949,11 @@ module.exports = {
 										text: "Missing Favs - " + currentTrader.sender + " removed from que: " + account.username
 									};
 									// Confirm D20 message to sender
-									twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
+									twitterAuthClient.direct_messages('new', messageParams,
+										account.access_token,
+										account.access_token_secret,
+										function(err, message, response) {
+
 										if (err) {
 											console.log(err);
 										} else {
@@ -951,7 +1022,11 @@ module.exports = {
 										console.log('Tweet Contains Blacklisted Words');
 									} else {
 
-										twitterClient.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
+										twitterAuthClient.statuses('retweet/' + tweet.id_str,
+											account.access_token,
+											account.access_token_secret,
+											function(err, tweet, response) {
+
 											if (err) {
 												console.log("Statuses/retweet", err);
 											} 
@@ -960,7 +1035,11 @@ module.exports = {
 
 											// Start coutdown to undo the trade
 											setTimeout(function() {
-												twitterClient.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
+												twitterAuthClient.statuses('destroy/' + tweet.id_str,
+													account.access_token,
+													account.access_token_secret,
+													function(err, tweet, response) {
+
 													if (err) {
 														console.log("statuses/destroy: ", err);
 													} else {
@@ -977,6 +1056,13 @@ module.exports = {
 					});
 
 					function messageSender(currentTrader) {
+
+						var twitterAuthClient = new TwitterLogin({
+						    consumerKey: account.consumer_key,
+						    consumerSecret: account.consumer_secret,
+						    callback: 'http://localhost:3000/'
+						});
+
 						if (currentTrader.sent) {
 							var messageParams = {
 								screen_name: currentTrader.sender,
@@ -989,7 +1075,11 @@ module.exports = {
 							};
 						}
 						// Confirm D20 message to sender
-						twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
+						twitterAuthClient.direct_messages('new', messageParams, 
+							account.access_token,
+							account.access_token_secret,
+							function(err, message, response) {
+
 							if (err) {
 								console.log(err);
 							} else {
@@ -1081,12 +1171,23 @@ module.exports = {
 				});
 
 				presentLmkwd.forEach(function(x) {
+
+					var twitterAuthClient = new TwitterLogin({
+					    consumerKey: account.consumer_key,
+					    consumerSecret: account.consumer_secret,
+					    callback: 'http://localhost:3000/'
+					});
+
 					var messageParams = {
 						screen_name: x.username,
 						text: "lmkwd"
 					};
 					// Confirm D20 message to sender
-					client.post('direct_messages/new', messageParams, function(err, message, response) {
+					twitterAuthClient.direct_messages('new', messageParams,
+						account.access_token,
+						account.access_token_secret,
+						function(err, message, response) {
+
 						if (err) {
 							console.log(err);
 						} else {

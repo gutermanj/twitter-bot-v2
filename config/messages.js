@@ -1050,7 +1050,7 @@ module.exports = {
 														console.log("Unretweet Complete.");
 													}
 												});
-											}, 1000 * 60 * 19.7); // Destroy retweet
+											}, 1000 * 60 * 19.5); // Destroy retweet
 											
 										}); // retweet post
 									}

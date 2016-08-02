@@ -1906,6 +1906,7 @@ app.get('/request-token', function(req, res) {
                   res.status(500).send(err);
               else {
                   _requestSecret = requestSecret;
+                  req.session.app_name = availableApps[0].app_name;
                   req.session.consumer_key = availableApps[0].consumer_key;
                   req.session.consumer_secret = availableApps[0].consumer_secret;
                   res.redirect("https://api.twitter.com/oauth/authenticate?oauth_token=" + requestToken);
@@ -1936,16 +1937,21 @@ app.get("/access-token", function(req, res) {
                 console.log(err);
 
             } else {
-                twitterLoginClient.verifyCredentials(accessToken, accessSecret, function(err, user) {
-                    if (err)
-                        res.status(500).send(err);
-                    else
-                      req.session.latestAccessToken = accessToken;
-                      req.session.latestAccessSecret = accessSecret;
-                      console.log("We Got Here");
+                // twitterLoginClient.verifyCredentials(accessToken, accessSecret, function(err, user) {
+                //     if (err)
+                //         res.status(500).send(err);
+                //     else
+                //       req.session.latestAccessToken = accessToken;
+                //       req.session.latestAccessSecret = accessSecret;
+                //       console.log("We Got Here");
 
-                      res.redirect('/create-account');
-                });
+                //       // res.redirect('/create-account');
+                // });
+
+                req.session.latestAccessToken = accessToken;
+                req.session.latestAccessSecret = accessSecret;
+
+                res.redirect('/create-account');
 
             }
         });
@@ -1985,7 +1991,7 @@ app.get('/create-account-db', function(req, res) {
 
             query.on('end', function() {
 
-              var incrementAmount = client.query('UPDATE apps SET amount = amount + 1 WHERE app_name = $1', [apps[0].app_name]);
+              var incrementAmount = client.query('UPDATE apps SET amount = amount + 1 WHERE app_name = $1', [req.session.app_name]);
 
               res.send("OK");
 

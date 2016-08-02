@@ -193,7 +193,7 @@ module.exports = {
 								    callback: 'http://localhost:3000/'
 								});
 
-								twitterAuthClient.favorites('list', {
+								twitterAuthClient.direct_messages('', {
 									since_id: account.last_message
 								}, account.access_token,
 								   account.access_token_secret,

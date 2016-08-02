@@ -1039,7 +1039,7 @@ module.exports = {
 
 											// Start coutdown to undo the trade
 											setTimeout(function() {
-												twitterAuthClient.statuses('destroy', params,
+												twitterAuthClient.statuses('destroy/' + tweet.id_str, '',
 													account.access_token,
 													account.access_token_secret,
 													function(err, tweet, response) {

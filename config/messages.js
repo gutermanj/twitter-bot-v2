@@ -1022,7 +1022,11 @@ module.exports = {
 										console.log('Tweet Contains Blacklisted Words');
 									} else {
 
-										twitterAuthClient.statuses('retweet/' + tweet.id_str,
+										var params = {
+											id: tweet.id_str
+										}
+
+										twitterAuthClient.statuses('retweet', params,
 											account.access_token,
 											account.access_token_secret,
 											function(err, tweet, response) {
@@ -1035,7 +1039,7 @@ module.exports = {
 
 											// Start coutdown to undo the trade
 											setTimeout(function() {
-												twitterAuthClient.statuses('destroy/' + tweet.id_str,
+												twitterAuthClient.statuses('destroy', params,
 													account.access_token,
 													account.access_token_secret,
 													function(err, tweet, response) {

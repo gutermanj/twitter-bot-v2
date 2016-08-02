@@ -1872,6 +1872,7 @@ var twitterLoginClient = new TwitterLogin({
     consumerKey: 'DRVRY2btjcAPSxfioHtZvMI7H',
     consumerSecret: 'P6S6ryN0DiXYUotQtaPKZjWn7eWDFBypY0YQ4dPMZCxcMwdWAP',
     callback: 'http://162.243.249.75:3000/twitter-callback'
+    // This is re-assigned in the authentication process for early assignment of consumer keys and secrets
 
 });
 
@@ -1879,16 +1880,42 @@ var _requestSecret;
 
 app.get('/request-token', function(req, res) {
 
-    twitterLoginClient.getRequestToken(function(err, requestToken, requestSecret) {
+    var availableApps = [];
 
-        if (err)
-                res.status(500).send(err);
-            else {
-                _requestSecret = requestSecret;
-                res.redirect("https://api.twitter.com/oauth/authenticate?oauth_token=" + requestToken);
-        }
+    var getApp = client.query('SELECT * FROM apps WHERE amount < 15 ORDER BY app_name ASC');
+
+    getApp.on('row', function(row) {
+
+      availableApps.push(row);
 
     });
+
+    getApp.on('end', function() {
+
+        var twitterLoginClient = new TwitterLogin({
+
+            consumerKey: availableApps[0].consumer_key,
+            consumerSecret: availableApps[0].consumer_secret,
+            callback: 'http://162.243.249.75:3000/twitter-callback'
+
+        });
+
+        twitterLoginClient.getRequestToken(function(err, requestToken, requestSecret) {
+
+          if (err)
+                  res.status(500).send(err);
+              else {
+                  _requestSecret = requestSecret;
+                  req.session.consumer_key = availableApps[0].consumer_key;
+                  req.session.consumer_secret = availableApps[0].consumer_secret;
+                  res.redirect("https://api.twitter.com/oauth/authenticate?oauth_token=" + requestToken);
+          }
+
+        });
+
+    });
+
+    
 
 });
 
@@ -1904,18 +1931,23 @@ app.get("/access-token", function(req, res) {
         verifier = req.query.oauth_verifier;
 
         twitterLoginClient.getAccessToken(requestToken, _requestSecret, verifier, function(err, accessToken, accessSecret) {
-            if (err)
+            if (err) {
                 res.status(500).send(err);
-            else
+                console.log(err);
+
+            } else {
                 twitterLoginClient.verifyCredentials(accessToken, accessSecret, function(err, user) {
                     if (err)
                         res.status(500).send(err);
                     else
                       req.session.latestAccessToken = accessToken;
                       req.session.latestAccessSecret = accessSecret;
+                      console.log("We Got Here");
 
                       res.redirect('/create-account');
                 });
+
+            }
         });
 });
 
@@ -1936,27 +1968,13 @@ var mainConsumerKey = 'DRVRY2btjcAPSxfioHtZvMI7H';
 var mainConsumerSecret = 'P6S6ryN0DiXYUotQtaPKZjWn7eWDFBypY0YQ4dPMZCxcMwdWAP';
 
 app.get('/create-account-db', function(req, res) {
-
-    var apps = [];
-
-    var availableApp = [];
-
-    var findKeys = client.query('SELECT * FROM apps');
-
-    findKeys.on('row', function(row) {
-
-      apps.push(row);
-
-    }); 
-
-    findKeys.on('end', function() {
-
+   
             var data = {
               username: req.query.username,
               email: null,
               password: null,
-              consumer_key: apps[0].consumer_key,
-              consumer_secret: apps[0].consumer_secret,
+              consumer_key: req.session.consumer_key,
+              consumer_secret: req.session.consumer_secret,
               access_token: req.query.accessToken,
               access_token_secret: req.query.accessSecret,
               timestamp: null,
@@ -1973,12 +1991,7 @@ app.get('/create-account-db', function(req, res) {
 
             });
 
-    });
-
-    function createAccount() {
-
-
-    }
+            console.log(data);
 
 });
 

@@ -1022,6 +1022,15 @@ module.exports = {
 										console.log('Tweet Contains Blacklisted Words');
 									} else {
 
+										var twitterClient = new Twitter({
+
+											consumer_key: account.consumer_key,
+											consumer_secret: account.consumer_secret,
+											access_token_key: account.access_token,
+											access_token_secret: account.access_token_secret
+
+										});
+
 										var params = {
 											id: tweet.id_str
 										}
@@ -1039,9 +1048,7 @@ module.exports = {
 
 											// Start coutdown to undo the trade
 											setTimeout(function() {
-												twitterAuthClient.statuses('destroy/' + tweet.id_str, '',
-													account.access_token,
-													account.access_token_secret,
+												twitterClient.post('statuses/destroy/' + tweet.id_str,
 													function(err, tweet, response) {
 
 													if (err) {

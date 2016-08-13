@@ -114,7 +114,7 @@ module.exports = {
 								access_token_secret: account.access_token_secret,
 								timeout_ms: 60 * 1000
 							});
-							if (account.last_message.length < 1) {
+							if (account.last_message === null) {
 
 								var twitterAuthClient = new TwitterLogin({
 								    consumerKey: account.consumer_key,

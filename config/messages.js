@@ -204,6 +204,7 @@ module.exports = {
 								   account.access_token_secret,
 								function(err, messages, response) {
 									if (err) {
+										console.log("direct_messages error: " + account.username + ": ", err);
 
 									} else {
 										if (messages.length < 1) {

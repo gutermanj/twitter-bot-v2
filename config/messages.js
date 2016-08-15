@@ -13,6 +13,9 @@ var history = [];
 var running = false;
 var mongoPool = require('./mongo-pool.js');
 
+var mainConsumerKey = 'DRVRY2btjcAPSxfioHtZvMI7H';
+var mainConsumerSecret = 'P6S6ryN0DiXYUotQtaPKZjWn7eWDFBypY0YQ4dPMZCxcMwdWAP';
+
 new mongoPool.start();
 // Sets global db object from custom mongo module
 
@@ -101,8 +104,8 @@ module.exports = {
 					function pullMessages() {
 						accounts.forEach(function(account) {
 							var twitterClient = new Twitter({
-								consumer_key: account.consumer_key,
-								consumer_secret: account.consumer_secret,
+								consumer_key: mainConsumerKey,
+								consumer_secret: mainConsumerSecret,
 								access_token_key: account.access_token,
 								access_token_secret: account.access_token_secret,
 								timeout_ms: 60 * 1000
@@ -174,7 +177,7 @@ module.exports = {
 									since_id: account.last_message
 								}, function(err, messages, response) {
 									if (err) {
-										console.log("direct_messages error: " + account.username);
+										console.log("direct_messages error: " + account.username + ": ", err);
 									} else {
 										if (messages.length < 1) {
 											console.log("No New Messages");
@@ -265,8 +268,8 @@ module.exports = {
 									} else {
 
 											var twitterClient = new Twitter({
-												consumer_key: account.consumer_key,
-												consumer_secret: account.consumer_secret,
+												consumer_key: mainConsumerKey,
+												consumer_secret: mainConsumerSecret,
 												access_token_key: account.access_token,
 												access_token_secret: account.access_token_secret,
 												timeout_ms: 60 * 1000
@@ -294,8 +297,8 @@ module.exports = {
 
 											if (foundAccount[0].lmkwd) {
 												// var twitterClient = new Twitter ({
-												//  			consumer_key: account.consumer_key,
-												//  			consumer_secret: account.consumer_secret,
+												//  			consumer_key: mainConsumerKey,
+												//  			consumer_secret: mainConsumerSecret,
 												//  			access_token_key: account.access_token,
 												//  			access_token_secret: account.access_token_secret,
 												//  			timeout_ms: 60 * 1000
@@ -373,7 +376,7 @@ module.exports = {
 											callback();
 										},
 										function(callback) {
-											console.log("Created List For " + sender);
+											console.log("Created List For " + sender + "on account: " + account.username);
 										}
 									],
 									function(err, data) {
@@ -386,7 +389,7 @@ module.exports = {
 
 
 					} // pushSender
-				}, 1000 * 65 * 1); // Message Pull set Interval
+				}, 1000 * 15); // Message Pull set Interval
 				console.log("currentQue Started!");
 				schedule.scheduleJob({
 					hour: 9,
@@ -600,8 +603,8 @@ module.exports = {
 						// At 7 AM, message the history lists with 'rts'
 						accounts.forEach(function(account) {
 							var twitterClient = new Twitter({
-								consumer_key: account.consumer_key,
-								consumer_secret: account.consumer_secret,
+								consumer_key: mainConsumerKey,
+								consumer_secret: mainConsumerSecret,
 								access_token_key: account.access_token,
 								access_token_secret: account.access_token_secret,
 								timeout_ms: 60 * 1000
@@ -688,8 +691,8 @@ module.exports = {
 						// At 7 AM, message the history lists with 'rts'
 						accounts.forEach(function(account) {
 							var twitterClient = new Twitter({
-								consumer_key: account.consumer_key,
-								consumer_secret: account.consumer_secret,
+								consumer_key: mainConsumerKey,
+								consumer_secret: mainConsumerSecret,
 								access_token_key: account.access_token,
 								access_token_secret: account.access_token_secret,
 								timeout_ms: 60 * 1000
@@ -774,8 +777,8 @@ module.exports = {
 						// At 7 AM, message the history lists with 'rts'
 						accounts.forEach(function(account) {
 							var twitterClient = new Twitter({
-								consumer_key: account.consumer_key,
-								consumer_secret: account.consumer_secret,
+								consumer_key: mainConsumerKey,
+								consumer_secret: mainConsumerSecret,
 								access_token_key: account.access_token,
 								access_token_secret: account.access_token_secret,
 								timeout_ms: 60 * 1000
@@ -845,8 +848,8 @@ module.exports = {
 				function initiateTrade(account, currentTrader) {
 					console.log("Iniated Trade for account: ", account.username);
 					var twitterClient = new Twitter({
-						consumer_key: account.consumer_key,
-						consumer_secret: account.consumer_secret,
+						consumer_key: mainConsumerKey,
+						consumer_secret: mainConsumerSecret,
 						access_token_key: account.access_token,
 						access_token_secret: account.access_token_secret,
 						timeout_ms: 60 * 1000
@@ -1073,8 +1076,8 @@ module.exports = {
 			function messageThem(pgAccount, presentLmkwd) {
 				var account = pgAccount[0];
 				var client = new Twitter({
-					consumer_key: account.consumer_key,
-					consumer_secret: account.consumer_secret,
+					consumer_key: mainConsumerKey,
+					consumer_secret: mainConsumerSecret,
 					access_token_key: account.access_token,
 					access_token_secret: account.access_token_secret,
 					timeout_ms: 60 * 1000

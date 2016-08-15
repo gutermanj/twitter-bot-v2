@@ -648,7 +648,7 @@ app.get('/dashboard', requireLogin, requireAdmin, function(req, res, next) {
 
       var allManualAccounts = [];
 
-      var getAccounts = client.query('SELECT * FROM manualaccounts');
+      var getAccounts = client.query('SELECT * FROM manualaccounts ORDER BY username ASC');
 
       getAccounts.on('row', function(row) {
           allManualAccounts.push(row);
@@ -1097,18 +1097,45 @@ app.post('/api/v1/add-que', function(req, res) {
 
 app.post('/api/v1/add-lmkwd', function(req, res) {
 
-    // pg.connect(connectionString, function(err, client, done) {
+        var foundAccount = [];
 
-        var updateLmkwd = client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3', [true, req.body.sender, req.body.username], function(err) {
+        var findList = client.query('SELECT * FROM list WHERE sender = $1 AND account_id = $2', [req.body.sender, req.body.username]);
 
-            if (err) return console.log(err);
+        findList.on('row', function(row) {
 
-            return res.json(req.body.sender + " Added To Lmkwd");
-            done();
+          foundAccount.push(row);
 
         });
 
-    // }); pg
+        findList.on('end', function() {
+
+          if (foundAccount.length > 0) {
+
+              var updateLmkwd = client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3', [true, req.body.sender, req.body.username], function(err) {
+
+                if (err) return console.log(err);
+
+                return res.json(req.body.sender + " Added To Lmkwd: Already Exists");
+                done();
+
+              });
+
+          } else {
+
+              var updateLmkwd = client.query('INSERT INTO list(sender, qued, lmkwd, history, sent, outbound, account_id) VALUES ($1, $2, $3, $4, $5, $6, $7)', [req.body.sender, false, true, false, false, false, req.body.username], function(err) {
+
+                if (err) return console.log(err);
+
+                return res.json(req.body.sender + " Added To Lmkwd: Created List");
+                done();
+
+              });
+
+          }
+
+          
+
+        });
 
 });
 
@@ -1845,6 +1872,7 @@ var twitterLoginClient = new TwitterLogin({
     consumerKey: 'DRVRY2btjcAPSxfioHtZvMI7H',
     consumerSecret: 'P6S6ryN0DiXYUotQtaPKZjWn7eWDFBypY0YQ4dPMZCxcMwdWAP',
     callback: 'http://162.243.249.75:3000/twitter-callback'
+    // This is re-assigned in the authentication process for early assignment of consumer keys and secrets
 
 });
 
@@ -1852,16 +1880,43 @@ var _requestSecret;
 
 app.get('/request-token', function(req, res) {
 
-    twitterLoginClient.getRequestToken(function(err, requestToken, requestSecret) {
+    var availableApps = [];
 
-        if (err)
-                res.status(500).send(err);
-            else {
-                _requestSecret = requestSecret;
-                res.redirect("https://api.twitter.com/oauth/authenticate?oauth_token=" + requestToken);
-        }
+    var getApp = client.query('SELECT * FROM apps WHERE amount < 15 ORDER BY app_name ASC');
+
+    getApp.on('row', function(row) {
+
+      availableApps.push(row);
 
     });
+
+    getApp.on('end', function() {
+
+        var twitterLoginClient = new TwitterLogin({
+
+            consumerKey: availableApps[0].consumer_key,
+            consumerSecret: availableApps[0].consumer_secret,
+            callback: 'http://162.243.249.75:3000/twitter-callback'
+
+        });
+
+        twitterLoginClient.getRequestToken(function(err, requestToken, requestSecret) {
+
+          if (err)
+                  res.status(500).send(err);
+              else {
+                  _requestSecret = requestSecret;
+                  req.session.app_name = availableApps[0].app_name;
+                  req.session.consumer_key = availableApps[0].consumer_key;
+                  req.session.consumer_secret = availableApps[0].consumer_secret;
+                  res.redirect("https://api.twitter.com/oauth/authenticate?oauth_token=" + requestToken);
+          }
+
+        });
+
+    });
+
+    
 
 });
 
@@ -1877,18 +1932,28 @@ app.get("/access-token", function(req, res) {
         verifier = req.query.oauth_verifier;
 
         twitterLoginClient.getAccessToken(requestToken, _requestSecret, verifier, function(err, accessToken, accessSecret) {
-            if (err)
+            if (err) {
                 res.status(500).send(err);
-            else
-                twitterLoginClient.verifyCredentials(accessToken, accessSecret, function(err, user) {
-                    if (err)
-                        res.status(500).send(err);
-                    else
-                      req.session.latestAccessToken = accessToken;
-                      req.session.latestAccessSecret = accessSecret;
+                console.log(err);
 
-                      res.redirect('/create-account');
-                });
+            } else {
+                // twitterLoginClient.verifyCredentials(accessToken, accessSecret, function(err, user) {
+                //     if (err)
+                //         res.status(500).send(err);
+                //     else
+                //       req.session.latestAccessToken = accessToken;
+                //       req.session.latestAccessSecret = accessSecret;
+                //       console.log("We Got Here");
+
+                //       // res.redirect('/create-account');
+                // });
+
+                req.session.latestAccessToken = accessToken;
+                req.session.latestAccessSecret = accessSecret;
+
+                res.redirect('/create-account');
+
+            }
         });
 });
 
@@ -1909,26 +1974,30 @@ var mainConsumerKey = 'DRVRY2btjcAPSxfioHtZvMI7H';
 var mainConsumerSecret = 'P6S6ryN0DiXYUotQtaPKZjWn7eWDFBypY0YQ4dPMZCxcMwdWAP';
 
 app.get('/create-account-db', function(req, res) {
+   
+            var data = {
+              username: req.query.username,
+              email: null,
+              password: null,
+              consumer_key: req.session.consumer_key,
+              consumer_secret: req.session.consumer_secret,
+              access_token: req.query.accessToken,
+              access_token_secret: req.query.accessSecret,
+              timestamp: null,
+              admin: false
+            }
 
-    var data = {
-      username: req.query.username,
-      email: null,
-      password: null,
-      consumer_key: mainConsumerKey,
-      consumer_secret: mainConsumerSecret,
-      access_token: req.query.accessToken,
-      access_token_secret: req.query.accessSecret,
-      timestamp: null,
-      admin: false
-    }
+            var query = client.query("INSERT INTO manualaccounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin) values($1, $2, $3, $4, $5, $6, $7, $8, $9)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.timestamp, data.admin]);
 
-    var query = client.query("INSERT INTO manualaccounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin) values($1, $2, $3, $4, $5, $6, $7, $8, $9)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.timestamp, data.admin]);
+            query.on('end', function() {
 
-    query.on('end', function() {
+              var incrementAmount = client.query('UPDATE apps SET amount = amount + 1 WHERE app_name = $1', [req.session.app_name]);
 
-      res.send("OK");
+              res.send("OK");
 
-    });
+            });
+
+            console.log(data);
 
 });
 

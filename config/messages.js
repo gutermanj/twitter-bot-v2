@@ -14,16 +14,16 @@ var history = [];
 var running = false;
 var mongoPool = require('./mongo-pool.js');
 
-<<<<<<< HEAD
+
 var mainConsumerKey = 'DRVRY2btjcAPSxfioHtZvMI7H';
 var mainConsumerSecret = 'P6S6ryN0DiXYUotQtaPKZjWn7eWDFBypY0YQ4dPMZCxcMwdWAP';
-=======
+
 // var twitterAuthClient = new TwitterLogin({
 //     consumerKey: account.consumer_key,
 //     consumerSecret: account.consumer_secret,
 //     callback: 'http://localhost:3000/'
 // });
->>>>>>> f5a7d84ce14bbbf42fde6c62e5af92bf5ddf9067
+
 
 new mongoPool.start();
 // Sets global db object from custom mongo module
@@ -295,19 +295,10 @@ module.exports = {
 										console.log("Sender On Blacklist");
 									} else {
 
-<<<<<<< HEAD
-											var twitterClient = new Twitter({
-												consumer_key: mainConsumerKey,
-												consumer_secret: mainConsumerSecret,
-												access_token_key: account.access_token,
-												access_token_secret: account.access_token_secret,
-												timeout_ms: 60 * 1000
-=======
 											var twitterAuthClient = new TwitterLogin({
 											    consumerKey: account.consumer_key,
 											    consumerSecret: account.consumer_secret,
 											    callback: 'http://localhost:3000/'
->>>>>>> f5a7d84ce14bbbf42fde6c62e5af92bf5ddf9067
 											});
 
 											var params = {

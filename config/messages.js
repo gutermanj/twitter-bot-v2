@@ -1339,9 +1339,6 @@ module.exports = {
 								function(callback) {
 									async.parallel([updateThree, updateFour]);
 									callback();
-								},
-								function(callback) {
-									console.log("Received D20, LMK- => H+ " + sender + " was added to " + account.username);
 								}
 							],
 							function(error, data) {

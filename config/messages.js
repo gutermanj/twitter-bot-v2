@@ -132,7 +132,7 @@ module.exports = {
 								}, 	account.access_token,
 									account.access_token_secret,
 								function(err, messages, response) {
-									if (err.statusCode === '403') {
+									if (err.statusCode === 403) {
 
 										var query = client.query('UPDATE manualaccounts SET status = false WHERE username = $1', [account.username]);
 

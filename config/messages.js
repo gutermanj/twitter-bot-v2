@@ -134,7 +134,7 @@ module.exports = {
 								function(err, messages, response) {
 									if (err.statusCode === 403) {
 
-										var query = client.query('UPDATE manualaccounts SET status = false WHERE username = $1', [account.username]);
+										var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
 
 									}
 
@@ -212,6 +212,11 @@ module.exports = {
 								function(err, messages, response) {
 									if (err) {
 										console.log("direct_messages error: " + account.username + ": ", err);
+										if (err.statusCode === 403) {
+
+											var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
+
+										}
 
 									} else {
 										if (messages.length < 1) {

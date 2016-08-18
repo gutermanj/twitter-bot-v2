@@ -278,8 +278,12 @@ html
                       tbody
                       each val in manAccounts
                         tr
-                          td.js-manual-que-add(data-username=val.username, data-dad_id=val.id)= val.username
+                          if val.status
+                            td.js-manual-que-add(data-username=val.username, data-dad_id=val.id, style='background-color:lightgreen')= val.username
+                          else
+                            td.js-manual-que-add(data-username=val.username, data-dad_id=val.id, style='background-color:pink')= val.username
                           td= val.total_trades
+
           // /.row
           .row
             .col-lg-12

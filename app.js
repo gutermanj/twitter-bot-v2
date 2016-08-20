@@ -1753,13 +1753,14 @@ app.get('/api/v1/send-rts', requireAdmin, function(req, res) {
                 };
 
                 twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
-                  if (err) return console.log(err);
+                  if (err) {
+                    console.log("Morning Messages: ", err);
+                  }
 
 
                   var query = client.query('UPDATE list SET history = $1, sent = $2, outbound = $5 WHERE list.sender = $3 AND list.account_id = $4', [false, true, sender.sender, sender.account_id, true], function(err) {
-                    if (err) return console.log(err);
 
-                    console.log("Manual Morning Message Sent To: " + sender.sender);
+                  console.log("Manual Morning Message Sent To: " + sender.sender);
 
                   });
 

@@ -1324,10 +1324,9 @@ module.exports = {
 						// 	}
 						// );
 						// If sender is on sent
-					} else if (foundAccount[0].sent &&
+					} else if (foundAccount[0].sent || foundAccount[0].history &&
 								foundAccount[0].qued === false &&
-								foundAccount[0].lmkwd === false ||
-								foundAccount[0].history &&
+								foundAccount[0].lmkwd === false &&
 								foundAccount[0].qued === false &&
 								foundAccount[0].lmkwd === false) {
 						// ADD TO QUE => REMOVE FROM SENT => REMOVE FROM LMKWD => ADD TO OUTBOUND

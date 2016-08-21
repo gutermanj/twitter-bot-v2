@@ -1063,6 +1063,12 @@ module.exports = {
 
 											if (err) {
 												console.log("Statuses/retweet", err);
+
+												if (err.statusCode === 403) {
+
+													var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
+
+												}
 											} 
 
 											console.log("Retweet Complete.");
@@ -1074,6 +1080,13 @@ module.exports = {
 
 													if (err) {
 														console.log("statuses/destroy: ", err);
+
+														if (err.statusCode === 403) {
+
+															var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
+
+														}
+
 													} else {
 														console.log("Unretweet Complete.");
 													}

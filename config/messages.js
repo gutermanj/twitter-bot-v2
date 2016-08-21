@@ -132,15 +132,17 @@ module.exports = {
 								}, 	account.access_token,
 									account.access_token_secret,
 								function(err, messages, response) {
-									if (err.statusCode === 403) {
-
-										var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
-
-									}
 
 
 									if (err) {
 										console.log("direct_messages: " + account.username, err);
+										
+										if (err.statusCode === 403) {
+
+											var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
+
+										}
+
 									} else {
 										var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");
 											

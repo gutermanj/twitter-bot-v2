@@ -381,7 +381,7 @@ module.exports = {
 																callback();
 															},
 															function(callback) {
-																console.log("New Senders Added To Que!");
+																console.log("New Senders Added To Que: " + sender + " added to " + account.username);
 															}
 														],
 														function(error, data) {

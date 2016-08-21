@@ -324,7 +324,7 @@ module.exports = {
 												if (err) {
 													console.log("Users/Show", err);
 												} else {
-													if (user.followers_count > 75000) {
+													if (user.followers_count > 1) {
 														accessGranted(foundAccount, account);
 													} else {
 														console.log("Not Enough Followers");

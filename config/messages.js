@@ -1325,19 +1325,19 @@ module.exports = {
 						foundAccount[0].sent === false &&
 						foundAccount[0].outbound === false) {
 
-						// async.series([
-						// 		function(callback) {
-						// 			async.parallel([updateOne, updateFive]);
-						// 			callback();
-						// 		},
-						// 		function(callback) {
-						// 			console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
-						// 		}
-						// 	],
-						// 	function(error, data) {
-						// 		console.log(error);
-						// 	}
-						// );
+						async.series([
+								function(callback) {
+									async.parallel([updateOne, updateFive]);
+									callback();
+								},
+								function(callback) {
+									console.log("Hmm that's weird: " + sender + " Sent D20 and is not on our lists." + " Added to - " + account.username);
+								}
+							],
+							function(error, data) {
+								console.log(error);
+							}
+						);
 						// If sender is on sent
 					} else if (foundAccount[0].sent || foundAccount[0].history &&
 								foundAccount[0].qued === false &&

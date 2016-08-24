@@ -510,7 +510,8 @@ $('.js-add-account').on('click', function() {
 	
 	
 $('.js-delete-account').on('click', function() {
-	var id = $('.js-new-que-account-input').val();
+	var id = $('.js-new-que-username').val();
+	console.log(id);
 	
 	$.ajax({
 		

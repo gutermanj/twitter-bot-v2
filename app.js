@@ -1784,7 +1784,8 @@ app.get('/api/v1/send-rts', requireAdmin, function(req, res) {
 
 app.post('/api/v1/delete-account', requireAdmin, function(req, res) {
   
-  var account_id = req.body.id;
+  var account_id = req.body.username;
+  console.log(account_id);
   var query = client.query('DELETE FROM list WHERE account_id = $1', [account_id], function(err) {
     if (err) {
       res.json(err);

@@ -1786,17 +1786,26 @@ app.post('/api/v1/delete-account', requireAdmin, function(req, res) {
   
   var account_id = req.body.id;
   
-  var query = client.query('DELETE FROM lmkwd WHERE account_id = $1', [account_id]);
-  
-  var query_two = client.query('DELETE FROM que WHERE account_id = $1', [account_id]);
-  
-  var query_three = client.query('DELETE FROM manualaccounts WHERE id = $1', [account_id], function(err) {
+  var query = client.query('DELETE FROM lmkwd WHERE account_id = $1', [account_id], function(err) {
     if (err) {
       res.json(err);
     } else {
-      res.json("OK");
+      var query_two = client.query('DELETE FROM que WHERE account_id = $1', [account_id], function(err) {
+        if (err) {
+          res.json(err);
+        } else {
+          var query_three = client.query('DELETE FROM manualaccounts WHERE id = $1', [account_id], function(err) {
+            if (err) {
+              res.json(err);
+            } else {
+              res.json("OK");
+            }
+          });
+        }
+      });
     }
   });
+  
   
 });
 

@@ -507,6 +507,31 @@ $('.js-send-lmkwd').on('click', function() {
 $('.js-add-account').on('click', function() {
 	window.location.href = '/request-token';
 });
+	
+	
+$('.js-delete-account').on('click', function() {
+	var id = $('.js-new-que-account-input').val();
+	
+	$.ajax({
+		
+		url: '/api/v1/delete-account',
+		
+		type: 'POST',
+		
+		data: {
+			username: id
+		},
+		
+		success: function(response) {
+			console.log(response);
+		},
+		
+		error: function(err) {
+			console.log(err);
+		}
+		
+	});
+});
 
 
 

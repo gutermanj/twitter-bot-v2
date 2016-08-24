@@ -1801,6 +1801,7 @@ app.post('/api/v1/delete-account', requireAdmin, function(req, res) {
                 if (err) {
                   res.json(err);
                 } else {
+                  console.log("Removed Account: ", account_id);
                   res.json("OK");
                 }
               });

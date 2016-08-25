@@ -1350,7 +1350,7 @@ module.exports = {
 							}
 						);
 						// If sender is on sent
-					} else if (foundAccount[0].sent || foundAccount[0].history &&
+					} else if (foundAccount[0].sent &&
 								foundAccount[0].qued === false &&
 								foundAccount[0].lmkwd === false &&
 								foundAccount[0].qued === false &&

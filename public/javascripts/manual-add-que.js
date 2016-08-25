@@ -396,6 +396,33 @@ $(document).ready(function() {
 
 	});
 
+	$('.account-switch').on('click', function() {
+			var id = $('.js-new-que-username').val();
+
+			$.ajax({
+
+				url: '/api/v1/toggle-account',
+
+				type: 'POST',
+
+				data: {
+					account_id: id
+				},
+
+				success: function(response) {
+					console.log("Account Started!");
+					console.log(response);
+				},
+
+				error: function() {
+					console.log("Something went wrong");
+				}
+
+			});
+
+	});
+
+
 
 
 

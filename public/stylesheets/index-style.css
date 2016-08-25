@@ -8,3 +8,8 @@
 *:focus {
     outline: none;
 }
+
+.account-swtich {
+	margin-right: 200px !important;
+
+}

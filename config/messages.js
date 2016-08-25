@@ -119,166 +119,172 @@ module.exports = {
 								access_token_secret: account.access_token_secret,
 								timeout_ms: 60 * 1000
 							});
-							if (account.last_message === null) {
 
-								var twitterAuthClient = new TwitterLogin({
-								    consumerKey: account.consumer_key,
-								    consumerSecret: account.consumer_secret,
-								    callback: 'http://localhost:3000/'
-								});
+							if (account.active) {
 
-								twitterAuthClient.direct_messages('', {
-									count: 1
-								}, 	account.access_token,
-									account.access_token_secret,
-								function(err, messages, response) {
+								if (account.last_message === null) {
+
+									var twitterAuthClient = new TwitterLogin({
+									    consumerKey: account.consumer_key,
+									    consumerSecret: account.consumer_secret,
+									    callback: 'http://localhost:3000/'
+									});
+
+									twitterAuthClient.direct_messages('', {
+										count: 1
+									}, 	account.access_token,
+										account.access_token_secret,
+									function(err, messages, response) {
 
 
-									if (err) {
-										console.log("direct_messages: " + account.username, err);
-										
-										if (err.statusCode === 403) {
-
-											var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
-
-										}
-
-									} else {
-										var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");
+										if (err) {
+											console.log("direct_messages: " + account.username, err);
 											
-										console.log("Set new Last Message ID for: " + account.username);
+											if (err.statusCode === 403) {
 
-										// messages.forEach(function(message) {
-										// 	var splitMessage = message.text.toUpperCase().split(" ");
-										// 	var uppcasedMessage = message.text.toUpperCase();
-										// 	// Convert received messages
+												var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
 
-										// 	if (d20(splitMessage)) {
-										// 		var sender = message.sender.screen_name
-										// 			// Call function to deal with D20
-										// 		pullFromLmkwd(sender, account);
-										// 	}
+											}
 
-										// 	if (spacedFilter(uppcasedMessage)) {
-										// 		var sender = message.sender.screen_name
-										// 		pushSender(sender, account);
-										// 	}
-
-										// 	if (filter(uppcasedMessage)) {
-										// 		var sender = message.sender.screen_name
-										// 			// Call function to add sender to account que
-										// 		pushSender(sender, account);
-										// 	}
-
-
-										// 	if (lmkwdFilter(splitMessage)) {
-										// 		var sender = message.sender.screen_name
-
-										// 		var localAccount = [];
-
-										// 		var findLocal = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, sender]);
-
-										// 		findLocal.on('row', function(row) {
-										// 			localAccount.push(row);
-										// 		});
-
-										// 		findLocal.on('end', function() {
-										// 			if (localAccount.length > 0) {
-										// 				checkQued();
-										// 			}
-										// 		});
-
-										// 		function checkQued() {
-										// 			if (localAccount[0].qued === false) {
-										// 				messageSirBryan(sender, localAccount[0]);
-										// 			}
-										// 		}
-										// 		// Call function to handle incoming lmkwd messages
-										// 	}
-										// });
-
-									}
-								}); // Twitterclient.get
-							} else {
-
-								var twitterAuthClient = new TwitterLogin({
-								    consumerKey: account.consumer_key,
-								    consumerSecret: account.consumer_secret,
-								    callback: 'http://localhost:3000/'
-								});
-
-								twitterAuthClient.direct_messages('', {
-									since_id: account.last_message
-								}, account.access_token,
-								   account.access_token_secret,
-								function(err, messages, response) {
-									if (err) {
-										console.log("direct_messages error: " + account.username + ": ", err);
-										if (err.statusCode === 403) {
-
-											var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
-
-										}
-
-									} else {
-										if (messages.length < 1) {
-											console.log("No New Messages");
 										} else {
-											console.log("Pulled New Messages...");
-												var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");											messages.forEach(function(message) {
-												var splitMessage = message.text.toUpperCase().split(" ");
-												var uppcasedMessage = message.text.toUpperCase();
-												// Convert received messages
+											var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");
+												
+											console.log("Set new Last Message ID for: " + account.username);
 
-												if (d20(splitMessage)) {
-													var sender = message.sender.screen_name
-														// Call function to deal with D20
-													pullFromLmkwd(sender, account);
-												}
+											// messages.forEach(function(message) {
+											// 	var splitMessage = message.text.toUpperCase().split(" ");
+											// 	var uppcasedMessage = message.text.toUpperCase();
+											// 	// Convert received messages
 
-												if (filter(splitMessage)) {
-													var sender = message.sender.screen_name
-														// Call function to add sender to account que
-													pushSender(sender, account);
-												}
+											// 	if (d20(splitMessage)) {
+											// 		var sender = message.sender.screen_name
+											// 			// Call function to deal with D20
+											// 		pullFromLmkwd(sender, account);
+											// 	}
 
-												if (spacedFilter(uppcasedMessage)) {
-													var sender = message.sender.screen_name
-													pushSender(sender, account);
-												}
+											// 	if (spacedFilter(uppcasedMessage)) {
+											// 		var sender = message.sender.screen_name
+											// 		pushSender(sender, account);
+											// 	}
+
+											// 	if (filter(uppcasedMessage)) {
+											// 		var sender = message.sender.screen_name
+											// 			// Call function to add sender to account que
+											// 		pushSender(sender, account);
+											// 	}
 
 
-												if (lmkwdFilter(splitMessage)) {
-													var sender = message.sender.screen_name
+											// 	if (lmkwdFilter(splitMessage)) {
+											// 		var sender = message.sender.screen_name
 
-													var localAccount = [];
+											// 		var localAccount = [];
 
-													var findLocal = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, sender]);
+											// 		var findLocal = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, sender]);
 
-													findLocal.on('row', function(row) {
-														localAccount.push(row);
-													});
+											// 		findLocal.on('row', function(row) {
+											// 			localAccount.push(row);
+											// 		});
 
-													findLocal.on('end', function() {
-														if (localAccount.length > 0) {
-															checkQued();
-														} else {
-															console.log("Trying to mess it up, lel - received lmkwd from: " + sender + " for our account: " + account.username);
-														}
-													});
+											// 		findLocal.on('end', function() {
+											// 			if (localAccount.length > 0) {
+											// 				checkQued();
+											// 			}
+											// 		});
 
-													function checkQued() {
-														if (localAccount[0].qued === false) {
-															messageSirBryan(sender, localAccount[0]);
-														}
-													}
-													// Call function to handle incoming lmkwd messages
-												}
-											});
+											// 		function checkQued() {
+											// 			if (localAccount[0].qued === false) {
+											// 				messageSirBryan(sender, localAccount[0]);
+											// 			}
+											// 		}
+											// 		// Call function to handle incoming lmkwd messages
+											// 	}
+											// });
+
 										}
-									}
-								}); // client.get
-							} //last message null else
+									}); // Twitterclient.get
+								} else {
+
+									var twitterAuthClient = new TwitterLogin({
+									    consumerKey: account.consumer_key,
+									    consumerSecret: account.consumer_secret,
+									    callback: 'http://localhost:3000/'
+									});
+
+									twitterAuthClient.direct_messages('', {
+										since_id: account.last_message
+									}, account.access_token,
+									   account.access_token_secret,
+									function(err, messages, response) {
+										if (err) {
+											console.log("direct_messages error: " + account.username + ": ", err);
+											if (err.statusCode === 403) {
+
+												var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
+
+											}
+
+										} else {
+											if (messages.length < 1) {
+												console.log("No New Messages");
+											} else {
+												console.log("Pulled New Messages...");
+													var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");											messages.forEach(function(message) {
+													var splitMessage = message.text.toUpperCase().split(" ");
+													var uppcasedMessage = message.text.toUpperCase();
+													// Convert received messages
+
+													if (d20(splitMessage)) {
+														var sender = message.sender.screen_name
+															// Call function to deal with D20
+														pullFromLmkwd(sender, account);
+													}
+
+													if (filter(splitMessage)) {
+														var sender = message.sender.screen_name
+															// Call function to add sender to account que
+														pushSender(sender, account);
+													}
+
+													if (spacedFilter(uppcasedMessage)) {
+														var sender = message.sender.screen_name
+														pushSender(sender, account);
+													}
+
+
+													if (lmkwdFilter(splitMessage)) {
+														var sender = message.sender.screen_name
+
+														var localAccount = [];
+
+														var findLocal = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, sender]);
+
+														findLocal.on('row', function(row) {
+															localAccount.push(row);
+														});
+
+														findLocal.on('end', function() {
+															if (localAccount.length > 0) {
+																checkQued();
+															} else {
+																console.log("Trying to mess it up, lel - received lmkwd from: " + sender + " for our account: " + account.username);
+															}
+														});
+
+														function checkQued() {
+															if (localAccount[0].qued === false) {
+																messageSirBryan(sender, localAccount[0]);
+															}
+														}
+														// Call function to handle incoming lmkwd messages
+													}
+												});
+											}
+										}
+									}); // client.get
+								} //last message null else
+
+							} // If account is active
+
 						}); // forEach
 					}
 
@@ -531,7 +537,12 @@ module.exports = {
 											if (time.getHours() < 6 || time.getHours() > 24) {
 												console.log("Offline: Night Time");
 											} else {
-												initiateTrade(account, currentTrader);
+
+												if (account.active) {
+
+													initiateTrade(account, currentTrader);
+
+												}
 											}
 
 										}

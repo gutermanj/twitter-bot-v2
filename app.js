@@ -212,7 +212,7 @@ app.use(function(req, res, next){
 
 
 
-
+messages.read(true);
 
 // --------------- Mostly Routes ---------------------
 
@@ -2034,7 +2034,32 @@ app.get('/create-account-db', function(req, res) {
 
 });
 
+app.post('/api/v1/toggle-account', requireAdmin, function(req, res) {
 
+  var account_id = req.body.account_id;
+  console.log(account_id);
+
+  var foundAccount = [];
+
+  var query = client.query('SELECT * FROM manualaccounts WHERE id = $1', [account_id]);
+
+  query.on('row', function(row) {
+
+    foundAccount.push(row);
+
+  });
+
+  query.on('end', function() {
+
+    if (foundAccount[0].active) {
+      var query = client.query("UPDATE manualaccounts SET active = 'false' WHERE id = $1", [account_id]);
+    } else {
+      var query = client.query("UPDATE manualaccounts SET active = 'true' WHERE id = $1", [account_id]);
+    }
+
+  });
+
+});
 
 
 

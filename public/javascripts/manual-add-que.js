@@ -69,8 +69,8 @@ $(document).ready(function() {
 
 			success: function(response) {
 				console.log(response);
-				var dad = response[0].username;
-				var dad_id = response[0].id;
+				var dad = response.username;
+				var dad_id = response.id;
 
 				$('.js-current-que').empty();
 				$('.js-current-history').empty();
@@ -163,6 +163,44 @@ $(document).ready(function() {
 			}
 
 		});
+
+		$.ajax({
+
+			url: '/api/v1/get-account-info',
+
+			type: 'POST',
+
+			data: {
+				username: username
+			},
+
+			success: function(response) {
+
+				console.log(response);
+
+				if (response[0].active) {
+					var html = `
+						<button class='btn btn-danger account-switch-start' style='right: 15px; position: absolute'>STOP</button>
+					`
+					$('.js-account-toggle').html(html);
+					console.log("STOP");
+				} else {
+					var html = `
+						<button class='btn btn-success account-switch-start' style='right: 15px; position: absolute'>Start!</button>
+					`
+
+					$('.js-account-toggle').html(html);
+					console.log("START");
+				}
+
+			},
+
+			error: function(err) {
+				console.log(err);
+			}
+
+		});
+
 	}
 
 	$('.js-add-sender').on('click', function(e) {
@@ -396,7 +434,7 @@ $(document).ready(function() {
 
 	});
 
-	$('.account-switch').on('click', function() {
+	$('.js-account-toggle').on('click', function() {
 			var id = $('.js-new-que-username').val();
 
 			$.ajax({

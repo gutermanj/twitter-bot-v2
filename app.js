@@ -1177,6 +1177,26 @@ app.post('/api/v1/show-que', function(req, res) {
 
 });
 
+app.post('/api/v1/get-account-info', function(req, res) {
+
+  var getInfo = client.query('SELECT * FROM manualaccounts WHERE username = $1', [req.body.username]);
+
+  var account = [];
+
+  getInfo.on('row', function(row) {
+
+    account.push(row);
+
+  }); 
+
+  getInfo.on('end', function() {
+
+    return res.json(account);
+
+  });
+
+});
+
 app.post('/api/v1/show-lmkwd', function(req, res) {
 
   MongoClient.connect(url, function(err, db) {

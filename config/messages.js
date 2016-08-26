@@ -1384,11 +1384,11 @@ module.exports = {
 							}
 						);
 					} else if (foundAccount[0].history &&
-								foundAccount[0].outbound {
+								foundAccount[0].outbound) {
 
 						console.log("Finished Outbound Trade For: " + foundAccount[0].sender + " on account: " + account.username);
 
-					});
+					};
 
 				}
 			}

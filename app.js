@@ -371,7 +371,7 @@ app.post('/newaccount/manual', requireAdmin, function(req, res) {
         }
 
         // SQL Query > Create new row for an account
-        var query = client.query("INSERT INTO manualaccounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin) values($1, $2, $3, $4, $5, $6, $7, $8, $9)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.timestamp, data.admin]);
+        var query = client.query("INSERT INTO manualaccounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin, last_message, active, status) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.timestamp, data.admin, null, true, true]);
 
         // After all data is returned, close connection and return results
         query.on('end', function() {

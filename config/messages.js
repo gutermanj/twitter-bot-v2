@@ -1083,6 +1083,7 @@ module.exports = {
 											} 
 
 											console.log("Retweet Complete.");
+											var greenStatus = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [true, account.username]);
 
 											// Start coutdown to undo the trade
 											setTimeout(function() {

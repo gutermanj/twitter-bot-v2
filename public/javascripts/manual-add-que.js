@@ -56,7 +56,10 @@ $(document).ready(function() {
 
 
 
-	function showCurrentQue(username) {
+	function showCurrentQue(username, dad_id) {
+		console.log(username);
+		console.log(dad_id);
+
 		$.ajax({
 
 			type: 'POST',
@@ -64,7 +67,8 @@ $(document).ready(function() {
 			url: '/api/v1/show-que',
 
 			data: {
-				username: username
+				username: username,
+				dad_id: dad_id
 			},
 
 			success: function(response) {
@@ -231,6 +235,9 @@ $(document).ready(function() {
 	});
 
 	function removeFromQue(username, dad_id) {
+
+		var dad_id = $('.js-new-que-username').val();
+
 		
 		$.ajax({
 
@@ -257,6 +264,9 @@ $(document).ready(function() {
 
 		function removeFromLmkwd(username, dad_id) {
 		
+			console.log(username);
+			var dad_id = $('.js-new-que-username').val();
+
 		$.ajax({
 
 			type: 'POST',
@@ -281,6 +291,9 @@ $(document).ready(function() {
 	}
 
 	function removeFromSent(username, dad_id) {
+
+		var dad_id = $('.js-new-que-username').val();
+
 		
 		$.ajax({
 
@@ -306,6 +319,9 @@ $(document).ready(function() {
 	}
 
 	function removeFromRts(username, dad_id) {
+
+		var dad_id = $('.js-new-que-username').val();
+
 		
 		$.ajax({
 
@@ -700,7 +716,7 @@ function doneTyping () {
 			var dad_id = $('.js-new-que-username').val();
 			console.log(username);
 			var id = $(this).data('dad_id');
-			var sender = "Potato";
+
 			$('#show-new-que-modal').modal('toggle');
 			var input = `
 				<input value='${id}' class='js-new-que-username form-control'>
@@ -711,27 +727,27 @@ function doneTyping () {
 			$('.js-new-que-account-input').html(input);
 			$('.js-new-que-sender').val("");
 
-			showCurrentQue(username);
+			showCurrentQue(username, dad_id);
 
-			$('.js-remove-from-que').on('click', function() {
-					$(this).html('<span>Removed</span>')
-					removeFromQue(username, dad_id);
-			});
+			// $('.js-remove-from-que').on('click', function() {
+			// 		$(this).html('<span>Removed</span>')
+			// 		removeFromQue(username, dad_id);
+			// });
 
-			$('.js-remove-from-sent').on('click', function() {
-				$(this).html('<span>Removed</span>')
-				removeFromSent(username, dad_id);
-			});
+			// $('.js-remove-from-sent').on('click', function() {
+			// 	$(this).html('<span>Removed</span>')
+			// 	removeFromSent(username, dad_id);
+			// });
 
-			$('.js-remove-from-lmkwd').on('click', function() {
-				$(this).html('<span>Removed</span>')
-				removeFromLmkwd(username, dad_id);
-			});
+			// $('.js-remove-from-lmkwd').on('click', function() {
+			// 	$(this).html('<span>Removed</span>')
+			// 	removeFromLmkwd(username, dad_id);
+			// });
 
-			$('.js-remove-from-rts').on('click', function() {
-				$(this).html('<span>Removed</span>')
-				removeFromRts(username, dad_id);
-			});
+			// $('.js-remove-from-rts').on('click', function() {
+			// 	$(this).html('<span>Removed</span>')
+			// 	removeFromRts(username, dad_id);
+			// });
 
 	});
 

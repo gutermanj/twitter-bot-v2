@@ -2028,25 +2028,56 @@ var mainConsumerSecret = 'P6S6ryN0DiXYUotQtaPKZjWn7eWDFBypY0YQ4dPMZCxcMwdWAP';
 
 app.get('/create-account-db', function(req, res) {
    
-            var data = {
-              username: req.query.username,
-              email: null,
-              password: null,
-              consumer_key: req.session.consumer_key,
-              consumer_secret: req.session.consumer_secret,
-              access_token: req.query.accessToken,
-              access_token_secret: req.query.accessSecret,
-              timestamp: null,
-              admin: false
-            }
+            var findAccount = client.query('select * from manualaccounts where username = $1', [req.query.username]);
 
-            var query = client.query("INSERT INTO manualaccounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin) values($1, $2, $3, $4, $5, $6, $7, $8, $9)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.timestamp, data.admin]);
+            var foundAccount = [];
 
-            query.on('end', function() {
+            findAccount.on('row', function(row) {
+              foundAccount.push(row);
+            });
 
-              var incrementAmount = client.query('UPDATE apps SET amount = amount + 1 WHERE app_name = $1', [req.session.app_name]);
+            findAccount.on('end', function() {
 
-              res.send("OK");
+              if (foundAccount.length > 0) {
+
+                var data = {
+                  consumer_key: req.session.consumer_key,
+                  consumer_secret: req.session.consumer_secret,
+                  access_token: req.query.accessToken,
+                  access_token_secret: req.query.accessSecret
+                }
+
+                var updateAccount = client.query('UPDATE manualaccounts SET consumer_key = $1, consumer_secret = $2, access_token = $3, access_token_secret = $4', [data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret]);
+
+                var incrementAmount = client.query('UPDATE apps SET amount = amount + 1 WHERE app_name = $1', [req.session.app_name]);
+
+                res.send("OK");
+
+              } else {
+
+              var data = {
+                username: req.query.username,
+                email: null,
+                password: null,
+                consumer_key: req.session.consumer_key,
+                consumer_secret: req.session.consumer_secret,
+                access_token: req.query.accessToken,
+                access_token_secret: req.query.accessSecret,
+                timestamp: null,
+                admin: false
+              }
+
+              var query = client.query("INSERT INTO manualaccounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin) values($1, $2, $3, $4, $5, $6, $7, $8, $9)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.timestamp, data.admin]);
+
+              query.on('end', function() {
+
+                var incrementAmount = client.query('UPDATE apps SET amount = amount + 1 WHERE app_name = $1', [req.session.app_name]);
+
+                res.send("OK");
+
+              });
+
+              }
 
             });
 

@@ -384,10 +384,8 @@ module.exports = {
 													async.series([
 															function(callback) {
 																async.parallel([updateOne, updateTwo]);
-																callback();
-															},
-															function(callback) {
 																console.log("New Senders Added To Que: " + sender + " added to " + account.username);
+																callback();
 															}
 														],
 														function(error, data) {

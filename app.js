@@ -2087,7 +2087,7 @@ app.post('/api/v1/search-accounts', function(req, res) {
 
   var foundAccounts = [];
 
-  var query = client.query("SELECT * FROM manualaccounts WHERE username LIKE $1 ORDER BY username ASC", [username]);
+  var query = client.query("SELECT * FROM manualaccounts WHERE LOWER(username) LIKE LOWER($1) ORDER BY username ASC", [username]);
 
   query.on('row', function(row) {
 

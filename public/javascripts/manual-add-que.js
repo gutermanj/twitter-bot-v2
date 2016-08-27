@@ -697,6 +697,7 @@ function doneTyping () {
 
 			$('.js-manual-que-add').on('click', function() {
 			var username = $(this).data('username');
+			var dad_id = $('.js-new-que-username').val();
 			console.log(username);
 			var id = $(this).data('dad_id');
 			var sender = "Potato";
@@ -713,25 +714,21 @@ function doneTyping () {
 			showCurrentQue(username);
 
 			$('.js-remove-from-que').on('click', function() {
-					var username = $(this).data('username');
 					$(this).html('<span>Removed</span>')
 					removeFromQue(username, dad_id);
 			});
 
 			$('.js-remove-from-sent').on('click', function() {
-				var username = $(this).data('username');
 				$(this).html('<span>Removed</span>')
 				removeFromSent(username, dad_id);
 			});
 
 			$('.js-remove-from-lmkwd').on('click', function() {
-				var username = $(this).data('username');
 				$(this).html('<span>Removed</span>')
 				removeFromLmkwd(username, dad_id);
 			});
 
 			$('.js-remove-from-rts').on('click', function() {
-				var username = $(this).data('username');
 				$(this).html('<span>Removed</span>')
 				removeFromRts(username, dad_id);
 			});

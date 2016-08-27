@@ -2081,6 +2081,27 @@ app.post('/api/v1/toggle-account', requireAdmin, function(req, res) {
 
 });
 
+app.post('/api/v1/search-accounts', function(req, res) {
+
+  var username = "%" + req.body.username + "%";
+
+  var foundAccounts = [];
+
+  var query = client.query("SELECT * FROM manualaccounts WHERE username LIKE $1 ORDER BY username ASC", [username]);
+
+  query.on('row', function(row) {
+
+    foundAccounts.push(row);
+
+  });
+
+  query.on('end', function() {
+
+    res.json(foundAccounts);
+
+  });
+
+});
 
 
 

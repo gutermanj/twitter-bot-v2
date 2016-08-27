@@ -599,10 +599,132 @@ $('.js-delete-account').on('click', function() {
 	});
 });
 
+//setup before functions
+var typingTimer;                //timer identifier
+var doneTypingInterval = 250;  //time in ms, 5 second for example
+var $input = $('#search-input');
 
+//on keyup, start the countdown
+$input.on('keyup', function () {
+  clearTimeout(typingTimer);
+  typingTimer = setTimeout(doneTyping, doneTypingInterval);
+});
 
+//on keydown, clear the countdown 
+$input.on('keydown', function () {
+  clearTimeout(typingTimer);
+});
 
+//user is "finished typing," do something
+function doneTyping () {
 
+  	if ($input.val().length == 0) {
+  		var username = "";
+  	} else {
+  		var username = $input.val();
+  	}
+
+  	$.ajax({
+
+  		url: '/api/v1/search-accounts',
+
+  		type: 'POST',
+
+  		data: {
+
+  			username: username
+
+  		},
+
+  		success: function(response) {
+
+  			console.log(response);
+  			$('tbody').empty();
+
+  			response.forEach(function(account) {
+
+  				if (account.status) {
+  					if (account.active) {
+
+  						var html = `
+	  					<tr>
+	  						<td class='js-manual-que-add' data-username=${account.username} data-dad_id=${account.id} style='background-color: lightgreen;'>${account.username} <b class='pull-right'>Online</b></td>
+	  						<td>${account.total_trades}</td>
+	  					</tr>
+		  				`
+		  				$('.main-que').append(html);
+
+  					} else {
+
+  						var html = `
+	  					<tr>
+	  						<td class='js-manual-que-add' data-username=${account.username} data-dad_id=${account.id} style='background-color: lightgreen;'>${account.username} <b class='pull-right' style='color: darkred;'>Offline</b></td>
+	  						<td>${account.total_trades}</td>
+	  					</tr>
+		  				`
+		  				$('.main-que').append(html);
+
+  					}
+	   				
+	  				console.log("Printed");
+  				} else {
+  					if (account.active) {
+
+  						var html = `
+	  					<tr>
+	  						<td class='js-manual-que-add' data-username=${account.username} data-dad_id=${account.id} style='background-color: pink;'>${account.username}  <b class='pull-right'>Online</b></td>
+	  						<td>${account.total_trades}</td>
+	  					</tr>
+		  				`
+		  				$('.main-que').append(html);
+
+  					} else {
+
+  						var html = `
+	  					<tr>
+	  						<td class='js-manual-que-add' data-username=${account.username} data-dad_id=${account.id} style='background-color: pink;'>${account.username}  <b class='pull-right' style='color: darkred'>Online</b></td>
+	  						<td>${account.total_trades}</td>
+	  					</tr>
+		  				`
+		  				$('.main-que').append(html);
+
+  					}
+  					
+	  				console.log("Printed");
+  				}
+
+  			});
+
+			$('.js-manual-que-add').on('click', function() {
+			var username = $(this).data('username');
+			console.log(username);
+			var id = $(this).data('dad_id');
+			var sender = "Potato";
+			$('#show-new-que-modal').modal('toggle');
+			var input = `
+				<input value='${id}' class='js-new-que-username form-control'>
+				<br>
+				<h4>Account: ${username}</h4>
+				<hr>
+			`
+			$('.js-new-que-account-input').html(input);
+			$('.js-new-que-sender').val("");
+
+			showCurrentQue(username);
+
+	});
+
+  		},
+
+  		error: function(err) {
+
+  			console.log(err);
+
+  		}
+
+  	});
+
+}
 
 
 

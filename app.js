@@ -2051,8 +2051,6 @@ app.get('/create-account-db', function(req, res) {
 
                 var incrementAmount = client.query('UPDATE apps SET amount = amount + 1 WHERE app_name = $1', [req.session.app_name]);
 
-                res.send("OK");
-
               } else {
 
               var data = {

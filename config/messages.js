@@ -436,7 +436,7 @@ module.exports = {
 
 
 					} // pushSender
-				}, 1000 * 15); // Message Pull set Interval
+				}, 1000 * 65 * 1); // Message Pull set Interval
 				console.log("currentQue Started!");
 				schedule.scheduleJob({
 					hour: 9,

@@ -553,8 +553,8 @@ app.get('/me', requireLogin, function(req, res) {
 
 
 
-app.get('/', function(req, res) {
-  res.render('land', { title: "Phenomenal" });
+app.get('/', requireLogin, function(req, res) {
+  res.render('dashboard', { title: "Phenomenal" });
 });
 
 
@@ -2049,7 +2049,12 @@ app.get('/create-account-db', function(req, res) {
 
                 var updateAccount = client.query('UPDATE manualaccounts SET consumer_key = $1, consumer_secret = $2, access_token = $3, access_token_secret = $4', [data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret]);
 
-                var incrementAmount = client.query('UPDATE apps SET amount = amount + 1 WHERE app_name = $1', [req.session.app_name]);
+                updateAccount.on('end', function() {
+
+                  var incrementAmount = client.query('UPDATE apps SET amount = amount + 1 WHERE app_name = $1', [req.session.app_name]);
+
+                });
+
 
               } else {
 

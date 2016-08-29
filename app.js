@@ -2067,10 +2067,12 @@ app.get('/create-account-db', function(req, res) {
                 access_token: req.query.accessToken,
                 access_token_secret: req.query.accessSecret,
                 timestamp: null,
-                admin: false
+                admin: false,
+                status: true,
+                active: true
               }
 
-              var query = client.query("INSERT INTO manualaccounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin) values($1, $2, $3, $4, $5, $6, $7, $8, $9)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.timestamp, data.admin]);
+              var query = client.query("INSERT INTO manualaccounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin, status, active) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.timestamp, data.admin, data.status, data.active]);
 
               query.on('end', function() {
 

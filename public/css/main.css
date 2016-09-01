@@ -52,6 +52,12 @@ h5 {
 	margin-left:5px;
 }
 
+.mail {
+
+	height: 200px;
+	overflow-y: auto;
+
+}
 
 /***********BLOCKS & WRAPS***********/
 
@@ -401,7 +407,7 @@ digiclock {
 .framemail .window .mail li:after,
 .framemail .window .mail li:before {
     border-left: 8px solid transparent;
-    border-top: 8px solid #df6;
+    /*border-top: 8px solid #df6;*/
     content: '';
     height: 0;
     position: absolute;
@@ -418,7 +424,7 @@ digiclock {
     border: none;
 }
 .framemail .window .mail li:nth-child(2):after {
-    border-top-color: #fa1d2d;
+    /*border-top-color: #fa1d2d;*/
 }
 .framemail .window .mail li i {
     display: inline-block;
@@ -831,7 +837,91 @@ a:hover {
 	width:100%;
 	}
 
+.js-que-item {
+	padding: 10px;
+    -webkit-transition: background 0.2s;
+    -moz-transition: background 0.2s;
+    -ms-transition: background 0.2s;
+    -o-transition: background 0.2s;
+    transition: background 0.2s;
+}
 
+.js-que-item:hover {
+
+	background-color: #1d1d1d;
+
+}
+
+.js-lmkwd-item {
+	padding: 10px;
+    -webkit-transition: background 0.2s;
+    -moz-transition: background 0.2s;
+    -ms-transition: background 0.2s;
+    -o-transition: background 0.2s;
+    transition: background 0.2s;
+}
+
+.js-lmkwd-item:hover {
+
+	background-color: #1d1d1d;
+
+}
+
+.js-history-item {
+	padding: 10px;
+    -webkit-transition: background 0.2s;
+    -moz-transition: background 0.2s;
+    -ms-transition: background 0.2s;
+    -o-transition: background 0.2s;
+    transition: background 0.2s;
+}
+
+.js-history-item:hover {
+
+	background-color: #1d1d1d;
+
+}
+
+.js-sent-item {
+	padding: 10px;
+    -webkit-transition: background 0.2s;
+    -moz-transition: background 0.2s;
+    -ms-transition: background 0.2s;
+    -o-transition: background 0.2s;
+    transition: background 0.2s;
+}
+
+.js-sent-item:hover {
+
+	background-color: #1d1d1d;
+
+}
+
+.js-remove-from-que:hover {
+	cursor: pointer;
+}
+.js-remove-from-lmkwd:hover {
+	cursor: pointer;
+}
+.js-remove-from-history:hover {
+	cursor: pointer;
+}
+.js-remove-from-sent:hover {
+	cursor: pointer;
+}
+
+.js-delete-account {
+	cursor: pointer;
+}
+
+/* Important part */
+.modal-dialog{
+    overflow-y: initial !important
+}
+.modal-body{
+    height: 500px;
+    overflow-y: auto;
+}
 /**********Media Styles**********/   
 
 @media (max-width: 360px){

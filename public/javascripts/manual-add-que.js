@@ -1,21 +1,17 @@
 $(document).ready(function() {
 
-	$('.js-manual-que-add').on('click', function() {
+	$('.js-account').on('click', function() {
 		var username = $(this).data('username');
 		console.log(username);
-		var id = $(this).data('dad_id');
-		var sender = "Potato";
-		$('#show-new-que-modal').modal('toggle');
-		var input = `
-			<input value='${id}' class='js-new-que-username form-control'>
-			<br>
-			<h4>Account: ${username}</h4>
-			<hr>
-		`
-		$('.js-new-que-account-input').html(input);
-		$('.js-new-que-sender').val("");
+		var account_id = $(this).data('id');
 
-		showCurrentQue(username);
+		var accountInfo = `
+			<b>${username} | ${account_id}</b>
+		`
+
+		$('.modal-title').html(accountInfo);
+
+		showCurrentQue(username, account_id);
 
 	});
 
@@ -56,9 +52,9 @@ $(document).ready(function() {
 
 
 
-	function showCurrentQue(username, dad_id) {
+	function showCurrentQue(username, account_id) {
 		console.log(username);
-		console.log(dad_id);
+		console.log(account_id);
 
 		$.ajax({
 
@@ -68,13 +64,18 @@ $(document).ready(function() {
 
 			data: {
 				username: username,
-				dad_id: dad_id
+				dad_id: account_id
 			},
 
 			success: function(response) {
 				console.log(response);
 				var dad = response.username;
-				var dad_id = response.id;
+
+				var removeAccountHtml = `
+					<h4 style='color: darkred;' class='js-delete-account' data-id='${account_id}'>REMOVE ACCOUNT</h4>
+				`
+
+				$('.delete-account').html(removeAccountHtml);
 
 				$('.js-current-que').empty();
 				$('.js-current-history').empty();
@@ -86,11 +87,9 @@ $(document).ready(function() {
 					if (sender.qued) {
 
 						var html = `
-						<div class='js-que-parent'>
-							<b style='margin-left: 20px;'>${sender.sender}</b>
-							<span style='margin-left: 20px; cursor: pointer;' aria-hidden='true' class='js-remove-from-que' data-username='${sender.sender}'>x</span>
-							<hr style='width: 50%; margin-left: -0%;'>
-						</div>
+						<div class='js-que-item'>
+                    		<h5>${sender.sender} <i class='glyphicon glyphicon-remove-circle pull-right js-remove-from-que' style='color: gray;' data-username='${sender.sender}' data-id='${sender.account_id}'>  </i></h5>
+                  		</div>
 					`
 
 					$('.js-current-que').append(html);
@@ -100,11 +99,9 @@ $(document).ready(function() {
 
 				if (sender.sent) {
 					var html = `
-						<div class='js-que-parent'>
-							<b style='margin-left: 20px; color: lightgray;'>${sender.sender}</b>
-							<span style='margin-left: 20px; cursor: pointer;' aria-hidden='true' class='js-remove-from-sent' data-username='${sender.sender}'>x</span>
-							<hr style='width: 50%; margin-left: -0%;'>
-						</div>
+						<div class='js-sent-item'>
+                    		<h5>${sender.sender} <i class='glyphicon glyphicon-remove-circle pull-right js-remove-from-sent' style='color: gray;' data-username='${sender.sender}' data-id='${sender.account_id}'>  </i></h5>
+                  		</div>
 					`
 
 					$('.js-current-sent').append(html);
@@ -112,11 +109,9 @@ $(document).ready(function() {
 
 				if (sender.lmkwd) {
 					var html = `
-						<div class='js-que-parent'>
-							<b style='margin-left: 20px;'>${sender.sender}</b>
-							<span style='margin-left: 20px; cursor: pointer;' aria-hidden='true' class='js-remove-from-lmkwd' data-username='${sender.sender}'>x</span>
-							<hr style='width: 50%; margin-left: -0%;'>
-						</div>
+						<div class='js-lmkwd-item'>
+                    		<h5>${sender.sender} <i class='glyphicon glyphicon-remove-circle pull-right js-remove-from-lmkwd' style='color: gray;' data-username='${sender.sender}' data-id='${sender.account_id}'>  </i></h5>
+                  		</div>
 					`
 
 					$('.js-current-lmkwd').append(html);
@@ -124,40 +119,43 @@ $(document).ready(function() {
 
 				if (sender.history) {
 					var html = `
-						<div class='js-que-parent'>
-							<b style='margin-left: 20px;'>${sender.sender}</b>
-							<span style='margin-left: 20px; cursor: pointer;' aria-hidden='true' class='js-remove-from-rts' data-username='${sender.sender}'>x</span>
-							<hr style='width: 50%; margin-left: -0%;'>
-						</div>
+						<div class='js-history-item'>
+                    		<h5>${sender.sender} <i class='glyphicon glyphicon-remove-circle pull-right js-remove-from-history' style='color: gray;' data-username='${sender.sender}' data-id='${sender.account_id}'>  </i></h5>
+                  		</div>
 					`
 
 					$('.js-current-history').append(html);
 				}
 
+
+
+
+
 				});
+
 
 				$('.js-remove-from-que').on('click', function() {
 					var username = $(this).data('username');
-					$(this).html('<span>Removed</span>')
-					removeFromQue(username, dad_id);
+					$(this).parent().parent().fadeOut('slow');
+					removeFromQue(username, account_id);
 				});
 
 				$('.js-remove-from-sent').on('click', function() {
 					var username = $(this).data('username');
-					$(this).html('<span>Removed</span>')
-					removeFromSent(username, dad_id);
+					$(this).parent().parent().fadeOut('slow');
+					removeFromSent(username, account_id);
 				});
 
 				$('.js-remove-from-lmkwd').on('click', function() {
 					var username = $(this).data('username');
-					$(this).html('<span>Removed</span>')
-					removeFromLmkwd(username, dad_id);
+					$(this).parent().parent().fadeOut('slow');
+					removeFromLmkwd(username, account_id);
 				});
 
 				$('.js-remove-from-rts').on('click', function() {
 					var username = $(this).data('username');
-					$(this).html('<span>Removed</span>')
-					removeFromRts(username, dad_id);
+					$(this).parent().parent().fadeOut('slow');
+					removeFromRts(username, account_id);
 				});
 
 			},
@@ -234,7 +232,7 @@ $(document).ready(function() {
 
 	});
 
-	function removeFromQue(username, dad_id) {
+	function removeFromQue(username, account_id) {
 
 		var dad_id = $('.js-new-que-username').val();
 
@@ -247,7 +245,7 @@ $(document).ready(function() {
 
 			data: {
 				username: username,
-				dad_id: dad_id
+				dad_id: account_id
 			},
 
 			success: function(response) {
@@ -262,7 +260,7 @@ $(document).ready(function() {
 
 	}
 
-		function removeFromLmkwd(username, dad_id) {
+		function removeFromLmkwd(username, account_id) {
 		
 			console.log(username);
 			var dad_id = $('.js-new-que-username').val();
@@ -275,7 +273,7 @@ $(document).ready(function() {
 
 			data: {
 				username: username,
-				dad_id: dad_id
+				dad_id: account_id
 			},
 
 			success: function(response) {
@@ -290,9 +288,10 @@ $(document).ready(function() {
 
 	}
 
-	function removeFromSent(username, dad_id) {
+	function removeFromSent(username, account_id) {
 
-		var dad_id = $('.js-new-que-username').val();
+
+		console.log(account_id);
 
 		
 		$.ajax({
@@ -303,7 +302,7 @@ $(document).ready(function() {
 
 			data: {
 				username: username,
-				dad_id: dad_id
+				dad_id: account_id
 			},
 
 			success: function(response) {
@@ -318,7 +317,7 @@ $(document).ready(function() {
 
 	}
 
-	function removeFromRts(username, dad_id) {
+	function removeFromRts(username, account_id) {
 
 		var dad_id = $('.js-new-que-username').val();
 
@@ -331,7 +330,7 @@ $(document).ready(function() {
 
 			data: {
 				username: username,
-				dad_id: dad_id
+				dad_id: account_id
 			},
 
 			success: function(response) {
@@ -655,7 +654,7 @@ function doneTyping () {
   		success: function(response) {
 
   			console.log(response);
-  			$('tbody').empty();
+  			$('.mail').empty();
 
   			response.forEach(function(account) {
 
@@ -663,22 +662,24 @@ function doneTyping () {
   					if (account.active) {
 
   						var html = `
-	  					<tr>
-	  						<td class='js-manual-que-add' data-username=${account.username} data-dad_id=${account.id} style='background-color: lightgreen;'>${account.username} <b class='pull-right'>Online</b></td>
-	  						<td>${account.total_trades}</td>
-	  					</tr>
+	  					<li data-toggle="modal" href='#myModal' data-id='${account.id}' data-username='${account.username}' class='js-account'>
+	  						<i class="unread"></i>
+	  						<p class="sender">${account.username}</p>
+	  						<p class="message"><strong>Active</strong></p>
+	  					</li>
 		  				`
-		  				$('.main-que').append(html);
+		  				$('.mail').append(html);
 
   					} else {
 
   						var html = `
-	  					<tr>
-	  						<td class='js-manual-que-add' data-username=${account.username} data-dad_id=${account.id} style='background-color: lightgreen;'>${account.username} <b class='pull-right' style='color: darkred;'>Offline</b></td>
-	  						<td>${account.total_trades}</td>
-	  					</tr>
+	  					<li data-toggle="modal" href='#myModal' data-id='${account.id}' data-username='${account.username}' class='js-account'>
+	  						<i class="unread"></i>
+	  						<p class="sender">${account.username}</p>
+	  						<p class="message"><strong>Active</strong></p>
+	  					</li>
 		  				`
-		  				$('.main-que').append(html);
+		  				$('.mail').append(html);
 
   					}
 	   				
@@ -687,22 +688,24 @@ function doneTyping () {
   					if (account.active) {
 
   						var html = `
-	  					<tr>
-	  						<td class='js-manual-que-add' data-username=${account.username} data-dad_id=${account.id} style='background-color: pink;'>${account.username}  <b class='pull-right'>Online</b></td>
-	  						<td>${account.total_trades}</td>
-	  					</tr>
+	  					<li data-toggle="modal" href='#myModal' data-id='${account.id}' data-username='${account.username}' class='js-account'>
+	  						<i class="unread" style="background-color: darkred;"></i>
+	  						<p class="sender">${account.username}</p>
+	  						<p class="message"><strong>Active</strong></p>
+	  					</li>
 		  				`
-		  				$('.main-que').append(html);
+		  				$('.mail').append(html);
 
   					} else {
 
   						var html = `
-	  					<tr>
-	  						<td class='js-manual-que-add' data-username=${account.username} data-dad_id=${account.id} style='background-color: pink;'>${account.username}  <b class='pull-right' style='color: darkred'>Online</b></td>
-	  						<td>${account.total_trades}</td>
-	  					</tr>
+	  					<li data-toggle="modal" href='#myModal' data-id='${account.id}' data-username='${account.username}' class='js-account'>
+	  						<i class="unread" style="background-color: darkred;"></i>
+	  						<p class="sender">${account.username}</p>
+	  						<p class="message"><strong>Disabled</strong></p>
+	  					</li>
 		  				`
-		  				$('.main-que').append(html);
+		  				$('.mail').append(html);
 
   					}
   					
@@ -711,45 +714,40 @@ function doneTyping () {
 
   			});
 
-			$('.js-manual-que-add').on('click', function() {
+			$('.js-account').on('click', function() {
 			var username = $(this).data('username');
-			var dad_id = $('.js-new-que-username').val();
 			console.log(username);
-			var id = $(this).data('dad_id');
+			var account_id = $(this).data('id');
 
-			$('#show-new-que-modal').modal('toggle');
-			var input = `
-				<input value='${id}' class='js-new-que-username form-control'>
-				<br>
-				<h4>Account: ${username}</h4>
-				<hr>
+			var accountInfo = `
+				<b>${username} | ${account_id}</b>
 			`
-			$('.js-new-que-account-input').html(input);
-			$('.js-new-que-sender').val("");
 
-			showCurrentQue(username, dad_id);
+			$('.modal-title').html(accountInfo);
 
-			// $('.js-remove-from-que').on('click', function() {
-			// 		$(this).html('<span>Removed</span>')
-			// 		removeFromQue(username, dad_id);
-			// });
+			showCurrentQue(username, account_id);
 
-			// $('.js-remove-from-sent').on('click', function() {
-			// 	$(this).html('<span>Removed</span>')
-			// 	removeFromSent(username, dad_id);
-			// });
+			});
 
-			// $('.js-remove-from-lmkwd').on('click', function() {
-			// 	$(this).html('<span>Removed</span>')
-			// 	removeFromLmkwd(username, dad_id);
-			// });
+			$('.js-remove-from-que').on('click', function() {
+				$(this).html('<span>Removed</span>')
+				removeFromQue(username, account_id);
+			});
 
-			// $('.js-remove-from-rts').on('click', function() {
-			// 	$(this).html('<span>Removed</span>')
-			// 	removeFromRts(username, dad_id);
-			// });
+			$('.js-remove-from-sent').on('click', function() {
+				$(this).html('<span>Removed</span>')
+				removeFromSent(username, account_id);
+			});
 
-	});
+			$('.js-remove-from-lmkwd').on('click', function() {
+				$(this).html('<span>Removed</span>')
+				removeFromLmkwd(username, account_id);
+			});
+
+			$('.js-remove-from-rts').on('click', function() {
+				$(this).html('<span>Removed</span>')
+				removeFromRts(username, account_id);
+			});
 
   		},
 
@@ -764,8 +762,12 @@ function doneTyping () {
 }
 
 
-
-
+$('.js-delete-account').click(function(e) {
+    e.preventDefault();
+    if (window.confirm("Are you sure?")) {
+        console.log("DELETED");
+    }
+});
 
 
 

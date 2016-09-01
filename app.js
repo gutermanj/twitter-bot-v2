@@ -179,7 +179,6 @@ app.use(function(req, res, next){
 });
 
 
-
 // Current Time, can be used for Timestamps
 
   var date = new Date();
@@ -212,7 +211,8 @@ app.use(function(req, res, next){
 
 
 
-messages.read(true);
+// messages.read(true);
+// ******** REMOVED FOR DEVELOPMENT OF ADMIN DASH **********
 
 // --------------- Mostly Routes ---------------------
 
@@ -415,7 +415,7 @@ app.post('/newaccount/manual', requireAdmin, function(req, res) {
 // Signin route
 app.get('/signin', function(req, res) {
   if(!req.session.user) {
-    res.render('signin');
+    res.render('signin.jade');
   } else if (req.session.user.admin) {
     res.redirect('/dashboard');
   } else {
@@ -482,7 +482,7 @@ app.get('/admin/signin', function(req, res) {
   if (req.session.user) {
     res.redirect('/dashboard');
   }   else {
-    res.render('admin-signin');
+    res.render('admin-signin.jade');
   }
 
 });
@@ -553,18 +553,34 @@ app.get('/me', requireLogin, function(req, res) {
 
 
 
-app.get('/', requireLogin, function(req, res) {
-  res.render('dashboard', { title: "Phenomenal" });
-});
-
 
 // Dashboard route
-app.get('/dashboard-old', requireLogin, requireAdmin, function(req, res, next) {
+app.get('/', requireLogin, requireAdmin, function(req, res, next) {
+
+    
+
+    var lastTrade = [];
+
+    var getLastTrade = client.query('SELECT * FROM last_trade');
+
+    getLastTrade.on('row', function(row) {
+      lastTrade.push(row);
+    });
+
+    getLastTrade.on('end', function() {
+
+      var lastTradeClean = lastTrade[0].hour + " : " + lastTrade[0].minute;
+
+      res.locals.lastTrade = lastTradeClean;
+
+
+    });
 
     // Get some info for the charts
     var userCount = [];
     var accountCount = [];
     var manualAccountCount = [];
+    var DisabledAccountCount = [];
     var allLmkwdNotifications = []
 
     
@@ -628,15 +644,23 @@ app.get('/dashboard-old', requireLogin, requireAdmin, function(req, res, next) {
         }
 
         function manualAccountsQuery() {
-           var manualAccounts = client.query("SELECT COUNT(*) FROM manualaccounts");
+           var manualAccounts = client.query("SELECT COUNT(*) FROM manualaccounts WHERE status = 'true'");
+           var disabledAccounts = client.query("SELECT COUNT(*) FROM manualaccounts WHERE status = 'false'");
 
           manualAccounts.on('row', function(row) {
             manualAccountCount.push(row);
           });
 
+          disabledAccounts.on('row', function(row) {
+            DisabledAccountCount.push(row);
+          });
+
+          disabledAccounts.on('end', function(row) {
+            res.locals.DisabledAccountCount = DisabledAccountCount[0];
+          });
+
           manualAccounts.on('end', function() {
-            res.locals.manualAccountCount = manualAccountCount[0];
-            res.locals.lmkwd = allLmkwdNotifications;
+            res.locals.ActiveAccountCount = manualAccountCount[0];
             eachManualAccountQuery();
           });
         }
@@ -648,6 +672,8 @@ app.get('/dashboard-old', requireLogin, requireAdmin, function(req, res, next) {
 
       var allManualAccounts = [];
 
+      var total_trade_count = 0;
+
       var getAccounts = client.query('SELECT * FROM manualaccounts ORDER BY username ASC');
 
       getAccounts.on('row', function(row) {
@@ -656,7 +682,15 @@ app.get('/dashboard-old', requireLogin, requireAdmin, function(req, res, next) {
 
       getAccounts.on('end', function() {
           res.locals.manAccounts = allManualAccounts;
-          res.render('index');
+
+          allManualAccounts.forEach(function(account) {
+
+            total_trade_count = total_trade_count + account.total_trades;
+
+          });
+
+          res.locals.totalTrades = total_trade_count;
+          res.render('admin');
 
       });
 
@@ -666,17 +700,12 @@ app.get('/dashboard-old', requireLogin, requireAdmin, function(req, res, next) {
     // });
     
 
-
   res.locals.user = req.session.user;
   
 
 });
 
-app.get('/dashboard', function(req, res) {
 
-  res.render('admin', { title: 'Twitter Market | V2' })
-
-});
 
 
 // Charts route

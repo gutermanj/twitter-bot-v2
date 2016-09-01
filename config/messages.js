@@ -928,6 +928,17 @@ module.exports = {
 
 				// Start the actual trade with each account
 				function initiateTrade(account, currentTrader) {
+
+					var date = new Date();
+		            var current_hour = date.getHours();
+		            var current_minute = date.getMinutes();
+		            var current_second = Math.abs(date.getSeconds());
+
+		            var hmcombination = current_hour + ":" + current_minute + ":" + current_second;
+		            console.log(hmcombination);
+
+					var updateLastTrade = client.query('UPDATE last_trade SET hour = $1, minute = $2, second = $3', [current_hour, current_minute, current_second]);
+
 					console.log("Iniated Trade for account: ", account.username);
 					var twitterClient = new Twitter({
 						consumer_key: mainConsumerKey,

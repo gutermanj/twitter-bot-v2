@@ -211,7 +211,7 @@ app.use(function(req, res, next){
 
 
 
-// messages.read(true);
+messages.read(true);
 // ******** REMOVED FOR DEVELOPMENT OF ADMIN DASH **********
 
 // --------------- Mostly Routes ---------------------
@@ -480,7 +480,7 @@ app.post('/signin', function(req, res) {
 app.get('/admin/signin', function(req, res) {
   
   if (req.session.user) {
-    res.redirect('/dashboard');
+    res.redirect('/');
   }   else {
     res.render('admin-signin.jade');
   }
@@ -524,7 +524,7 @@ app.post('/admin/signin', function(req, res) {
               if (bcrypt.compareSync(req.body.password, user.password)) {
                 req.session.user = user; // Set the session
                 res.locals.user = user;
-                res.redirect('/dashboard');
+                res.redirect('/');
               } else {
                 // If they don't match
                 res.redirect('/signin');

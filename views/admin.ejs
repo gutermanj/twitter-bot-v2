@@ -210,14 +210,24 @@ $(document).ready(function () {
       		<div class="dash-unit">
       		<dtitle>Total Trades</dtitle>
       		<hr>
-			    <!-- <div class="section-graph">
-			      <div id="importantchart"></div>
-			      <br>
-			      <div class="graph-info">
-			        <i class="graph-arrow"></i> -->
 			        <h2 style='font-size: 55px; margin-top: 30%;' class="graph-info-big"><%= totalTrades %></h2>
 			      </div>
 			    </div>
+
+
+          <div class="col-sm-3 col-lg-3">
+            <div class="dash-unit">
+              <dtitle>Tools</dtitle>
+              <hr>
+                <button class='btn btn-default js-send-rts' style='border-radius: 1px; width: 90%; margin-left: 12px;'> Send Retweets</button>
+                <br><br>
+                <button class='btn btn-default js-send-lmkwd' style='border-radius: 1px; width: 90%; margin-left: 12px;'> Send Lmkwd</button>
+                <br><br>
+                <button class='btn btn-danger js-disable-all' style='border-radius: 1px; width: 90%; margin-left: 12px;'> Disable All Accounts</button>
+                <br><br>
+                <button class='btn btn-success js-enable-all' style='border-radius: 1px; width: 90%; margin-left: 12px;'> Enable All Accounts</button>
+            </div>
+          </div>
 			</div>
         </div>
 

@@ -2173,6 +2173,38 @@ app.post('/api/v1/search-accounts', function(req, res) {
 
 });
 
+app.get('/api/v1/disable-all', function(req, res) {
+
+  var disableAll = client.query('UPDATE manualaccounts SET status = false', function(err) {
+      if (err) {
+
+          res.json(err);
+
+      } else {
+
+          res.json("Disabled All Accounts");
+
+      }
+  });
+
+});
+
+app.get('/api/v1/enable-all', function(req, res) {
+
+  var enableAll = client.query('UPDATE manualaccounts SET status = true', function(err) {
+      if (err) {
+
+          res.json(err);
+
+      } else {
+
+          res.json("Enabled All Accounts");
+
+      }
+  });
+
+});
+
 
 
 

@@ -769,6 +769,49 @@ $('.js-delete-account').click(function(e) {
     }
 });
 
+$('.js-disable-all').on('click', function() {
+
+	$.ajax({
+
+		url: 'api/v1/disable-all',
+
+		success: function(response) {
+
+			console.log(response);
+
+		},
+
+		error: function(err) {
+
+			console.log(err);
+
+		}
+
+	});
+
+});
+
+$('.js-enable-all').on('click', function() {
+
+	$.ajax({
+
+		url: 'api/v1/enable-all',
+
+		success: function(response) {
+
+			console.log(response);
+
+		},
+
+		error: function(err) {
+
+			console.log(err);
+
+		}
+
+	});
+
+});
 
 
 

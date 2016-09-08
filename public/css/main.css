@@ -72,6 +72,11 @@ h5 {
 	height:290px;
 }
 
+.main-tools {
+	overflow-y: auto;
+	height: 230px;
+}
+
 .dash-unit:hover {
 	background-color: #4f4f4f;
 	-moz-box-shadow:    3px 3px 2px 0px #151515;

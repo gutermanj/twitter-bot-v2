@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <title>Twitter Bot | Dashboard</title>
+    <!-- Bootstrap Core CSS-->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet"/>
+    <!-- Custom CSS-->
+    <link href="stylesheets/sb-admin.css" rel="stylesheet"/>
+    <!-- Morris Charts CSS-->
+    <link href="stylesheets/plugins/morris.css" rel="stylesheet"/>
+    <!-- Custom Fonts-->
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet"/>
+    <link href="stylesheets/bootstrap-switch.min.css" rel="stylesheet"/>
+    <!-- My Styles-->
+    <link href="stylesheets/index-style.css" rel="stylesheet"/>
+  </head>
+  <body>
+    <div style="margin-left: 25%;" class="col-sm-6">
+      <div role="document" class="modal-dialog"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 id="myModalLabel" class="modal-title">Add an Account</h4>
+        </div>
+        <div class="modal-body">
+          <div class="js-new-que-form"><br/>
+            <label>Username</label>
+            <input class="js-username form-control"/><br/>
+            <label>Access Token</label>
+            <input disabled="disabled" class="js-access-token form-control"/><br/>
+            <label>Access Secret</label>
+            <input disabled="disabled" class="js-access-secret form-control"/>
+          </div>
+        </div>
+        <div class="modal-footer"><a type="button" href="/dashboard" class="btn btn-danger">Back</a><a type="button" href="/dashboard" class="btn btn-primary js-create-account">Create</a></div>
+      </div>
+    </div>
+  </body>
+  <script src="javascripts/jquery.js"></script>
+  <script src="javascripts/create-account.js"></script>
+</html>

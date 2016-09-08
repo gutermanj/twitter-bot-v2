@@ -2051,6 +2051,9 @@ app.get('/create-account', function(req, res) {
     var latestAccessToken = req.session.latestAccessToken;
     var latestAccessSecret = req.session.latestAccessSecret;
 
+    console.log(latestAccessSecret);
+    console.log(latestAccessToken);
+
     res.locals.latestAccessToken = latestAccessToken;
     res.locals.latestAccessSecret = latestAccessSecret;
 

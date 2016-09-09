@@ -2086,7 +2086,7 @@ app.get('/create-account-db', function(req, res) {
                   access_token_secret: req.query.accessSecret
                 }
 
-                var updateAccount = client.query('UPDATE manualaccounts SET consumer_key = $1, consumer_secret = $2, access_token = $3, access_token_secret = $4', [data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret]);
+                var updateAccount = client.query('UPDATE manualaccounts SET consumer_key = $1, consumer_secret = $2, access_token = $3, access_token_secret = $4 where username = $5', [data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, req.query.username]);
 
                 updateAccount.on('end', function() {
 

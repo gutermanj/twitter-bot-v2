@@ -1999,8 +1999,8 @@ app.get('/request-token', function(req, res) {
                   req.session.consumer_secret = availableApps[0].consumer_secret;
                   res.redirect("https://api.twitter.com/oauth/authenticate?oauth_token=" + requestToken);
 
-                  console.log(availableApps[0].consumer_key);
-                  console.log(availableApps[0].consumer_secret);
+                  console.log("Consumer Key: " + availableApps[0].consumer_key);
+                  console.log("Consumer Secret: " + availableApps[0].consumer_secret);
           }
 
         });
@@ -2064,8 +2064,6 @@ app.get('/create-account', function(req, res) {
 
 });
 
-var mainConsumerKey = 'DRVRY2btjcAPSxfioHtZvMI7H';
-var mainConsumerSecret = 'P6S6ryN0DiXYUotQtaPKZjWn7eWDFBypY0YQ4dPMZCxcMwdWAP';
 
 app.get('/create-account-db', function(req, res) {
    

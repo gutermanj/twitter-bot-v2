@@ -1998,6 +1998,9 @@ app.get('/request-token', function(req, res) {
                   req.session.consumer_key = availableApps[0].consumer_key;
                   req.session.consumer_secret = availableApps[0].consumer_secret;
                   res.redirect("https://api.twitter.com/oauth/authenticate?oauth_token=" + requestToken);
+
+                  console.log(availableApps[0].consumer_key);
+                  console.log(availableApps[0].consumer_secret);
           }
 
         });

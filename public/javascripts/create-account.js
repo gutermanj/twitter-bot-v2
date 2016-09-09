@@ -8,6 +8,8 @@ $('.js-create-account').on('click', function() {
 
 		url: '/create-account-db',
 
+		type: 'POST',
+
 		data: {
 			username: username,
 			accessToken: accessToken,

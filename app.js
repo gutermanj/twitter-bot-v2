@@ -2065,7 +2065,7 @@ app.get('/create-account', function(req, res) {
 });
 
 
-app.get('/create-account-db', function(req, res) {
+app.post('/create-account-db', function(req, res) {
    
             var findAccount = client.query('select * from manualaccounts where username = $1', [req.query.username]);
 

@@ -749,6 +749,32 @@ function doneTyping () {
 				removeFromRts(username, account_id);
 			});
 
+			$('.js-delete-account').on('click', function() {
+			var id = $('.js-new-que-username').val();
+			console.log(id);
+			
+				$.ajax({
+					
+					url: '/api/v1/delete-account',
+					
+					type: 'POST',
+					
+					data: {
+						username: id
+					},
+					
+					success: function(response) {
+						console.log(response);
+					},
+					
+					error: function(err) {
+						console.log(err);
+					}
+					
+				});
+				
+			});
+
   		},
 
   		error: function(err) {

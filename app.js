@@ -2067,10 +2067,7 @@ app.get('/create-account', function(req, res) {
 
 app.post('/create-account-db', function(req, res) {
 
-            console.log(req.query.username);
-            console.log(req.body.username);
-   
-            var findAccount = client.query('select * from manualaccounts where username = $1', [req.query.username]);
+            var findAccount = client.query('select * from manualaccounts where username = $1', [req.body.username]);
 
             var foundAccount = [];
 
@@ -2104,13 +2101,13 @@ app.post('/create-account-db', function(req, res) {
               } else {
 
               var data = {
-                username: req.query.username,
+                username: req.body.username,
                 email: null,
                 password: null,
                 consumer_key: req.session.consumer_key,
                 consumer_secret: req.session.consumer_secret,
-                access_token: req.query.accessToken,
-                access_token_secret: req.query.accessSecret,
+                access_token: req.body.accessToken,
+                access_token_secret: req.body.accessSecret,
                 timestamp: null,
                 admin: false,
                 status: true,

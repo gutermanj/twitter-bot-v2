@@ -10,11 +10,12 @@ var Twit = require('twit');
 var Twitter = require('twitter');
 var TwitterLogin = require('node-twitter-api');
 var flash = require('connect-flash');
+var storage = require('node-persist');
 var manual = require('./config/manual.js'); // Include manual config file 
 var messages = require('./config/messages.js');
 var mongodb = require("mongodb");
 
-
+storage.initSync();
 
 // Database configuration
 var pg = require('pg');
@@ -54,21 +55,6 @@ client.connect(function(err, db) {
     console.log('Connected to db, sweeeet!');
   }
 });
-
-MongoClient.connect(url, function (err, db) {
-  if (err) {
-    console.log('Unable to connect to the mongoDB server. Error:', err);
-  } else {
-    //HURRAY!! We are connected. :)
-    console.log('Connection established to', url);
-
-    // do some work here with the database.
-
-    //Close connection
-    db.close();
-  }
-});
-
 
 
 var session = require('express-session');
@@ -213,6 +199,10 @@ app.use(function(req, res, next){
 
 messages.read(true);
 // ******** REMOVED FOR DEVELOPMENT OF ADMIN DASH **********
+
+
+
+
 
 // --------------- Mostly Routes ---------------------
 
@@ -2278,31 +2268,12 @@ app.get('/api/v1/enable-all', function(req, res) {
 
 
 
-
-// ---------------------------------------------------------------------
-// END SQL FUNCTIONS that I might need sometimes
-
-
 // TEST AREA ------------------------------------------------------------------------------------------------
 
 
 
-          // T.get('direct_messages', { count: 3 }, function(err, messages, response) {
-          //   if (err) {
-          //     console.log("direct_messages", err);
-          //   } else {
-          //     console.log("Pulled Direct Messages...");
-          //     messages.forEach(function(message) {
-                
-          //       console.log(message);
 
-          //     });
-          //   }
-          // }); // client.get
-
-
-
-// // TEST AREA -----------------------------------------END-------------------------------------------------------
+// TEST AREA -----------------------------------------END-------------------------------------------------------
 
 
 // NOTES

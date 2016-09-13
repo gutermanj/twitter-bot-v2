@@ -13,10 +13,9 @@ var url = 'mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13'
 var history = [];
 var running = false;
 var mongoPool = require('./mongo-pool.js');
+var storage = require('node-persist');
+storage.init();
 
-
-var mainConsumerKey = 'DRVRY2btjcAPSxfioHtZvMI7H';
-var mainConsumerSecret = 'P6S6ryN0DiXYUotQtaPKZjWn7eWDFBypY0YQ4dPMZCxcMwdWAP';
 
 // var twitterAuthClient = new TwitterLogin({
 //     consumerKey: account.consumer_key,
@@ -113,8 +112,8 @@ module.exports = {
 					function pullMessages() {
 						accounts.forEach(function(account) {
 							var twitterClient = new Twitter({
-								consumer_key: mainConsumerKey,
-								consumer_secret: mainConsumerSecret,
+								consumer_key: account.consumer_key,
+								consumer_secret: account.consumer_secret,
 								access_token_key: account.access_token,
 								access_token_secret: account.access_token_secret,
 								timeout_ms: 60 * 1000
@@ -346,8 +345,8 @@ module.exports = {
 
 											if (foundAccount[0].lmkwd) {
 												// var twitterClient = new Twitter ({
-												//  			consumer_key: mainConsumerKey,
-												//  			consumer_secret: mainConsumerSecret,
+												//  			consumer_key: account.consumer_key,
+												//  			consumer_secret: account.consumer_secret,
 												//  			access_token_key: account.access_token,
 												//  			access_token_secret: account.access_token_secret,
 												//  			timeout_ms: 60 * 1000
@@ -538,7 +537,42 @@ module.exports = {
 
 												if (account.active) {
 
-													initiateTrade(account, currentTrader);
+													var openTweets = [];
+
+													var pullOpenTweets = client.query('SELECT * FROM opentrades WHERE account_id = $1', [account.id]);
+
+													pullOpenTweets.on('row', function(row) {
+
+														openTweets.push(row);
+
+													});
+
+													pullOpenTweets.on('end', function() {
+
+														openTweets.forEach(function(openTweet) {
+
+															twitterClient.post('statuses/destroy/' + openTweet.trade_id,
+																function(err, tweet, response) {
+
+																if (err) {
+																	console.log("statuses/destroy: ", err);
+
+																	console.log("Status Already Cleared.");
+
+																} else {
+																	console.log("Cleared Status.");
+																}
+
+																var removeOpenTrade = client.query('DELETE FROM opentrades WHERE account_id = $1 AND trade_id = $2', [openTweet.account_id, openTweet.trade_id]);
+
+															});
+
+														});
+
+														// After tweets are cleared, initiate the trade...
+														initiateTrade(account, currentTrader);
+
+													});
 
 												}
 											}
@@ -655,8 +689,8 @@ module.exports = {
 						// At 7 AM, message the history lists with 'rts'
 						accounts.forEach(function(account) {
 							var twitterClient = new Twitter({
-								consumer_key: mainConsumerKey,
-								consumer_secret: mainConsumerSecret,
+								consumer_key: account.consumer_key,
+								consumer_secret: account.consumer_secret,
 								access_token_key: account.access_token,
 								access_token_secret: account.access_token_secret,
 								timeout_ms: 60 * 1000
@@ -753,8 +787,8 @@ module.exports = {
 						// At 7 AM, message the history lists with 'rts'
 						accounts.forEach(function(account) {
 							var twitterClient = new Twitter({
-								consumer_key: mainConsumerKey,
-								consumer_secret: mainConsumerSecret,
+								consumer_key: account.consumer_key,
+								consumer_secret: account.consumer_secret,
 								access_token_key: account.access_token,
 								access_token_secret: account.access_token_secret,
 								timeout_ms: 60 * 1000
@@ -849,8 +883,8 @@ module.exports = {
 						// At 7 AM, message the history lists with 'rts'
 						accounts.forEach(function(account) {
 							var twitterClient = new Twitter({
-								consumer_key: mainConsumerKey,
-								consumer_secret: mainConsumerSecret,
+								consumer_key: account.consumer_key,
+								consumer_secret: account.consumer_secret,
 								access_token_key: account.access_token,
 								access_token_secret: account.access_token_secret,
 								timeout_ms: 60 * 1000
@@ -941,8 +975,8 @@ module.exports = {
 
 					console.log("Iniated Trade for account: ", account.username);
 					var twitterClient = new Twitter({
-						consumer_key: mainConsumerKey,
-						consumer_secret: mainConsumerSecret,
+						consumer_key: account.consumer_key,
+						consumer_secret: account.consumer_secret,
 						access_token_key: account.access_token,
 						access_token_secret: account.access_token_secret,
 						timeout_ms: 60 * 1000
@@ -962,6 +996,9 @@ module.exports = {
 						account.access_token,
 						account.access_token_secret,
 						function(err, tweets, response) {
+
+
+						// Pul storage here	
 
 						if (err) {
 							console.log("Favorites/list: ", err);
@@ -984,6 +1021,7 @@ module.exports = {
 							});
 							if (foo !== 3) {
 								if (currentTrader.outbound === false) {
+
 									var messageParams = {
 										screen_name: 'sirbryanthewise',
 										text: "Missing Favs - " + currentTrader.sender + " removed from que: " + account.username
@@ -1000,6 +1038,7 @@ module.exports = {
 											console.log("Missing Favs - " + currentTrader.sender + " removed from que: " + account.username);
 										}
 									});
+
 								}
 
 								console.log("Not enough Favs");
@@ -1092,7 +1131,11 @@ module.exports = {
 											} 
 
 											console.log("Retweet Complete.");
+
 											var greenStatus = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [true, account.username]);
+
+											var addTrades = client.query('INSERT INTO opentrades (account_id, trade_id) VALUES ($1, $2)', [account.id, tweet.id_str]);
+
 
 											// Start coutdown to undo the trade
 											setTimeout(function() {
@@ -1229,8 +1272,8 @@ module.exports = {
 			function messageThem(pgAccount, presentLmkwd) {
 				var account = pgAccount[0];
 				var client = new Twitter({
-					consumer_key: mainConsumerKey,
-					consumer_secret: mainConsumerSecret,
+					consumer_key: account.consumer_key,
+					consumer_secret: account.consumer_secret,
 					access_token_key: account.access_token,
 					access_token_secret: account.access_token_secret,
 					timeout_ms: 60 * 1000
@@ -1458,6 +1501,7 @@ module.exports = {
 				});
 
 			}
+
 		}); // Postgres Pool!
 
 		} // read: function()

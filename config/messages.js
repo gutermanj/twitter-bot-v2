@@ -551,6 +551,15 @@ module.exports = {
 
 														openTweets.forEach(function(openTweet) {
 
+															var twitterClient = new Twitter({
+
+																consumer_key: account.consumer_key,
+																consumer_secret: account.consumer_secret,
+																access_token_key: account.access_token,
+																access_token_secret: account.access_token_secret
+
+															});
+
 															twitterClient.post('statuses/destroy/' + openTweet.trade_id,
 																function(err, tweet, response) {
 

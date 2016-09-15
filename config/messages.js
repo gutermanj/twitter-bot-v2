@@ -567,12 +567,12 @@ module.exports = {
 																	console.log("statuses/destroy: ", err);
 
 																	console.log("Status Already Cleared.");
+																	var removeOpenTrade = client.query('DELETE FROM opentrades WHERE account_id = $1 AND trade_id = $2', [openTweet.account_id, openTweet.trade_id]);
 
 																} else {
 																	console.log("Cleared Status.");
+																	var removeOpenTrade = client.query('DELETE FROM opentrades WHERE account_id = $1 AND trade_id = $2', [openTweet.account_id, openTweet.trade_id]);
 																}
-
-																var removeOpenTrade = client.query('DELETE FROM opentrades WHERE account_id = $1 AND trade_id = $2', [openTweet.account_id, openTweet.trade_id]);
 
 															});
 

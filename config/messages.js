@@ -584,8 +584,6 @@ module.exports = {
 									});
 
 								});
-
-							done();
 						});
 					// End postgres query
 					// called when pg query is done

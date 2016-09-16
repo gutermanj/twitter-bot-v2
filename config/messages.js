@@ -495,12 +495,6 @@ module.exports = {
 					var accounts = [];
 					// Get a Postgres client from the connection pool
 					// I have this here because Node said accounts was not defined... even though it was.
-					pg.connect(connectionString, function(err, client, done) {
-						// Handle connection errors
-						if (err) {
-							done();
-							console.log(err);
-						}
 						// SQL Query > Last account created
 						var query = client.query("SELECT * FROM manualAccounts");
 						// Stream results back one row at a time
@@ -593,7 +587,6 @@ module.exports = {
 
 							done();
 						});
-					}); // pg connect
 					// End postgres query
 					// called when pg query is done
 

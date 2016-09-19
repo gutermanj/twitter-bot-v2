@@ -1788,8 +1788,6 @@ app.get('/api/v1/send-rts', requireAdmin, function(req, res) {
                 console.log("Morning message not sent: Account Qued");
               } else if (sender.lmkwd) {
                 console.log("Morning message not sent: Account on Lmkwd");
-              } else if (sender.sent) {
-                console.log("Morning message not sent: Account on Sent");
               } else {
 
                 var messageParams = {

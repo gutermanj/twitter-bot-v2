@@ -1128,7 +1128,11 @@ module.exports = {
 
 											var greenStatus = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [true, account.username]);
 
-											var addTrades = client.query('INSERT INTO opentrades (account_id, trade_id) VALUES ($1, $2)', [account.id, tweet.id_str]);
+											if (tweet.id_str.length > 1) {
+
+												var addTrades = client.query('INSERT INTO opentrades (account_id, trade_id) VALUES ($1, $2)', [account.id, tweet.id_str]);
+
+											}
 
 
 											// Start coutdown to undo the trade

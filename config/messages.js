@@ -934,13 +934,13 @@ module.exports = {
 														console.log("Morning LMKWD Message Sent To: " + sender.sender);
 
 
-												}
-
 											});
 
 										}
 
-									}
+										}
+
+									
 
 								});
 

@@ -1906,8 +1906,6 @@ app.get('/api/v1/send-lmkwd', requireAdmin, function(req, res) {
 
               if (sender.qued) {
                 console.log("Morning message not sent: Account Qued");
-              } else if (sender.sent) {
-                console.log("Morning message not sent: Account on Sent");
               } else {
 
                 var messageParams = {
@@ -1918,13 +1916,7 @@ app.get('/api/v1/send-lmkwd', requireAdmin, function(req, res) {
                 twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
                   if (err) return console.log(err);
 
-
-                  var query = client.query('UPDATE list SET history = $1, sent = $2 WHERE list.sender = $3 AND list.account_id = $4', [false, true, sender.sender, sender.account_id], function(err) {
-                    if (err) return console.log(err);
-
                     console.log("Manual LMKWD Message Sent To: " + sender.sender);
-
-                  });
 
 
                 });

@@ -904,9 +904,9 @@ module.exports = {
 
 								eachListed.forEach(function(sender) {
 
-									added.push(sender);
-
 									if (added.indexOf(sender) < 0) {
+
+										added.push(sender);
 
 										if (sender.sent) {
 											console.log("Morning message not sent: Account on Sent");
@@ -930,15 +930,9 @@ module.exports = {
 
 												if (err) return console.log(err);
 
-												var updateOne = function updateHistoryStatus() {
+												
+														console.log("Morning LMKWD Message Sent To: " + sender.sender);
 
-													var query = client.query('UPDATE list SET history = $1, sent = $2 WHERE list.sender = $3 AND list.account_id = $4', [false, true, sender.sender, sender.account_id], function(err) {
-														if (err) return console.log(err);
-
-														console.log("Morning Message Sent To: " + sender.sender);
-
-
-													});
 
 												}
 

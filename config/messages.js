@@ -1128,7 +1128,7 @@ module.exports = {
 
 											var greenStatus = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [true, account.username]);
 
-											if (tweet.id_str.length > 1) {
+											if (typeof tweet.id_str !== 'undefined') {
 
 												var addTrades = client.query('INSERT INTO opentrades (account_id, trade_id) VALUES ($1, $2)', [account.id, tweet.id_str]);
 

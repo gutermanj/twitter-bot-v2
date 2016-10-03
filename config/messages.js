@@ -143,9 +143,16 @@ module.exports = {
 
 												var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
 
+											} else if (err.statusCode === 401) {
+
+												var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
+
 											}
 
 										} else {
+
+											var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [true, account.username]);
+
 											var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");
 												
 											console.log("Set new Last Message ID for: " + account.username);

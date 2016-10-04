@@ -1140,7 +1140,7 @@ module.exports = {
 
 															// lmkwdInterval(currentTrader, client, account);
 															incrementTotalTradeCount(account);
-														}
+														});
 
 													var greenStatus = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [true, account.username]);
 
@@ -1174,6 +1174,8 @@ module.exports = {
 													});
 												}, 1000 * 60 * 19.5); // Destroy retweet
 												
+											}
+											
 											}); // retweet post
 
 										}

@@ -1084,8 +1084,6 @@ module.exports = {
 
 											}
 
-										});
-
 										
 
 										// lmkwdInterval(currentTrader, client, account);
@@ -1181,6 +1179,8 @@ module.exports = {
 											}, 1000 * 60 * 19.5); // Destroy retweet
 											
 										}); // retweet post
+
+										});
 									}
 								}); // tweets for each
 							}

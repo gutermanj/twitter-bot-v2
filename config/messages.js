@@ -1080,19 +1080,7 @@ module.exports = {
 
 											if (foundAccount[0].outbound === false) {
 
-												addToLmkwdList(currentTrader, account);
-
-											} else {
-
-												console.log(currentTrader.sender + " on outbound list for " + account.username);
-
-												var changeStatus = client.query('UPDATE list SET outbound = $1, history = $2, qued = $5 WHERE sender = $3 AND account_id = $4', [false, true, currentTrader.sender, currentTrader.account_id, false], function(err) {
-													if (err) return console.log(err);
-												});
-
-												var removeFromQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
-													if (err) return console.log(err);
-												});
+												console.log("Account on Outbound");
 
 											}
 
@@ -1139,15 +1127,35 @@ module.exports = {
 													var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
 
 												}
-											} 
+											} else {
 
-											console.log("Retweet Complete.");
+												console.log("Retweet Complete.");
 
-											var greenStatus = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [true, account.username]);
+												var greenStatus = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [true, account.username]);
 
-											if (typeof tweet.id_str !== 'undefined') {
+												if (typeof tweet.id_str !== 'undefined') {
 
-												var addTrades = client.query('INSERT INTO opentrades (account_id, trade_id) VALUES ($1, $2)', [account.id, tweet.id_str]);
+													var addTrades = client.query('INSERT INTO opentrades (account_id, trade_id) VALUES ($1, $2)', [account.id, tweet.id_str]);
+
+												}
+
+												if (foundAccount[0].outbound === false) {
+													
+													addToLmkwdList(currentTrader, account);
+
+												} else {
+
+													console.log(currentTrader.sender + " on outbound list for " + account.username);
+
+													var changeStatus = client.query('UPDATE list SET outbound = $1, history = $2, qued = $5 WHERE sender = $3 AND account_id = $4', [false, true, currentTrader.sender, currentTrader.account_id, false], function(err) {
+														if (err) return console.log(err);
+													});
+
+													var removeFromQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
+														if (err) return console.log(err);
+													});
+
+												}
 
 											}
 

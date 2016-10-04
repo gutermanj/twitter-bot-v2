@@ -1064,124 +1064,120 @@ module.exports = {
 							} else {
 								var completeRetweetCount = 0;
 								tweets.forEach(function(tweet) {
-									completeRetweetCount++;
-									if (completeRetweetCount === tweets.length - 1) {
-										messageSender(currentTrader);
 
-										var foundAccount = [];
+										wordfilter.addWords(['BIT.LY', 'SEX', 'PORN', 'KIM K', 'KIM KARDASHIAN', 'MIA K', 'MIA KHALIFA',
+																'VIRGIN', 'NUDE', 'HOOKUP', 'VAGINA', 'S3X', 'HORNY', 'NAKED', 'BLOWJOB',
+																'LEAKED']);
 
-										var checkOutbound = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [currentTrader.account_id, currentTrader.sender]);
 
-										checkOutbound.on('row', function(row) {
-											foundAccount.push(row);
-										});
+										if (wordfilter.blacklisted(tweet.text)) {
+											console.log('Tweet Contains Blacklisted Words');
+										} else {
 
-										checkOutbound.on('end', function() {
+											var twitterClient = new Twitter({
 
-											if (foundAccount[0].outbound === false) {
+												consumer_key: account.consumer_key,
+												consumer_secret: account.consumer_secret,
+												access_token_key: account.access_token,
+												access_token_secret: account.access_token_secret
 
-												console.log("Account on Outbound");
+											});
 
+											var params = {
+												id: tweet.id_str
 											}
 
-										
-
-										// lmkwdInterval(currentTrader, client, account);
-										incrementTotalTradeCount(account);
-									}
-
-									wordfilter.addWords(['BIT.LY', 'SEX', 'PORN', 'KIM K', 'KIM KARDASHIAN', 'MIA K', 'MIA KHALIFA',
-															'VIRGIN', 'NUDE', 'HOOKUP', 'VAGINA', 'S3X', 'HORNY', 'NAKED', 'BLOWJOB',
-															'LEAKED']);
+											twitterAuthClient.statuses('retweet', params,
+												account.access_token,
+												account.access_token_secret,
+												function(err, tweet, response) {
 
 
-									if (wordfilter.blacklisted(tweet.text)) {
-										console.log('Tweet Contains Blacklisted Words');
-									} else {
+												if (err) {
+													console.log("Statuses/retweet", err);
 
-										var twitterClient = new Twitter({
+													if (err.statusCode === 403) {
 
-											consumer_key: account.consumer_key,
-											consumer_secret: account.consumer_secret,
-											access_token_key: account.access_token,
-											access_token_secret: account.access_token_secret
+														var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
 
-										});
-
-										var params = {
-											id: tweet.id_str
-										}
-
-										twitterAuthClient.statuses('retweet', params,
-											account.access_token,
-											account.access_token_secret,
-											function(err, tweet, response) {
-
-											if (err) {
-												console.log("Statuses/retweet", err);
-
-												if (err.statusCode === 403) {
-
-													var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
-
-												}
-											} else {
-
-												console.log("Retweet Complete.");
-
-												var greenStatus = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [true, account.username]);
-
-												if (typeof tweet.id_str !== 'undefined') {
-
-													var addTrades = client.query('INSERT INTO opentrades (account_id, trade_id) VALUES ($1, $2)', [account.id, tweet.id_str]);
-
-												}
-
-												if (foundAccount[0].outbound === false) {
-													
-													addToLmkwdList(currentTrader, account);
-
+													}
 												} else {
 
-													console.log(currentTrader.sender + " on outbound list for " + account.username);
+													console.log("Retweet Complete.");
 
-													var changeStatus = client.query('UPDATE list SET outbound = $1, history = $2, qued = $5 WHERE sender = $3 AND account_id = $4', [false, true, currentTrader.sender, currentTrader.account_id, false], function(err) {
-														if (err) return console.log(err);
-													});
+													completeRetweetCount++;
+													if (completeRetweetCount === tweets.length - 1) {
+														messageSender(currentTrader);
 
-													var removeFromQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
-														if (err) return console.log(err);
-													});
+														var foundAccount = [];
+
+														var checkOutbound = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [currentTrader.account_id, currentTrader.sender]);
+
+														checkOutbound.on('row', function(row) {
+															foundAccount.push(row);
+														});
+
+														checkOutbound.on('end', function() {
+
+																if (foundAccount[0].outbound === false) {
+														
+																	addToLmkwdList(currentTrader, account);
+
+																} else {
+
+																	console.log(currentTrader.sender + " on outbound list for " + account.username);
+
+																	var changeStatus = client.query('UPDATE list SET outbound = $1, history = $2, qued = $5 WHERE sender = $3 AND account_id = $4', [false, true, currentTrader.sender, currentTrader.account_id, false], function(err) {
+																		if (err) return console.log(err);
+																	});
+
+																	var removeFromQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
+																		if (err) return console.log(err);
+																	});
+
+																}
+
+
+															// lmkwdInterval(currentTrader, client, account);
+															incrementTotalTradeCount(account);
+														}
+
+													var greenStatus = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [true, account.username]);
+
+													if (typeof tweet.id_str !== 'undefined') {
+
+														var addTrades = client.query('INSERT INTO opentrades (account_id, trade_id) VALUES ($1, $2)', [account.id, tweet.id_str]);
+
+													}
+
 
 												}
 
-											}
 
+												// Start coutdown to undo the trade
+												setTimeout(function() {
+													twitterClient.post('statuses/destroy/' + tweet.id_str,
+														function(err, tweet, response) {
 
-											// Start coutdown to undo the trade
-											setTimeout(function() {
-												twitterClient.post('statuses/destroy/' + tweet.id_str,
-													function(err, tweet, response) {
+														if (err) {
+															console.log("statuses/destroy: ", err);
 
-													if (err) {
-														console.log("statuses/destroy: ", err);
+															if (err.statusCode === 403) {
 
-														if (err.statusCode === 403) {
+																var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
 
-															var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
+															}
 
+														} else {
+															console.log("Unretweet Complete.");
 														}
+													});
+												}, 1000 * 60 * 19.5); // Destroy retweet
+												
+											}); // retweet post
 
-													} else {
-														console.log("Unretweet Complete.");
-													}
-												});
-											}, 1000 * 60 * 19.5); // Destroy retweet
-											
-										}); // retweet post
+										}
 
-										});
-									}
 								}); // tweets for each
 							}
 						}

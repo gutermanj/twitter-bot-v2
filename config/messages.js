@@ -92,7 +92,7 @@ module.exports = {
 						// var filters = ["LMKWD", "GET"];
 						wordfilter.addWords(["LMKWD", "GET"]);
 
-						if (wordfilter.blacklisted(uppcasedMessage)) {
+						if (wordfilter.blacklisted(splitMessage)) {
 							return true;
 						}
 

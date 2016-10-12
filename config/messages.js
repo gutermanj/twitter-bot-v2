@@ -62,18 +62,28 @@ module.exports = {
 
 					// Called to filter incoming messages on twitter
 					function filter(uppcasedMessage) {
-						var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RT!", "RTS,", "FAVS,", "RTS!", "RT,",
+						// var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RT!", "RTS,", "FAVS,", "RTS!", "RT,",
+						// 	"FAVORITES", "RTS?FAVS!", "TRADE", "RTS?", "RETWEETS?", "RETWEETS!", "RT?",
+						// 	"RETWEET", "RETWEET?", "RTS? FAVS, AD ON TOP NS 20", "RT TOP 3 LIKES! NS 15",
+						// 	"TRADE LIKES! NS 20", "RTS? 20NS", "RTS? 20 LMKWD", "RETWEETS? FAVS", "RT LIKES! NS 20",
+						// 	"RTS NS 15 LMK", "RETWEETS?"
+						// ];
+
+						wordfilter.addWords(["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RT!", "RTS,", "FAVS,", "RTS!", "RT,",
 							"FAVORITES", "RTS?FAVS!", "TRADE", "RTS?", "RETWEETS?", "RETWEETS!", "RT?",
 							"RETWEET", "RETWEET?", "RTS? FAVS, AD ON TOP NS 20", "RT TOP 3 LIKES! NS 15",
 							"TRADE LIKES! NS 20", "RTS? 20NS", "RTS? 20 LMKWD", "RETWEETS? FAVS", "RT LIKES! NS 20",
-							"RTS NS 15 LMK", "RETWEETS?"
-						];
+							"RTS NS 15 LMK", "RETWEETS?"]);
 
-						for (i = 0; i < filters.length; i++) {
-							if (uppcasedMessage.indexOf(filters[i]) > -1) {
-								return true;
-							}
+						if (wordfilter.blacklisted(uppcasedMessage)) {
+							return true;
 						}
+
+						// for (i = 0; i < filters.length; i++) {
+						// 	if (uppcasedMessage.indexOf(filters[i]) > -1) {
+						// 		return true;
+						// 	}
+						// }
 					}
 					// Filters messages on twitter
 					function lmkwdFilter(splitMessage) {
@@ -1052,6 +1062,12 @@ module.exports = {
 
 													console.log("Retweet Complete.");
 
+													if (typeof tweet.id_str !== 'undefined') {
+
+														var addTrades = client.query('INSERT INTO opentrades (account_id, trade_id) VALUES ($1, $2)', [account.id, tweet.id_str]);
+
+													}
+
 													completeRetweetCount++;
 													if (completeRetweetCount === tweets.length - 1) {
 														messageSender(currentTrader);
@@ -1090,12 +1106,6 @@ module.exports = {
 														});
 
 													var setStatusTrue = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [true, account.username]);
-
-													if (typeof tweet.id_str !== 'undefined') {
-
-														var addTrades = client.query('INSERT INTO opentrades (account_id, trade_id) VALUES ($1, $2)', [account.id, tweet.id_str]);
-
-													}
 
 
 												}

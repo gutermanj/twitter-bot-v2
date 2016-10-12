@@ -79,6 +79,8 @@ module.exports = {
 							return true;
 						}
 
+						wordfilter.clearList();
+
 						// for (i = 0; i < filters.length; i++) {
 						// 	if (uppcasedMessage.indexOf(filters[i]) > -1) {
 						// 		return true;
@@ -87,12 +89,18 @@ module.exports = {
 					}
 					// Filters messages on twitter
 					function lmkwdFilter(splitMessage) {
-						var filters = ["LMKWD", "GET"];
-						for (i = 0; i < filters.length; i++) {
-							if (splitMessage.indexOf(filters[i]) > -1) {
-								return true;
-							}
+						// var filters = ["LMKWD", "GET"];
+						wordfilter.addWord(["LMKWD", "GET"]);
+
+						if (wordfilter.blacklisted(uppcasedMessage)) {
+							return true;
 						}
+						
+						// for (i = 0; i < filters.length; i++) {
+						// 	if (splitMessage.indexOf(filters[i]) > -1) {
+						// 		return true;
+						// 	}
+						// }
 					}
 
 					function spacedFilter(uppcasedMessage) {

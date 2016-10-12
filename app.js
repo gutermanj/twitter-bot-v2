@@ -335,7 +335,7 @@ app.post('/signup', function(req, res, next) {
 
 function updateAccount(data, res) {
   
-    var updateExistingAccount = client.query('UPDATE manualaccounts SET consumer_key = $1, consumer_secret = $2, access_token = $3, access_token_secret = $4, active = $5, status = $6', [data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, true, true]);
+    var updateExistingAccount = client.query('UPDATE manualaccounts SET consumer_key = $1, consumer_secret = $2, access_token = $3, access_token_secret = $4, active = $5, status = $6 WHERE username = $7', [data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, true, true, data.username]);
   
     updateExistingAccount.on('end', function() {
         

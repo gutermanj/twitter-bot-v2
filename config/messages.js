@@ -262,7 +262,7 @@ module.exports = {
 
 														var localAccount = [];
 
-														var findLocalAccounts = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, sender]);
+														var findLocalAccounts = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, lmkwdSender]);
 
 														findLocalAccounts.on('row', function(row) {
 															localAccount.push(row);
@@ -272,7 +272,7 @@ module.exports = {
 															if (localAccount.length > 0) {
 																checkQued();
 															} else {
-																console.log("Trying to mess it up, lel - received lmkwd from: " + sender + " for our account: " + account.username);
+																console.log("Trying to mess it up, lel - received lmkwd from: " + lmkwdSender + " for our account: " + account.username);
 															}
 														});
 

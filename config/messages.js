@@ -270,13 +270,13 @@ module.exports = {
 
 														findLocalAccounts.on('end', function() {
 															if (localAccount.length > 0) {
-																checkQued();
+																isSenderQued(localAccount, lmkwdSender);
 															} else {
 																console.log("Trying to mess it up, lel - received lmkwd from: " + lmkwdSender + " for our account: " + account.username);
 															}
 														});
 
-														isSenderQued(localAccount, lmkwdSender);
+														
 														// Checks if the sender is currently qued
 														
 													}

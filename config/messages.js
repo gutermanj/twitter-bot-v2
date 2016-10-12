@@ -107,7 +107,7 @@ module.exports = {
 					// Function Is Called If Followers Exceed 75k
 					function addToQue(foundAccount, account) {
 
-						if (foundAccount[0].lmkwd) {
+						if (foundAccount.lmkwd) {
 							// var twitterClient = new Twitter ({
 							//  			consumer_key: account.consumer_key,
 							//  			consumer_secret: account.consumer_secret,
@@ -134,7 +134,7 @@ module.exports = {
 
 							console.log("Would've sent lmkwd to " + foundAccount.sender + " from " + account.username);
 						} else {
-							if (foundAccount[0].outbound === false || foundAccount[0].sent === false) {
+							if (foundAccount.outbound === false || foundAccount.sent === false) {
 								var updateOne = function updateAddToQue() {
 										
 										var addToQue = client.query('INSERT INTO que(sender, account_id, id) VALUES ($1, $2, DEFAULT)', [foundAccount.sender, account.id]);

@@ -10,7 +10,6 @@ var connectionString = 'postgres://zqjwdkhttstwfx:ykFbgDKz8eTpXM3CCyim6Zyw-m@ec2
 var client = new pg.Client(connectionString);
 var MongoClient = mongodb.MongoClient;
 var url = 'mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13';
-var history = [];
 var running = false;
 var mongoPool = require('./mongo-pool.js');
 var storage = require('node-persist');
@@ -32,10 +31,7 @@ module.exports = {
 		// MAIN POOL FOR POSTGRES - Ends at bottom of module
 		pg.connect(connectionString, function(err, client, done) {
 			if (err) return console.log(err);
-
-			var grantedAccounts = [];
-
-			var currentQueCounter = 0;
+			
 			if (manualRunning === false) {
 				running = false;
 				clearInterval(currentQue);
@@ -107,27 +103,83 @@ module.exports = {
 							}
 						}
 					}
+					
+					// Function Is Called If Followers Exceed 75k
+					function addToQue(foundAccount, account) {
+
+						if (foundAccount[0].lmkwd) {
+							// var twitterClient = new Twitter ({
+							//  			consumer_key: account.consumer_key,
+							//  			consumer_secret: account.consumer_secret,
+							//  			access_token_key: account.access_token,
+							//  			access_token_secret: account.access_token_secret,
+							//  			timeout_ms: 60 * 1000
+							//  		});
+
+							//  		var messageParams = { screen_name: sender, text: 'lmkwd' };
+							//  		var items = [2, 3, 4, 5];
+							// var randomMinute = items[Math.floor(Math.random()*items.length)];
+							//   	// Confirm D20 message to sender
+							//   	setTimeout(function() {
+							// 	twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
+							// 		if (err) {
+							// 			console.log(err);
+							// 		} else {
+							// 			console.log("We let em know..." + sender + " Sent from: " + account.username);
+							// 		}
+							// 	});
+							// }, 1000 * 60 * randomMinute);
+							
+							// Temporarily removed because lmkwd lists are buggy
+
+							console.log("Would've sent lmkwd to " + sender + " from " + account.username);
+						} else {
+							if (foundAccount[0].outbound === false || foundAccount[0].sent === false) {
+								var updateOne = function updateAddToQue() {
+										
+										var addToQue = client.query('INSERT INTO que(sender, account_id, id) VALUES ($1, $2, DEFAULT)', [sender, account.id]);
+
+									};
+
+								var updateTwo = function updateAddQuedStatus() {
+
+										var updateQued = client.query('UPDATE list SET qued = $1, history = $2 WHERE sender = $3 AND account_id = $4', [true, false, sender, account.id]);
+
+									};
+								async.series([
+										function(callback) {
+											async.parallel([updateOne, updateTwo]);
+											console.log("New Senders Added To Que: " + sender + " added to " + account.username);
+											callback();
+										}
+									],
+									function(error) {
+										console.log(error);
+									}
+								);
+							}
+						}
+
+					} // addToQue
+					
+					function isSenderQued(localAccount, sender) {
+						if (localAccount[0].qued === false) {
+							messageSirBryan(sender, localAccount[0]);
+						}
+					}
 
 					// Starts the forEach on each account to pull messages from twitter
 					function pullMessages() {
 						accounts.forEach(function(account) {
-							var twitterClient = new Twitter({
-								consumer_key: account.consumer_key,
-								consumer_secret: account.consumer_secret,
-								access_token_key: account.access_token,
-								access_token_secret: account.access_token_secret,
-								timeout_ms: 60 * 1000
+							var twitterAuthClient = new TwitterLogin({
+								consumerKey: account.consumer_key,
+								consumerSecret: account.consumer_secret,
+								callback: 'http://localhost:3000/'
 							});
 
 							if (account.active) {
 
 								if (account.last_message === null) {
-
-									var twitterAuthClient = new TwitterLogin({
-									    consumerKey: account.consumer_key,
-									    consumerSecret: account.consumer_secret,
-									    callback: 'http://localhost:3000/'
-									});
 
 									twitterAuthClient.direct_messages('', {
 										count: 1
@@ -141,11 +193,11 @@ module.exports = {
 											
 											if (err.statusCode === 403) {
 
-												var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
+												var setStatusFalse403 = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
 
 											} else if (err.statusCode === 401) {
 
-												var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
+												var setStatusFalse401 = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
 
 											}
 
@@ -153,70 +205,15 @@ module.exports = {
 
 										} else {
 
-											var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [true, account.username]);
+											var setStatusTrue = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [true, account.username]);
 
-											var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");
+											var updateLastMessageFromNull = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");
 												
 											console.log("Set new Last Message ID for: " + account.username);
-
-											// messages.forEach(function(message) {
-											// 	var splitMessage = message.text.toUpperCase().split(" ");
-											// 	var uppcasedMessage = message.text.toUpperCase();
-											// 	// Convert received messages
-
-											// 	if (d20(splitMessage)) {
-											// 		var sender = message.sender.screen_name
-											// 			// Call function to deal with D20
-											// 		pullFromLmkwd(sender, account);
-											// 	}
-
-											// 	if (spacedFilter(uppcasedMessage)) {
-											// 		var sender = message.sender.screen_name
-											// 		pushSender(sender, account);
-											// 	}
-
-											// 	if (filter(uppcasedMessage)) {
-											// 		var sender = message.sender.screen_name
-											// 			// Call function to add sender to account que
-											// 		pushSender(sender, account);
-											// 	}
-
-
-											// 	if (lmkwdFilter(splitMessage)) {
-											// 		var sender = message.sender.screen_name
-
-											// 		var localAccount = [];
-
-											// 		var findLocal = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, sender]);
-
-											// 		findLocal.on('row', function(row) {
-											// 			localAccount.push(row);
-											// 		});
-
-											// 		findLocal.on('end', function() {
-											// 			if (localAccount.length > 0) {
-											// 				checkQued();
-											// 			}
-											// 		});
-
-											// 		function checkQued() {
-											// 			if (localAccount[0].qued === false) {
-											// 				messageSirBryan(sender, localAccount[0]);
-											// 			}
-											// 		}
-											// 		// Call function to handle incoming lmkwd messages
-											// 	}
-											// });
-
+											
 										}
 									}); // Twitterclient.get
 								} else {
-
-									var twitterAuthClient = new TwitterLogin({
-									    consumerKey: account.consumer_key,
-									    consumerSecret: account.consumer_secret,
-									    callback: 'http://localhost:3000/'
-									});
 
 									twitterAuthClient.direct_messages('', {
 										since_id: account.last_message
@@ -228,11 +225,11 @@ module.exports = {
 
 											if (err.statusCode === 403) {
 
-												var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
+												var setStatusFalse403 = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
 
 											} else if (err.statusCode === 401) {
 
-												var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
+												var setStatusFalse401 = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
 
 											}
 
@@ -244,41 +241,34 @@ module.exports = {
 												console.log("No New Messages");
 											} else {
 												console.log("Pulled New Messages...");
-													var query = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");											messages.forEach(function(message) {
+													var setLastMessage = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");											messages.forEach(function(message) {
 													var splitMessage = message.text.toUpperCase().split(" ");
-													var uppcasedMessage = message.text.toUpperCase();
 													// Convert received messages
 
 													if (d20(splitMessage)) {
-														var sender = message.sender.screen_name
+														var d20Sender = message.sender.screen_name;
 															// Call function to deal with D20
-														pullFromLmkwd(sender, account);
+														pullFromLmkwd(d20Sender, account);
 													}
 
 													if (filter(splitMessage)) {
-														var sender = message.sender.screen_name
+														var rtsSender = message.sender.screen_name;
 															// Call function to add sender to account que
-														pushSender(sender, account);
+														pushSender(rtsSender, account);
 													}
-
-													if (spacedFilter(uppcasedMessage)) {
-														var sender = message.sender.screen_name
-														pushSender(sender, account);
-													}
-
 
 													if (lmkwdFilter(splitMessage)) {
-														var sender = message.sender.screen_name
+														var lmkwdSender = message.sender.screen_name;
 
 														var localAccount = [];
 
-														var findLocal = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, sender]);
+														var findLocalAccounts = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, sender]);
 
-														findLocal.on('row', function(row) {
+														findLocalAccounts.on('row', function(row) {
 															localAccount.push(row);
 														});
 
-														findLocal.on('end', function() {
+														findLocalAccounts.on('end', function() {
 															if (localAccount.length > 0) {
 																checkQued();
 															} else {
@@ -286,12 +276,9 @@ module.exports = {
 															}
 														});
 
-														function checkQued() {
-															if (localAccount[0].qued === false) {
-																messageSirBryan(sender, localAccount[0]);
-															}
-														}
-														// Call function to handle incoming lmkwd messages
+														isSenderQued(localAccount, lmkwdSender);
+														// Checks if the sender is currently qued
+														
 													}
 												});
 											}
@@ -303,25 +290,32 @@ module.exports = {
 
 						}); // forEach
 					}
+					
+					// Call function to handle incoming lmkwd messages
 
 					function pushSender(sender, account) {
 
 						// ----------------- NEW PROCESS FOR PUSH UNDER THIS --------------------------
 
-						var findLocal = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, sender]);
+						var findLocalAccounts = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, sender]);
 
 						var foundAccount = [];
 
-						findLocal.on('row', function(row) {
+						findLocalAccounts.on('row', function(row) {
 							foundAccount.push(row);
 						});
 
-						findLocal.on('end', function() {
-							checkExistance();
+						findLocalAccounts.on('end', function() {
+							isSenderSaved();
 						});
 
-						function checkExistance() {
+						function isSenderSaved() {
 							if (foundAccount.length > 0) {
+								
+								/*
+									If the sender is already saved
+									handle it appropriately
+								*/
 
 								if (foundAccount[0].qued) {
 									console.log("Sender already qued");
@@ -349,69 +343,13 @@ module.exports = {
 													console.log("Users/Show", err);
 												} else {
 													if (user.followers_count > 75000) {
-														accessGranted(foundAccount, account);
+														addToQue(foundAccount, account);
+														// Send the account for further screening before adding to queue
 													} else {
 														console.log("Not Enough Followers");
 													}
 												}
 											});
-
-
-										// Function Is Called If Followers Exceed 75k
-										function accessGranted(foundAccount, account) {
-
-											if (foundAccount[0].lmkwd) {
-												// var twitterClient = new Twitter ({
-												//  			consumer_key: account.consumer_key,
-												//  			consumer_secret: account.consumer_secret,
-												//  			access_token_key: account.access_token,
-												//  			access_token_secret: account.access_token_secret,
-												//  			timeout_ms: 60 * 1000
-												//  		});
-
-												//  		var messageParams = { screen_name: sender, text: 'lmkwd' };
-												//  		var items = [2, 3, 4, 5];
-												// var randomMinute = items[Math.floor(Math.random()*items.length)];
-												//   	// Confirm D20 message to sender
-												//   	setTimeout(function() {
-												// 	twitterClient.post('direct_messages/new', messageParams, function(err, message, response) {
-												// 		if (err) {
-												// 			console.log(err);
-												// 		} else {
-												// 			console.log("We let em know..." + sender + " Sent from: " + account.username);
-												// 		}
-												// 	});
-												// }, 1000 * 60 * randomMinute);
-
-												console.log("Would've sent lmkwd to " + sender + " from " + account.username);
-											} else {
-												if (foundAccount[0].outbound === false || foundAccount[0].sent === false) {
-													var updateOne = function updateAddToQue() {
-															
-															var addToQue = client.query('INSERT INTO que(sender, account_id, id) VALUES ($1, $2, DEFAULT)', [sender, account.id]);
-
-														}
-
-													var updateTwo = function updateAddQuedStatus() {
-
-															var updateQued = client.query('UPDATE list SET qued = $1, history = $2 WHERE sender = $3 AND account_id = $4', [true, false, sender, account.id]);
-
-														}
-													async.series([
-															function(callback) {
-																async.parallel([updateOne, updateTwo]);
-																console.log("New Senders Added To Que: " + sender + " added to " + account.username);
-																callback();
-															}
-														],
-														function(error, data) {
-															console.log(error);
-														}
-													);
-												}
-											}
-
-										} // Access Granted
 
 									}
 
@@ -419,27 +357,27 @@ module.exports = {
 
 							} else {
 
-								// If the sender doesn't in the db
-								// Lets create a list for them
+								/*
+									If the sender isn't saved in the database
+									Lets create a list for them
+								*/
 								var updateOne = function createSenderList() {
 
 									var addSenderToList = client.query('INSERT INTO list(sender, qued, lmkwd, history, sent, outbound, account_id) VALUES ($1, $2, $3, $4, $5, $6, $7)', [sender, true, false, false, false, false, account.id]);
 
-								}
+								};
 
 								var updateTwo = function addSenderToQue() {
 
 									var addSenderQue = client.query('INSERT INTO que(sender, account_id, id) VALUES ($1, $2, DEFAULT)', [sender, account.id]);
 
-								}
+								};
 
 								async.series([
 										function(callback) {
 											async.parallel([updateOne, updateTwo]);
+											console.log("Created Record For " + sender + "on account: " + account.username);
 											callback();
-										},
-										function(callback) {
-											console.log("Created List For " + sender + "on account: " + account.username);
 										}
 									],
 									function(err, data) {
@@ -607,84 +545,86 @@ module.exports = {
 
 				}, 1000 * 60 * 20);
 
-				function migrateSentToHistory() {
-					var accounts = [];
-					pg.connect(connectionString, function(err, client, done) {
-						// Handle connection errors
-						if (err) {
-							done();
-							console.log(err);
-						}
-						// SQL Query > Last account created
-						var query = client.query("SELECT * FROM manualAccounts");
-						// Stream results back one row at a time
-						query.on('row', function(row) {
-							accounts.push(row);
-						});
-						// After all data is returned, close connection and return results
-						query.on('end', function() {
-							done();
-							console.log("Accounts Ready To Be Migrated.");
-							migrate(accounts);
-						});
-					}); // pg connect
-					function migrate() {
-						accounts.forEach(function(account) {
-							MongoClient.connect('mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13', function(err, db) {
-								if (err) {
-									console.log(err);
-								} else {
-									var collection = db.collection('accounts');
-									collection.find({
-										_id: account.username
-									}).toArray(function(err, result) {
-										if (err) {
-											console.log(err);
-										} else {
-											var currentSent = result[0].sent;
-											var updateOne = function updateMigrateToHistory() {
-												var alreadyAdded = [];
-												currentSent.forEach(function(thisSent) {
-													if (result[0].history.indexOf(thisSent) < 0) {
-														if (alreadyAdded.indexOf(thisSent) > -1) {
-															console.log("Duplicate Sent");
-														} else {
-															collection.update({
-																	_id: account.username
-																}, {
-																	$push: {
-																		history: thisSent
-																	}
-																}) // Migrate each Sent Account to History List
-
-															alreadyAdded.push(thisSent);
-														}
-													}
-												}); // current sent for each
-											}
-
-											async.series([
-													function(callback) {
-														async.parallel([updateOne]);
-														console.log(".");
-														callback();
-													},
-													function(callback) {
-														console.log("Finished Migrating Sent List For Account: " + account.username);
-													}
-												],
-												function(error, data) {
-													console.log(error);
-													db.close();
-												}
-											); // series
-										}
-									});
-								}
-							});
-						});
-					}
-				}
+				//function migrateSentToHistory() {
+				//	var accounts = [];
+				//	pg.connect(connectionString, function(err, client, done) {
+				//		// Handle connection errors
+				//		if (err) {
+				//			done();
+				//			console.log(err);
+				//		}
+				//		// SQL Query > Last account created
+				//		var query = client.query("SELECT * FROM manualAccounts");
+				//		// Stream results back one row at a time
+				//		query.on('row', function(row) {
+				//			accounts.push(row);
+				//		});
+				//		// After all data is returned, close connection and return results
+				//		query.on('end', function() {
+				//			done();
+				//			console.log("Accounts Ready To Be Migrated.");
+				//			migrate(accounts);
+				//		});
+				//	}); // pg connect
+				//	function migrate() {
+				//		accounts.forEach(function(account) {
+				//			MongoClient.connect('mongodb://owner:1j64z71j64z7@ds023520.mlab.com:23520/heroku_7w0mtg13', function(err, db) {
+				//				if (err) {
+				//					console.log(err);
+				//				} else {
+				//					var collection = db.collection('accounts');
+				//					collection.find({
+				//						_id: account.username
+				//					}).toArray(function(err, result) {
+				//						if (err) {
+				//							console.log(err);
+				//						} else {
+				//							var currentSent = result[0].sent;
+				//							var updateOne = function updateMigrateToHistory() {
+				//								var alreadyAdded = [];
+				//								currentSent.forEach(function(thisSent) {
+				//									if (result[0].history.indexOf(thisSent) < 0) {
+				//										if (alreadyAdded.indexOf(thisSent) > -1) {
+				//											console.log("Duplicate Sent");
+				//										} else {
+				//											collection.update({
+				//													_id: account.username
+				//												}, {
+				//													$push: {
+				//														history: thisSent
+				//													}
+				//												}) // Migrate each Sent Account to History List
+				//
+				//											alreadyAdded.push(thisSent);
+				//										}
+				//									}
+				//								}); // current sent for each
+				//							}
+				//
+				//							async.series([
+				//									function(callback) {
+				//										async.parallel([updateOne]);
+				//										console.log(".");
+				//										callback();
+				//									},
+				//									function(callback) {
+				//										console.log("Finished Migrating Sent List For Account: " + account.username);
+				//									}
+				//								],
+				//								function(error, data) {
+				//									console.log(error);
+				//									db.close();
+				//								}
+				//							); // series
+				//						}
+				//					});
+				//				}
+				//			});
+				//		});
+				//	}
+				// }
+				
+				// INACTIVE FUNCTION ^^
 
 				function morningMessage() {
 					var accounts = [];
@@ -697,12 +637,12 @@ module.exports = {
 						// After all data is returned, close connection and return results
 						query.on('end', function() {
 							console.log("Accounts Ready.");
-							checkTime(accounts);
+							sendMessages(accounts);
 						});
 					
 				} // morning message function
 
-				function checkTime(accounts) {
+				function sendMessages(accounts) {
 						// At 7 AM, message the history lists with 'rts'
 						accounts.forEach(function(account) {
 							var twitterClient = new Twitter({
@@ -761,7 +701,7 @@ module.exports = {
 												if (err) return console.log(err);
 
 
-												var query = client.query('UPDATE list SET history = $1, sent = $2 WHERE list.sender = $3 AND list.account_id = $4', [false, true, sender.sender, sender.account_id], function(err) {
+												var setHistoryAndSent = client.query('UPDATE list SET history = $1, sent = $2 WHERE list.sender = $3 AND list.account_id = $4', [false, true, sender.sender, sender.account_id], function(err) {
 													if (err) return console.log(err);
 
 													console.log("Morning Message Sent To: " + sender.sender);
@@ -969,6 +909,40 @@ module.exports = {
 						}); // Accounts For Each
 					}
 				} // morning message function
+				
+				
+				function handleMissingTweets(currentTrader, account) {
+					if (currentTrader.outbound === false) {
+
+						var messageParams = {
+							screen_name: 'sirbryanthewise',
+							text: "Missing Favs - " + currentTrader.sender + " removed from que: " + account.username
+						};
+						// Confirm D20 message to sender
+						twitterAuthClient.direct_messages('new', messageParams,
+							account.access_token,
+							account.access_token_secret,
+							function(err, message, response) {
+
+							if (err) {
+								console.log(err);
+							} else {
+								console.log("Missing Favs - " + currentTrader.sender + " removed from que: " + account.username);
+							}
+						});
+
+					}
+
+					console.log("Not enough Favs");
+
+					var setOutboundAndHistory = client.query('UPDATE list SET outbound = $1, history = $2, qued = $5 WHERE sender = $3 AND account_id = $4', [false, true, currentTrader.sender, currentTrader.account_id, false], function(err) {
+						if (err) return console.log(err);
+					});
+
+					var removeFromQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
+						if (err) return console.log(err);
+					});
+				}
 
 
 				// Start the actual trade with each account
@@ -984,7 +958,7 @@ module.exports = {
 
 					var updateLastTrade = client.query('UPDATE last_trade SET hour = $1, minute = $2, second = $3', [current_hour, current_minute, current_second]);
 
-					console.log("Iniated Trade for account: ", account.username);
+					console.log("Initiated Trade for account: ", account.username);
 					var twitterClient = new Twitter({
 						consumer_key: account.consumer_key,
 						consumer_secret: account.consumer_secret,
@@ -1015,52 +989,25 @@ module.exports = {
 							console.log("Favorites/list: ", err);
 							// If getting Traders favorites results in a 404
 
-							var queryOne = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3', [false, currentTrader.sender, currentTrader.account_id], function(err) {
+							var updateQueStatus = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3', [false, currentTrader.sender, currentTrader.account_id], function(err) {
 								if (err) return console.log(err);
 							});
 
-							var queryTwo = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
+							var removeFromQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
 								if (err) return console.log(err);
 							});
 
 							console.log("Account does not exist via Twitter - Removed from Que...");
 
 						} else {
-							var foo = 0;
+							var totalTweetCount = 0;
 							tweets.forEach(function(tweet) {
-								foo++;
+								totalTweetCount++;
 							});
-							if (foo !== 3) {
-								if (currentTrader.outbound === false) {
-
-									var messageParams = {
-										screen_name: 'sirbryanthewise',
-										text: "Missing Favs - " + currentTrader.sender + " removed from que: " + account.username
-									};
-									// Confirm D20 message to sender
-									twitterAuthClient.direct_messages('new', messageParams,
-										account.access_token,
-										account.access_token_secret,
-										function(err, message, response) {
-
-										if (err) {
-											console.log(err);
-										} else {
-											console.log("Missing Favs - " + currentTrader.sender + " removed from que: " + account.username);
-										}
-									});
-
-								}
-
-								console.log("Not enough Favs");
-
-								var changeStatus = client.query('UPDATE list SET outbound = $1, history = $2, qued = $5 WHERE sender = $3 AND account_id = $4', [false, true, currentTrader.sender, currentTrader.account_id, false], function(err) {
-									if (err) return console.log(err);
-								});
-
-								var removeFromQue = client.query('DELETE FROM que WHERE sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id], function(err) {
-									if (err) return console.log(err);
-								});
+							if (totalTweetCount !== 3) {
+								
+								handleMissingTweets(currentTrader, account);
+								
 							} else {
 								var completeRetweetCount = 0;
 								tweets.forEach(function(tweet) {
@@ -1085,7 +1032,7 @@ module.exports = {
 
 											var params = {
 												id: tweet.id_str
-											}
+											};
 
 											twitterAuthClient.statuses('retweet', params,
 												account.access_token,
@@ -1098,7 +1045,7 @@ module.exports = {
 
 													if (err.statusCode === 403) {
 
-														var query = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
+														var setStatusFalse403 = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
 
 													}
 												} else {
@@ -1142,7 +1089,7 @@ module.exports = {
 															incrementTotalTradeCount(account);
 														});
 
-													var greenStatus = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [true, account.username]);
+													var setStatusTrue = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [true, account.username]);
 
 													if (typeof tweet.id_str !== 'undefined') {
 
@@ -1223,7 +1170,7 @@ module.exports = {
 			// When We Send D20, Add Account To LMKWD List
 			function addToLmkwdList(currentTrader, account) {
 
-				var addToLmk = client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3', [true, currentTrader.sender, currentTrader.account_id], function(err) {
+				var addToLmkwd = client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3', [true, currentTrader.sender, currentTrader.account_id], function(err) {
 					if (err) return console.log(err);
 				});
 

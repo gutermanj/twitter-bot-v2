@@ -333,71 +333,83 @@ app.post('/signup', function(req, res, next) {
 //   });
 
 
+function updateAccount(data, res) {
+  
+    var updateExistingAccount = client.query('UPDATE manualaccounts SET consumer_key = $1, consumer_secret = $2, access_token = $3, access_token_secret = $4, active = $5, status = $6', [data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, true, true]);
+  
+    updateExistingAccount.on('end', function() {
+        
+        res.redirect('/');
+        
+    });
+  
+}
+
+function createAccount(data, res) {
+  
+    var createNewAccount = client.query('INSERT INTO manualaccounts (username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin, active, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)', [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, null, false, true, true]);
+  
+    updateExistingAccount.on('end', function() {
+        
+        res.redirect('/');
+        
+    });
+  
+}
+
 
 app.post('/newaccount/manual', requireAdmin, function(req, res) {
 
-  // Turning that password into something funky
-  var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
-
-  var data = {
-      username: req.body.username,
-      email: req.body.email,
-      password: hash,
-      consumer_key: req.body.consumer_key,
-      consumer_secret: req.body.consumer_secret,
-      access_token: req.body.access_token,
-      access_token_secret: req.body.access_token_secret,
-      timestamp: timestamp,
-      admin: false
-    };
-
-  // Get a Postgres client from the connection pool
-    pg.connect(connectionString, function(err, client, done) {
-        // Handle connection errors
-        if(err) {
-          done();
-          console.log(err);
-          return res.status(500).json({ success: false, data: err});
-        }
-
-        // SQL Query > Create new row for an account
-        var query = client.query("INSERT INTO manualaccounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin, last_message, active, status) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.timestamp, data.admin, null, true, true]);
-
-        // After all data is returned, close connection and return results
-        query.on('end', function() {
-            done();
-            res.redirect('/dashboard');
-        });
-
-
-    }); // pg connect
-
-
-    MongoClient.connect(url, function (err, db) {
-      if (err) {
-        console.log('Unable to connect to the mongoDB server. Error:', err);
-      } else {
-        //HURRAY!! We are connected. :)
-        console.log('Connection established to', url);
-
-        // Get the documents collection
-        var collection = db.collection('accounts');
-
-        //Create que for new account
-        var account = { _id: req.body.username, children: [], history: [], lmkwd: [], sent: [], outbound: [], total_trades: 0 };
-
-        // Insert some users
-        collection.insert([account], function (err, result) {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log('Created que for: ', account._id);
-          }
-          //Close connection
-          db.close();
-        });
-      }
+    // Turning that password into something funky
+    var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
+  
+    var data = {
+          username: req.body.username,
+          email: req.body.email,
+          password: hash,
+          consumer_key: req.body.consumer_key,
+          consumer_secret: req.body.consumer_secret,
+          access_token: req.body.access_token,
+          access_token_secret: req.body.access_token_secret,
+          timestamp: timestamp,
+          admin: false
+        };
+        
+    foundAccount = [];
+      
+    var isAccountSaved = client.query('SELECT * FROM manualaccounts where username = $1', [req.body.username]);
+    
+    
+    isAccountSaved.on('row', function(row) {
+        
+        foundAccount.push(row);
+        
     });
+    
+    isAccountSaved.on('end', function() {
+        
+        if (foundAccount.length > 0) {
+          
+          updateAccount(data, res);
+          
+        } else {
+          
+          createAccount(data, res);
+          
+        }
+        
+    });
+    
+  
+    // SQL Query > Create new row for an account
+    var query = client.query("INSERT INTO manualaccounts(username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin, last_message, active, status) values($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)", [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, data.timestamp, data.admin, null, true, true]);
+
+    // After all data is returned, close connection and return results
+    query.on('end', function() {
+        done();
+        res.redirect('/');
+    });
+
 
 });
 

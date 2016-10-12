@@ -228,7 +228,7 @@ $(document).ready(function () {
                   <br><br>
                   <button class='btn btn-success js-enable-all' style='border-radius: 1px; width: 90%; margin-left: 12px;'> Enable All Accounts</button>
                   <br><br>
-                  <button class='btn btn-success js-add-account' style='border-radius: 1px; width: 90%; margin-left: 12px;'> Add Account</button>
+                  <button data-toggle="modal" href='#new-manual-account-modal' class='btn btn-success js-add-account-old' style='border-radius: 1px; width: 90%; margin-left: 12px;'> Add Account</button>
                 </div>
             </div>
           </div>
@@ -299,6 +299,63 @@ $(document).ready(function () {
             </div><!-- /.modal-content -->
           </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
+		
+		
+		
+		<!-- Modal -->
+<div class="modal fade" id="new-manual-account-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">New Manual Account</h4>
+      </div>
+      <div class="modal-body">
+        <form action='/newaccount/manual' method='POST'>
+          <div class='col-sx-12'>
+            <div class='form-group'>
+              <label>Username</label>
+              <input class='form-control' placeholder='Enter the accounts @username' name='username' required>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input placeholder="Enter the account e-mail" name="email" type="email" required="required" class="form-control"/>
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input placeholder="Enter the account password" name="password" type="password" required="required" class="form-control"/>
+            </div>
+            <div class="form-group">
+              <label>Confirm Password</label>
+              <input placeholder="Enter the password again" type="password" required="required" class="form-control"/>
+            </div>
+            <div class="form-group">
+              <label>Consumer Key</label>
+              <input placeholder="Enter the account Consumer Key" name="consumer_key" type="text" required="required" class="form-control"/>
+            </div>
+            <div class="form-group">
+              <label>Consumer Secret</label>
+              <input placeholder="Enter the account Consumer Secret" name="consumer_secret" type="text" required="required" class="form-control"/>
+            </div>
+            <div class="form-group">
+              <label>Access Token</label>
+              <input placeholder="Enter the account Access Token" name="access_token" type="text" required="required" class="form-control"/>
+            </div>
+            <div class="form-group">
+              <label>Access Token Secret</label>
+              <input placeholder="Enter the account Access Token Secret" name="access_token_secret" type="text" required="required" class="form-control"/>
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Create Account</button>
+      </div>
+       </form>
+    </div>
+  </div>
+</div>
+
 
 
     <!-- Le javascript

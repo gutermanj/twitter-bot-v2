@@ -132,24 +132,24 @@ module.exports = {
 							
 							// Temporarily removed because lmkwd lists are buggy
 
-							console.log("Would've sent lmkwd to " + sender + " from " + account.username);
+							console.log("Would've sent lmkwd to " + foundAccount.sender + " from " + account.username);
 						} else {
 							if (foundAccount[0].outbound === false || foundAccount[0].sent === false) {
 								var updateOne = function updateAddToQue() {
 										
-										var addToQue = client.query('INSERT INTO que(sender, account_id, id) VALUES ($1, $2, DEFAULT)', [sender, account.id]);
+										var addToQue = client.query('INSERT INTO que(sender, account_id, id) VALUES ($1, $2, DEFAULT)', [foundAccount.sender, account.id]);
 
 									};
 
 								var updateTwo = function updateAddQuedStatus() {
 
-										var updateQued = client.query('UPDATE list SET qued = $1, history = $2 WHERE sender = $3 AND account_id = $4', [true, false, sender, account.id]);
+										var updateQued = client.query('UPDATE list SET qued = $1, history = $2 WHERE sender = $3 AND account_id = $4', [true, false, foundAccount.sender, account.id]);
 
 									};
 								async.series([
 										function(callback) {
 											async.parallel([updateOne, updateTwo]);
-											console.log("New Senders Added To Que: " + sender + " added to " + account.username);
+											console.log("New Senders Added To Que: " + foundAccount.sender + " added to " + account.username);
 											callback();
 										}
 									],

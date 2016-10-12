@@ -347,7 +347,7 @@ function updateAccount(data, res) {
 
 function createAccount(data, res) {
   
-    var createNewAccount = client.query('INSERT INTO manualaccounts (username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin, active, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)', [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, null, false, true, true]);
+    var updateExistingAccount = client.query('INSERT INTO manualaccounts (username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin, active, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)', [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, null, false, true, true]);
   
     updateExistingAccount.on('end', function() {
         

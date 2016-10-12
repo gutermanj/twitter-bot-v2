@@ -343,7 +343,7 @@ module.exports = {
 													console.log("Users/Show", err);
 												} else {
 													if (user.followers_count > 75000) {
-														addToQue(foundAccount, account);
+														addToQue(foundAccount[0], account);
 														// Send the account for further screening before adding to queue
 													} else {
 														console.log("Not Enough Followers");

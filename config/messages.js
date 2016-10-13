@@ -96,6 +96,8 @@ module.exports = {
 							return true;
 						}
 
+						wordfilter.clearList();
+
 						// for (i = 0; i < filters.length; i++) {
 						// 	if (splitMessage.indexOf(filters[i]) > -1) {
 						// 		return true;
@@ -1144,6 +1146,8 @@ module.exports = {
 											}); // retweet post
 
 										}
+
+										wordfilter.clearList();
 
 								}); // tweets for each
 							}

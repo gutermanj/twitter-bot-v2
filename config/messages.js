@@ -1084,13 +1084,15 @@ module.exports = {
 
 														var foundAccount = [];
 
-														var checkOutbound = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [currentTrader.account_id, currentTrader.sender]);
+														var checkOutbound = client.query('SELECT * FROM list where sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id]);
 
 														checkOutbound.on('row', function(row) {
 															foundAccount.push(row);
 														});
 
 														checkOutbound.on('end', function() {
+
+																console.log(foundAccount);
 
 																if (foundAccount[0].outbound === false) {
 														

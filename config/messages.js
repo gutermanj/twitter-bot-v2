@@ -62,47 +62,47 @@ module.exports = {
 
 					// Called to filter incoming messages on twitter
 					function filter(uppcasedMessage) {
-						// var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RT!", "RTS,", "FAVS,", "RTS!", "RT,",
-						// 	"FAVORITES", "RTS?FAVS!", "TRADE", "RTS?", "RETWEETS?", "RETWEETS!", "RT?",
-						// 	"RETWEET", "RETWEET?", "RTS? FAVS, AD ON TOP NS 20", "RT TOP 3 LIKES! NS 15",
-						// 	"TRADE LIKES! NS 20", "RTS? 20NS", "RTS? 20 LMKWD", "RETWEETS? FAVS", "RT LIKES! NS 20",
-						// 	"RTS NS 15 LMK", "RETWEETS?"
-						// ];
-
-						wordfilter.addWords(["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RT!", "RTS,", "FAVS,", "RTS!", "RT,",
+						var filters = ["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RT!", "RTS,", "FAVS,", "RTS!", "RT,",
 							"FAVORITES", "RTS?FAVS!", "TRADE", "RTS?", "RETWEETS?", "RETWEETS!", "RT?",
 							"RETWEET", "RETWEET?", "RTS? FAVS, AD ON TOP NS 20", "RT TOP 3 LIKES! NS 15",
 							"TRADE LIKES! NS 20", "RTS? 20NS", "RTS? 20 LMKWD", "RETWEETS? FAVS", "RT LIKES! NS 20",
-							"RTS NS 15 LMK", "RETWEETS?"]);
+							"RTS NS 15 LMK", "RETWEETS?"
+						];
 
-						if (wordfilter.blacklisted(uppcasedMessage)) {
-							return true;
-						}
+						// wordfilter.addWords(["FAV", "FAVS", "RTS", "RT\'S", "RETWEETS", "RT", "RT!", "RTS,", "FAVS,", "RTS!", "RT,",
+						// 	"FAVORITES", "RTS?FAVS!", "TRADE", "RTS?", "RETWEETS?", "RETWEETS!", "RT?",
+						// 	"RETWEET", "RETWEET?", "RTS? FAVS, AD ON TOP NS 20", "RT TOP 3 LIKES! NS 15",
+						// 	"TRADE LIKES! NS 20", "RTS? 20NS", "RTS? 20 LMKWD", "RETWEETS? FAVS", "RT LIKES! NS 20",
+						// 	"RTS NS 15 LMK", "RETWEETS?"]);
 
-						wordfilter.clearList();
-
-						// for (i = 0; i < filters.length; i++) {
-						// 	if (uppcasedMessage.indexOf(filters[i]) > -1) {
-						// 		return true;
-						// 	}
+						// if (wordfilter.blacklisted(uppcasedMessage)) {
+						// 	return true;
 						// }
+
+						// wordfilter.clearList();
+
+						for (i = 0; i < filters.length; i++) {
+							if (uppcasedMessage.indexOf(filters[i]) > -1) {
+								return true;
+							}
+						}
 					}
 					// Filters messages on twitter
 					function lmkwdFilter(splitMessage) {
-						// var filters = ["LMKWD", "GET"];
-						wordfilter.addWords(["LMKWD", "GET"]);
+						var filters = ["LMKWD", "GET"];
+						// wordfilter.addWords(["LMKWD", "GET"]);
 
-						if (wordfilter.blacklisted(splitMessage)) {
-							return true;
-						}
-
-						wordfilter.clearList();
-
-						// for (i = 0; i < filters.length; i++) {
-						// 	if (splitMessage.indexOf(filters[i]) > -1) {
-						// 		return true;
-						// 	}
+						// if (wordfilter.blacklisted(splitMessage)) {
+						// 	return true;
 						// }
+
+						// wordfilter.clearList();
+
+						for (i = 0; i < filters.length; i++) {
+							if (splitMessage.indexOf(filters[i]) > -1) {
+								return true;
+							}
+						}
 					}
 
 					function spacedFilter(uppcasedMessage) {
@@ -979,6 +979,7 @@ module.exports = {
 					var updateLastTrade = client.query('UPDATE last_trade SET hour = $1, minute = $2, second = $3', [current_hour, current_minute, current_second]);
 
 					console.log("Initiated Trade for account: ", account.username);
+					
 					var twitterClient = new Twitter({
 						consumer_key: account.consumer_key,
 						consumer_secret: account.consumer_secret,

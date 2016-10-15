@@ -1058,7 +1058,7 @@ module.exports = {
 
 
 												if (err) {
-													console.log("Statuses/retweet", err);
+													console.log("Statuses/retweet: " + account.username + err);
 
 													if (err.statusCode === 403) {
 

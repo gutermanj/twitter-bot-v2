@@ -1031,7 +1031,7 @@ module.exports = {
 
 										wordfilter.addWords(['BIT.LY', 'SEX', 'PORN', 'KIM K', 'KIM KARDASHIAN', 'MIA K', 'MIA KHALIFA',
 																'VIRGIN', 'NUDE', 'HOOKUP', 'VAGINA', 'S3X', 'HORNY', 'NAKED', 'BLOWJOB',
-																'LEAKED']);
+																'LEAKED', 'SHOEPOORN.ORG', '16']);
 
 
 										if (wordfilter.blacklisted(tweet.text)) {

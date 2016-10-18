@@ -1231,6 +1231,26 @@ app.post('/api/v1/get-partners', function(req, res) {
 
 });
 
+app.post('/api/v1/approve-complete-trade-request', function(req, res) {
+
+    var sender = req.body.username;
+    var account_id = req.body.dad_id;
+    var followers = req.body.followers;
+
+    var removeFromRequests = client.query('DELETE FROM requests WHERE sender = $1 AND account_id = $2', [sender, account_id]);
+
+    var addToPartners = client.query('INSERT INTO partners (sender, account_id, follower_count, qued, lmkwd, history, sent, outbound) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', [sender, account_id, followers, false, false, true, false, false]);
+
+    var newPartner = {
+      sender: sender,
+      account_id: account_id,
+      follower_count: followers
+    }
+
+    return res.json(newPartner);
+
+});
+
 app.post('/api/v1/approve-request', function(req, res) {
 
     var sender = req.body.username;

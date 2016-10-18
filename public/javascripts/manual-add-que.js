@@ -188,6 +188,7 @@ $(document).ready(function() {
                     		<h5>${request.sender} | 
                     			<em>Followers: ${request.follower_count}</em>                   			
                     			<i class='glyphicon glyphicon-remove pull-right js-deny-request' style='color: darkred; font-size: 20px; margin-top: -5px; cursor: pointer;' data-username='${request.sender}' data-id='${request.account_id}'>  </i>
+                    			<i class='glyphicon glyphicon-thumbs-up pull-right js-approve-complete-trade' style='color: darkkhaki; font-size: 20px; margin-top: -5px; cursor: pointer; margin-right: 18px;' data-username='${request.sender}' data-id='${request.account_id}'>  </i>
                     			<i class='glyphicon glyphicon-ok pull-right js-approve-request' style='color: darkgreen; font-size: 20px; margin-top: -5px; margin-right: 20px; cursor: pointer;' data-username='${request.sender}' data-id='${request.account_id}' data-followers='${request.follower_count}'>  </i>
                     		</h5>
                     		<hr style='border-color: #2E2E2E;'>
@@ -212,6 +213,14 @@ $(document).ready(function() {
 					var follower_count = $(this).data('followers');
 					$(this).parent().parent().fadeOut('slow');
 					denyRequest(username, follower_count, account_id);
+				});
+
+				$('.js-approve-complete-trade').on('click', function() {
+					var username = $(this).data('username');
+					var account_id = $(this).data('id');
+					var follower_count = $(this).data('followers');
+					$(this).parent().parent().fadeOut('slow');
+					approveCompleteTradeRequest(username, follower_count, account_id);
 				});
 
 				
@@ -299,6 +308,51 @@ $(document).ready(function() {
 		historyAdd(username, sender);
 
 	});
+
+	function approveCompleteTradeRequest(username, follower_count, account_id) {
+
+		$.ajax({
+
+			type: 'POST',
+
+			url: '/api/v1/approve-complete-trade-request',
+
+			data: {
+				username: username,
+				dad_id: account_id,
+				followers: follower_count
+			},
+
+			success: function(response) {
+				console.log(response);
+
+				var html = `
+						<div class='js-partner-item'>
+                    		<h5>${response.sender} | 
+                    			<em>Followers: ${response.follower_count}</em>                   			
+                    			<i class='glyphicon glyphicon-remove pull-right js-remove-partner' style='color: darkred; font-size: 20px; margin-top: -5px; cursor: pointer;' data-username='${response.sender}' data-id='${response.account_id}'>  </i>
+                    		</h5>
+                    		<hr style='border-color: #2E2E2E;'>
+                  		</div>
+					`
+
+				$('.js-current-partners').append(html);
+
+				$('.js-remove-partner').on('click', function() {
+					var username = $(this).data('username');
+					var account_id = $(this).data('id');
+					$(this).parent().parent().fadeOut('slow');
+					removePartner(username, account_id);
+				});
+			},
+
+			error: function(err) {
+				console.log(err);
+			}
+
+		});
+
+	}
 
 	function removePartner(username, account_id) {
 

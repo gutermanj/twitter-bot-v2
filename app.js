@@ -1261,6 +1261,8 @@ app.post('/api/v1/approve-request', function(req, res) {
 
     var addToPartners = client.query('INSERT INTO partners (sender, account_id, follower_count, qued, lmkwd, history, sent, outbound) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', [sender, account_id, followers, true, false, false, false, false]);
 
+    var addToQue = client.query('INSERT INTO que (sender, account_id, id) VALUES ($1, $2, DEFAULT)', [sender, account_id]);
+
     var newPartner = {
       sender: sender,
       account_id: account_id,

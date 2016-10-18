@@ -1459,27 +1459,6 @@ module.exports = {
 				}); // MongoClient
 			} // blacklistFilter
 
-			var mergetoque = client.query('select * from partners');
-
-			var randomarray = [];
-
-			mergetoque.on('row', function(row) {
-
-				randomarray.push(row);
-
-			});
-
-			mergetoque.on('end', function() {
-
-				randomarray.forEach(function(partner) {
-					var addem = client.query('INSERT INTO que (sender, account_id, id) values ($1, $2, DEFAULT)', [partner.sender, partner.account_id]);
-
-					console.log(partner);
-
-				});	
-
-			});
-
 			function messageSirBryan(sender, account) {
 				// NEW STUFF HERE AND BELOW
 

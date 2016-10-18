@@ -1336,22 +1336,10 @@ module.exports = {
 
 								};
 
+								console.log("Created Request for: " + sender);
+
 							}
 						});
-
-						async.series([
-								function(callback) {
-									async.parallel([updateOne, updateTwo]);
-									callback();
-								},
-								function(callback) {
-									console.log("Created Request For " + sender + ": Sent D20 To Us...");
-								}
-							],
-							function(err, data) {
-								console.log(err);
-							}
-						);
 
 					}
 				});

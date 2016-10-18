@@ -523,8 +523,7 @@ module.exports = {
 														});
 
 														// After tweets are cleared, initiate the trade...
-														// initiateTrade(account, currentTrader);
-														// REMOVED FOR PARTNERS TESTING
+														initiateTrade(account, currentTrader);
 
 													});
 

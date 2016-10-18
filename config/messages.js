@@ -368,7 +368,11 @@ module.exports = {
 
 										var follower_count = user.followers_count;
 										
-										var addSenderToList = client.query('INSERT INTO requests(sender, follower_count, account_id) VALUES ($1, $2, $3)', [sender, follower_count, account.id]);
+										var addSenderToList = client.query('INSERT INTO requests(sender, follower_count, account_id) VALUES ($1, $2, $3)', [sender, follower_count, account.id], function(err) {
+											if (err) {
+												console.log(sender + " already awaiting approval...");
+											}
+										});
 
 
 										console.log("Created Request For " + sender + "on account: " + account.username);
@@ -1316,7 +1320,11 @@ module.exports = {
 
 								var follower_count = user.followers_count;
 
-								var addSenderToRequests = client.query('INSERT INTO requests(sender, follower_count, account_id, unknown) VALUES ($1, $2, $3, $4)', [sender, follower_count, account.id, true]);
+								var addSenderToRequests = client.query('INSERT INTO requests(sender, follower_count, account_id, unknown) VALUES ($1, $2, $3, $4)', [sender, follower_count, account.id, true], function(err) {
+									if (err) {
+										console.log(sender + " already awaiting approval...");
+									}
+								});
 
 								console.log("Created Request for: " + sender);
 

@@ -368,11 +368,8 @@ module.exports = {
 
 										var follower_count = user.followers_count;
 										
-										var updateOne = function createSenderList() {
+										var addSenderToList = client.query('INSERT INTO requests(sender, follower_count, account_id) VALUES ($1, $2, $3)', [sender, follower_count, account.id]);
 
-											var addSenderToList = client.query('INSERT INTO requests(sender, follower_count, account_id) VALUES ($1, $2, $3)', [sender, follower_count, account.id]);
-
-										};
 
 										console.log("Created Request For " + sender + "on account: " + account.username);
 
@@ -1318,12 +1315,8 @@ module.exports = {
 							} else {
 
 								var follower_count = user.followers_count;
-								
-								var updateOne = function createSenderList() {
 
-									var addSenderToRequests = client.query('INSERT INTO requests(sender, follower_count, account_id, unknown) VALUES ($1, $2, $3, $4)', [sender, follower_count, account.id, true]);
-
-								};
+								var addSenderToRequests = client.query('INSERT INTO requests(sender, follower_count, account_id, unknown) VALUES ($1, $2, $3, $4)', [sender, follower_count, account.id, true]);
 
 								console.log("Created Request for: " + sender);
 

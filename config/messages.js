@@ -374,21 +374,10 @@ module.exports = {
 
 										};
 
+										console.log("Created Request For " + sender + "on account: " + account.username);
+
 									}
 								});
-
-
-								async.series([
-										function(callback) {
-											async.parallel([updateOne, updateTwo]);
-											console.log("Created Request For " + sender + "on account: " + account.username);
-											callback();
-										}
-									],
-									function(err, data) {
-										console.log(err);
-									}
-								);
 
 							}
 						}

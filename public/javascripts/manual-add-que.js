@@ -183,10 +183,13 @@ $(document).ready(function() {
 
 				response.forEach(function(request) {
 
+					if (request.unknown) {
+
 					var html = `
 						<div class='js-request-item'>
                     		<h5>${request.sender} | 
-                    			<em>Followers: ${request.follower_count}</em>                   			
+                    			<em>Followers: ${request.follower_count} </em>
+                    			<i class='glyphicon glyphicon-exclamation-sign' style='color: darkkhaki; font-size: 17px; margin-top: -3px; margin-left: 10px;'> </i>              			
                     			<i class='glyphicon glyphicon-remove pull-right js-deny-request' style='color: darkred; font-size: 20px; margin-top: -5px; cursor: pointer;' data-username='${request.sender}' data-id='${request.account_id}'>  </i>
                     			<i class='glyphicon glyphicon-thumbs-up pull-right js-approve-complete-trade' style='color: darkkhaki; font-size: 20px; margin-top: -5px; cursor: pointer; margin-right: 18px;' data-username='${request.sender}' data-id='${request.account_id}'>  </i>
                     			<i class='glyphicon glyphicon-ok pull-right js-approve-request' style='color: darkgreen; font-size: 20px; margin-top: -5px; margin-right: 20px; cursor: pointer;' data-username='${request.sender}' data-id='${request.account_id}' data-followers='${request.follower_count}'>  </i>
@@ -194,6 +197,22 @@ $(document).ready(function() {
                     		<hr style='border-color: #2E2E2E;'>
                   		</div>
 					`
+
+					} else {
+
+						var html = `
+							<div class='js-request-item'>
+	                    		<h5>${request.sender} | 
+	                    			<em>Followers: ${request.follower_count} </em>
+	                    			<i class='glyphicon glyphicon-remove pull-right js-deny-request' style='color: darkred; font-size: 20px; margin-top: -5px; cursor: pointer;' data-username='${request.sender}' data-id='${request.account_id}'>  </i>
+	                    			<i class='glyphicon glyphicon-thumbs-up pull-right js-approve-complete-trade' style='color: darkkhaki; font-size: 20px; margin-top: -5px; cursor: pointer; margin-right: 18px;' data-username='${request.sender}' data-id='${request.account_id}'>  </i>
+	                    			<i class='glyphicon glyphicon-ok pull-right js-approve-request' style='color: darkgreen; font-size: 20px; margin-top: -5px; margin-right: 20px; cursor: pointer;' data-username='${request.sender}' data-id='${request.account_id}' data-followers='${request.follower_count}'>  </i>
+	                    		</h5>
+	                    		<hr style='border-color: #2E2E2E;'>
+	                  		</div>
+						`
+
+					}
 
 					$('.js-current-requests').append(html);
 

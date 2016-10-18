@@ -1185,8 +1185,6 @@ app.post('/api/v1/add-history', function(req, res) {
 
 app.post('/api/v1/show-que', function(req, res) {
 
-  // pg.connect(connectionString, function(err, client, done) {
-
       var showQue = client.query('SELECT * FROM manualaccounts JOIN list ON (manualaccounts.id = list.account_id) WHERE manualaccounts.username = $1', [req.body.username]);
 
       var que = [];
@@ -1197,10 +1195,82 @@ app.post('/api/v1/show-que', function(req, res) {
 
       showQue.on('end', function() {
         return res.json(que);
-        done();
       });
 
-  // }); pg
+});
+
+app.post('/api/v1/get-requests', function(req, res) {
+
+      var allRequests = [];
+
+      var getRequests = client.query('SELECT * FROM requests WHERE account_id = $1', [req.body.dad_id]);
+
+      getRequests.on('row', function(row) {
+          allRequests.push(row);
+      });
+
+      getRequests.on('end', function() {
+        return res.json(allRequests);
+      });
+
+});
+
+app.post('/api/v1/get-partners', function(req, res) {
+
+      var allPartners = [];
+
+      var getRequests = client.query('SELECT * FROM partners WHERE account_id = $1', [req.body.dad_id]);
+
+      getRequests.on('row', function(row) {
+          allPartners.push(row);
+      });
+
+      getRequests.on('end', function() {
+        return res.json(allPartners);
+      });
+
+});
+
+app.post('/api/v1/approve-request', function(req, res) {
+
+    var sender = req.body.username;
+    var account_id = req.body.account_id;
+    var followers = req.body.followers;
+
+    var removeFromRequests = client.query('DELETE FROM requests WHERE sender = $1 AND account_id = $2', [sender, account_id]);
+
+    var addToPartners = client.query('INSERT INTO partners (sender, account_id, follower_count, qued, lmkwd, history, sent, outbound) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', [sender, account_id, followers, true, false, false, false, false]);
+
+    var newPartner = {
+      sender: sender,
+      account_id: account_id,
+      follower_count: followers
+    }
+
+    return res.json(newPartner);
+
+});
+
+app.post('/api/v1/deny-request', function(req, res) {
+
+    var sender = req.body.username;
+    var account_id = req.body.account_id;
+    var followers = req.body.followers;
+
+    var removeFromRequests = client.query('DELETE FROM requests WHERE sender = $1 AND account_id = $2', [sender, account_id]);
+
+    return res.json("Removed");
+
+});
+
+app.post('/api/v1/remove-partner', function(req, res) {
+
+    var sender = req.body.username;
+    var account_id = req.body.dad_id;
+
+    var removeFromPartners = client.query('DELETE FROM partners WHERE sender = $1 AND account_id = $2', [sender, account_id]);
+
+    return res.json("Removed");
 
 });
 

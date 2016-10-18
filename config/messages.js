@@ -159,7 +159,7 @@ module.exports = {
 
 								var updateTwo = function updateAddQuedStatus() {
 
-										var updateQued = client.query('UPDATE list SET qued = $1, history = $2 WHERE sender = $3 AND account_id = $4', [true, false, foundAccount.sender, account.id]);
+										var updateQued = client.query('UPDATE partners SET qued = $1, history = $2 WHERE sender = $3 AND account_id = $4', [true, false, foundAccount.sender, account.id]);
 
 									};
 								async.series([
@@ -278,7 +278,7 @@ module.exports = {
 
 														var localAccount = [];
 
-														var findLocalAccounts = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, lmkwdSender]);
+														var findLocalAccounts = client.query('SELECT * FROM partners JOIN manualaccounts ON (partners.account_id = manualaccounts.id) WHERE partners.account_id = $1 AND partners.sender = $2', [account.id, lmkwdSender]);
 
 														findLocalAccounts.on('row', function(row) {
 															localAccount.push(row);
@@ -313,7 +313,7 @@ module.exports = {
 
 						// ----------------- NEW PROCESS FOR PUSH UNDER THIS --------------------------
 
-						var findLocalAccounts = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.account_id = $1 AND list.sender = $2', [account.id, sender]);
+						var findLocalAccounts = client.query('SELECT * FROM partners JOIN manualaccounts ON (partners.account_id = manualaccounts.id) WHERE partners.account_id = $1 AND partners.sender = $2', [account.id, sender]);
 
 						var foundAccount = [];
 
@@ -337,37 +337,7 @@ module.exports = {
 									console.log("Sender already qued");
 								} else {
 
-									if (blacklistFilter(sender)) {
-										console.log("Sender On Blacklist");
-									} else {
-
-											var twitterAuthClient = new TwitterLogin({
-											    consumerKey: account.consumer_key,
-											    consumerSecret: account.consumer_secret,
-											    callback: 'http://localhost:3000/'
-											});
-
-											var params = {
-												screen_name: foundAccount[0].sender
-											};
-
-											twitterAuthClient.users('show', params, 
-												account.access_token, 
-												account.access_token_secret,
-												function(err, user, response) {
-												if (err) {
-													console.log("Users/Show", err);
-												} else {
-													if (user.followers_count > 75000) {
-														addToQue(foundAccount[0], account);
-														// Send the account for further screening before adding to queue
-													} else {
-														console.log("Not Enough Followers");
-													}
-												}
-											});
-
-									}
+									addToQue(foundAccount[0], account);
 
 								}
 
@@ -375,24 +345,43 @@ module.exports = {
 
 								/*
 									If the sender isn't saved in the database
-									Lets create a list for them
+									Create a request for them to be added to partners
 								*/
-								var updateOne = function createSenderList() {
 
-									var addSenderToList = client.query('INSERT INTO list(sender, qued, lmkwd, history, sent, outbound, account_id) VALUES ($1, $2, $3, $4, $5, $6, $7)', [sender, true, false, false, false, false, account.id]);
+								var twitterAuthClient = new TwitterLogin({
+								    consumerKey: account.consumer_key,
+								    consumerSecret: account.consumer_secret,
+								    callback: 'http://localhost:3000/'
+								});
 
+								var params = {
+									screen_name: sender
 								};
 
-								var updateTwo = function addSenderToQue() {
+								twitterAuthClient.users('show', params, 
+									account.access_token, 
+									account.access_token_secret,
+									function(err, user, response) {
+									if (err) {
+										console.log("Users/Show", err);
+									} else {
 
-									var addSenderQue = client.query('INSERT INTO que(sender, account_id, id) VALUES ($1, $2, DEFAULT)', [sender, account.id]);
+										var follower_count = user.followers_count;
+										
+										var updateOne = function createSenderList() {
 
-								};
+											var addSenderToList = client.query('INSERT INTO requests(sender, follower_count, account_id) VALUES ($1, $2, $3)', [sender, follower_count, account.id]);
+
+										};
+
+									}
+								});
+
 
 								async.series([
 										function(callback) {
 											async.parallel([updateOne, updateTwo]);
-											console.log("Created Record For " + sender + "on account: " + account.username);
+											console.log("Created Request For " + sender + "on account: " + account.username);
 											callback();
 										}
 									],
@@ -544,7 +533,8 @@ module.exports = {
 														});
 
 														// After tweets are cleared, initiate the trade...
-														initiateTrade(account, currentTrader);
+														// initiateTrade(account, currentTrader);
+														// REMOVED FOR PARTNERS TESTING
 
 													});
 
@@ -674,7 +664,7 @@ module.exports = {
 
 							var added = [];
 
-							var getHistory = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND list.history = $2', [account.id, true]);
+							var getHistory = client.query('SELECT * FROM partners JOIN manualaccounts ON (partners.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND partners.history = $2', [account.id, true]);
 
 							getHistory.on('row', function(row) {
 								if (eachListed.indexOf(row) < 0) {
@@ -717,7 +707,7 @@ module.exports = {
 												if (err) return console.log(err);
 
 
-												var setHistoryAndSent = client.query('UPDATE list SET history = $1, sent = $2 WHERE list.sender = $3 AND list.account_id = $4', [false, true, sender.sender, sender.account_id], function(err) {
+												var setHistoryAndSent = client.query('UPDATE partners SET history = $1, sent = $2 WHERE partners.sender = $3 AND partners.account_id = $4', [false, true, sender.sender, sender.account_id], function(err) {
 													if (err) return console.log(err);
 
 													console.log("Morning Message Sent To: " + sender.sender);
@@ -772,7 +762,7 @@ module.exports = {
 
 							var added = [];
 
-							var getHistory = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND list.sent = $2', [account.id, true]);
+							var getHistory = client.query('SELECT * FROM partners JOIN manualaccounts ON (partners.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND partners.sent = $2', [account.id, true]);
 
 							getHistory.on('row', function(row) {
 								if (eachListed.indexOf(row) < 0) {
@@ -867,7 +857,7 @@ module.exports = {
 
 							var added = [];
 
-							var getLmkwd = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND list.lmkwd = $2', [account.id, true]);
+							var getLmkwd = client.query('SELECT * FROM partners JOIN manualaccounts ON (partners.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND partners.lmkwd = $2', [account.id, true]);
 
 							getHistory.on('row', function(row) {
 								eachListed.push(row);
@@ -951,7 +941,7 @@ module.exports = {
 
 					console.log("Not enough Favs");
 
-					var setOutboundAndHistory = client.query('UPDATE list SET outbound = $1, history = $2, qued = $5 WHERE sender = $3 AND account_id = $4', [false, true, currentTrader.sender, currentTrader.account_id, false], function(err) {
+					var setOutboundAndHistory = client.query('UPDATE partners SET outbound = $1, history = $2, qued = $5 WHERE sender = $3 AND account_id = $4', [false, true, currentTrader.sender, currentTrader.account_id, false], function(err) {
 						if (err) return console.log(err);
 					});
 
@@ -1006,7 +996,7 @@ module.exports = {
 							console.log("Favorites/list: ", err);
 							// If getting Traders favorites results in a 404
 
-							var updateQueStatus = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3', [false, currentTrader.sender, currentTrader.account_id], function(err) {
+							var updateQueStatus = client.query('UPDATE partners SET qued = $1 WHERE sender = $2 AND account_id = $3', [false, currentTrader.sender, currentTrader.account_id], function(err) {
 								if (err) return console.log(err);
 							});
 
@@ -1081,7 +1071,7 @@ module.exports = {
 
 														var foundAccount = [];
 
-														var checkOutbound = client.query('SELECT * FROM list where sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id]);
+														var checkOutbound = client.query('SELECT * FROM partners where sender = $1 AND account_id = $2', [currentTrader.sender, currentTrader.account_id]);
 
 														checkOutbound.on('row', function(row) {
 															foundAccount.push(row);
@@ -1102,7 +1092,7 @@ module.exports = {
 
 																		console.log(currentTrader.sender + " on outbound list for " + account.username);
 
-																		var changeStatus = client.query('UPDATE list SET outbound = $1, history = $2, qued = $5 WHERE sender = $3 AND account_id = $4', [false, true, currentTrader.sender, currentTrader.account_id, false], function(err) {
+																		var changeStatus = client.query('UPDATE partners SET outbound = $1, history = $2, qued = $5 WHERE sender = $3 AND account_id = $4', [false, true, currentTrader.sender, currentTrader.account_id, false], function(err) {
 																			if (err) return console.log(err);
 																		});
 
@@ -1202,11 +1192,7 @@ module.exports = {
 			// When We Send D20, Add Account To LMKWD List
 			function addToLmkwdList(currentTrader, account) {
 
-				var addToLmkwd = client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3', [true, currentTrader.sender, currentTrader.account_id], function(err) {
-					if (err) return console.log(err);
-				});
-
-				var updateQuedList = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3', [false, currentTrader.sender, currentTrader.account_id], function(err) {
+				var updateQuedList = client.query('UPDATE partners SET qued = $1, lmkwd = $4 WHERE sender = $2 AND account_id = $3', [false, currentTrader.sender, currentTrader.account_id, true], function(err) {
 					if (err) return console.log(err);
 				});
 
@@ -1310,7 +1296,7 @@ module.exports = {
 
 				var foundAccount = [];
 
-				var checkStatus = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE list.sender = $1 AND list.account_id = $2', [sender, account.id]);
+				var checkStatus = client.query('SELECT * FROM partners JOIN manualaccounts ON (partners.account_id = manualaccounts.id) WHERE partners.sender = $1 AND partners.account_id = $2', [sender, account.id]);
 
 				checkStatus.on('row', function(row) {
 					foundAccount.push(row);
@@ -1321,19 +1307,37 @@ module.exports = {
 						filterTheSender();
 					} else {
 						
-						// If the sender doesn't in the db
-						// Lets create a list for them
-						var updateOne = function createSenderList() {
+						// If the sender isn't in the db
+						// Lets create a request for them
 
-							var addSenderToList = client.query('INSERT INTO list(sender, qued, lmkwd, history, sent, outbound, account_id) VALUES ($1, $2, $3, $4, $5, $6, $7)', [sender, true, false, false, false, false, account.id]);
+						var twitterAuthClient = new TwitterLogin({
+						    consumerKey: account.consumer_key,
+						    consumerSecret: account.consumer_secret,
+						    callback: 'http://localhost:3000/'
+						});
 
-						}
+						var params = {
+							screen_name: sender
+						};
 
-						var updateTwo = function addSenderToQue() {
+						twitterAuthClient.users('show', params, 
+							account.access_token, 
+							account.access_token_secret,
+							function(err, user, response) {
+							if (err) {
+								console.log("Users/Show", err);
+							} else {
 
-							var addSenderQue = client.query('INSERT INTO que(sender, account_id, id) VALUES ($1, $2, DEFAULT)', [sender, account.id]);
+								var follower_count = user.followers_count;
+								
+								var updateOne = function createSenderList() {
 
-						}
+									var addSenderToRequests = client.query('INSERT INTO requests(sender, follower_count, account_id, unknown) VALUES ($1, $2, $3, $4)', [sender, follower_count, account.id, true]);
+
+								};
+
+							}
+						});
 
 						async.series([
 								function(callback) {
@@ -1341,7 +1345,7 @@ module.exports = {
 									callback();
 								},
 								function(callback) {
-									console.log("Created List For " + sender + ": Sent D20 To Us...");
+									console.log("Created Request For " + sender + ": Sent D20 To Us...");
 								}
 							],
 							function(err, data) {
@@ -1357,7 +1361,7 @@ module.exports = {
 					var updateOne = function updateAddQue() {
 						if (foundAccount[0].qued === false) {
 
-							var queryOne = client.query('UPDATE list SET qued = $1 WHERE sender = $2 AND account_id = $3', [true, sender, account.id], function(err) {
+							var queryOne = client.query('UPDATE partners SET qued = $1 WHERE sender = $2 AND account_id = $3', [true, sender, account.id], function(err) {
 								if (err) return console.log(err);
 							});
 
@@ -1368,19 +1372,19 @@ module.exports = {
 					}
 
 					var updateTwo = function updateRemoveSent() {
-						client.query('UPDATE list SET sent = $1 WHERE sender = $2 AND account_id = $3', [false, sender, account.id]);
+						client.query('UPDATE partners SET sent = $1 WHERE sender = $2 AND account_id = $3', [false, sender, account.id]);
 					}
 
 					var updateThree = function updateRemoveLmkwd() {
-						client.query('UPDATE list SET lmkwd = $1 WHERE sender = $2 AND account_id = $3', [false, sender, account.id]);
+						client.query('UPDATE partners SET lmkwd = $1 WHERE sender = $2 AND account_id = $3', [false, sender, account.id]);
 					}
 
 					var updateFour = function updateAddHistory() {
-						client.query('UPDATE list SET history = $1 WHERE sender = $2 AND account_id = $3', [true, sender, account.id]);
+						client.query('UPDATE partners SET history = $1 WHERE sender = $2 AND account_id = $3', [true, sender, account.id]);
 					}
 
 					var updateFive = function updateAddOutbound() {
-						client.query('UPDATE list SET outbound = $1 WHERE sender = $2 AND account_id = $3', [true, sender, account.id]);
+						client.query('UPDATE partners SET outbound = $1 WHERE sender = $2 AND account_id = $3', [true, sender, account.id]);
 					}
 						// If sender is on nothing
 					if (foundAccount[0].qued === false &&
@@ -1404,18 +1408,16 @@ module.exports = {
 						);
 						// If sender is on sent
 					} else if (foundAccount[0].sent &&
-								foundAccount[0].qued === false &&
 								foundAccount[0].lmkwd === false &&
-								foundAccount[0].qued === false &&
-								foundAccount[0].lmkwd === false) {
+								foundAccount[0].qued === false) {
 						// ADD TO QUE => REMOVE FROM SENT => REMOVE FROM LMKWD => ADD TO OUTBOUND
 						async.series([
 								function(callback) {
-									async.parallel([updateTwo, updateOne, updateThree, updateFive]);
+									async.parallel([updateTwo, updateOne, updateFive]);
 									callback();
 								},
 								function(callback) {
-									console.log("Received D20, Q+ => S- => LMK-");
+									console.log("Received D20, Q+ => S- => O+");
 								}
 							],
 							function(error, data) {
@@ -1429,6 +1431,7 @@ module.exports = {
 						async.series([
 								function(callback) {
 									async.parallel([updateThree, updateFour]);
+									console.log(sender + " completed trade with " + account.username);
 									callback();
 								}
 							],

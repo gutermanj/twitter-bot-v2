@@ -168,32 +168,99 @@ $(document).ready(function() {
 
 		$.ajax({
 
-			url: '/api/v1/get-account-info',
+			type: 'POST',
+
+			url: 'api/v1/get-requests',
+
+			data: {
+				username: username,
+				dad_id: account_id
+			},
+
+			success: function(response) {
+				console.log(response);
+				$('.js-current-requests').empty();
+
+				response.forEach(function(request) {
+
+					var html = `
+						<div class='js-request-item'>
+                    		<h5>${request.sender} | 
+                    			<em>Followers: ${request.follower_count}</em>                   			
+                    			<i class='glyphicon glyphicon-remove pull-right js-deny-request' style='color: darkred; font-size: 20px; margin-top: -5px; cursor: pointer;' data-username='${request.sender}' data-id='${request.account_id}'>  </i>
+                    			<i class='glyphicon glyphicon-ok pull-right js-approve-request' style='color: darkgreen; font-size: 20px; margin-top: -5px; margin-right: 20px; cursor: pointer;' data-username='${request.sender}' data-id='${request.account_id}' data-followers='${request.follower_count}'>  </i>
+                    		</h5>
+                    		<hr style='border-color: #2E2E2E;'>
+                  		</div>
+					`
+
+					$('.js-current-requests').append(html);
+
+				});
+
+				$('.js-approve-request').on('click', function() {
+					var username = $(this).data('username');
+					var account_id = $(this).data('id');
+					var follower_count = $(this).data('followers');
+					$(this).parent().parent().fadeOut('slow');
+					approveRequest(username, follower_count, account_id);
+				});
+
+				$('.js-deny-request').on('click', function() {
+					var username = $(this).data('username');
+					var account_id = $(this).data('id');
+					var follower_count = $(this).data('followers');
+					$(this).parent().parent().fadeOut('slow');
+					denyRequest(username, follower_count, account_id);
+				});
+
+				
+			},
+
+			error: function(err) {
+				console.log(err);
+			}
+
+		});
+
+		$.ajax({
 
 			type: 'POST',
 
+			url: '/api/v1/get-partners',
+
 			data: {
-				username: username
+				username: username,
+				dad_id: account_id
 			},
 
 			success: function(response) {
 
 				console.log(response);
+				$('.js-current-partners').empty();
 
-				if (response[0].active) {
+				response.forEach(function(partner) {
+
 					var html = `
-						<button class='btn btn-danger account-switch-start' style='right: 15px; position: absolute'>STOP</button>
-					`
-					$('.js-account-toggle').html(html);
-					console.log("STOP");
-				} else {
-					var html = `
-						<button class='btn btn-success account-switch-start' style='right: 15px; position: absolute'>Start!</button>
+						<div class='js-partner-item'>
+                    		<h5>${partner.sender} | 
+                    			<em>Followers: ${partner.follower_count}</em>                   			
+                    			<i class='glyphicon glyphicon-remove pull-right js-remove-partner' style='color: darkred; font-size: 20px; margin-top: -5px; cursor: pointer;' data-username='${partner.sender}' data-id='${partner.account_id}'>  </i>
+                    		</h5>
+                    		<hr style='border-color: #2E2E2E;'>
+                  		</div>
 					`
 
-					$('.js-account-toggle').html(html);
-					console.log("START");
-				}
+					$('.js-current-partners').append(html);
+
+				});
+
+				$('.js-remove-partner').on('click', function() {
+					var username = $(this).data('username');
+					var account_id = $(this).data('id');
+					$(this).parent().parent().fadeOut('slow');
+					removePartner(username, account_id);
+				});
 
 			},
 
@@ -204,6 +271,7 @@ $(document).ready(function() {
 		});
 
 	}
+
 
 	$('.js-add-sender').on('click', function(e) {
 
@@ -231,6 +299,103 @@ $(document).ready(function() {
 		historyAdd(username, sender);
 
 	});
+
+	function removePartner(username, account_id) {
+
+		$.ajax({
+
+			type: 'POST',
+
+			url: '/api/v1/remove-partner',
+
+			data: {
+				username: username,
+				dad_id: account_id
+			},
+
+			success: function(response) {
+				console.log(response);
+			},
+
+			error: function(err) {
+				console.log(err);
+			}
+
+		});
+
+	}
+
+	function approveRequest(username, followers, account_id) {
+
+		$.ajax({
+
+			type: 'POST',
+
+			url: '/api/v1/approve-request',
+
+			data: {
+				username: username,
+				account_id: account_id,
+				followers: followers
+			},
+
+			success: function(response) {
+				console.log(response);
+
+				var html = `
+						<div class='js-partner-item'>
+                    		<h5>${response.sender} | 
+                    			<em>Followers: ${response.follower_count}</em>                   			
+                    			<i class='glyphicon glyphicon-remove pull-right js-remove-partner' style='color: darkred; font-size: 20px; margin-top: -5px; cursor: pointer;' data-username='${response.sender}' data-id='${response.account_id}'>  </i>
+                    		</h5>
+                    		<hr style='border-color: #2E2E2E;'>
+                  		</div>
+					`
+
+				$('.js-current-partners').append(html);
+
+				$('.js-remove-partner').on('click', function() {
+					var username = $(this).data('username');
+					var account_id = $(this).data('id');
+					$(this).parent().parent().fadeOut('slow');
+					removePartner(username, account_id);
+				});
+
+			},
+
+			error: function(err) {
+				console.log(err);
+			}
+
+		});
+
+	}
+
+	function denyRequest(username, followers, account_id) {
+
+		$.ajax({
+
+			type: 'POST',
+
+			url: '/api/v1/deny-request',
+
+			data: {
+				username: username,
+				account_id: account_id,
+				followers: followers
+			},
+
+			success: function(response) {
+				console.log(response);
+			},
+
+			error: function(err) {
+				console.log(err);
+			}
+
+		});
+
+	}
 
 	function removeFromQue(username, account_id) {
 

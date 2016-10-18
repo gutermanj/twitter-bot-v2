@@ -1185,7 +1185,7 @@ app.post('/api/v1/add-history', function(req, res) {
 
 app.post('/api/v1/show-que', function(req, res) {
 
-      var showQue = client.query('SELECT * FROM manualaccounts JOIN list ON (manualaccounts.id = list.account_id) WHERE manualaccounts.username = $1', [req.body.username]);
+      var showQue = client.query('SELECT * FROM manualaccounts JOIN partners ON (manualaccounts.id = partners.account_id) WHERE manualaccounts.username = $1', [req.body.username]);
 
       var que = [];
 

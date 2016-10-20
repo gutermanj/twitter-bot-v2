@@ -1239,7 +1239,11 @@ app.post('/api/v1/approve-complete-trade-request', function(req, res) {
 
     var removeFromRequests = client.query('DELETE FROM requests WHERE sender = $1 AND account_id = $2', [sender, account_id]);
 
-    var addToPartners = client.query('INSERT INTO partners (sender, account_id, follower_count, qued, lmkwd, history, sent, outbound) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', [sender, account_id, followers, false, false, true, false, false]);
+    var addToPartners = client.query('INSERT INTO partners (sender, account_id, follower_count, qued, lmkwd, history, sent, outbound) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', [sender, account_id, followers, false, false, true, false, false], function(err) {
+        if (err) {
+            console.log(err);
+        }
+    });
 
     var newPartner = {
       sender: sender,
@@ -1259,9 +1263,13 @@ app.post('/api/v1/approve-request', function(req, res) {
 
     var removeFromRequests = client.query('DELETE FROM requests WHERE sender = $1 AND account_id = $2', [sender, account_id]);
 
-    var addToPartners = client.query('INSERT INTO partners (sender, account_id, follower_count, qued, lmkwd, history, sent, outbound) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', [sender, account_id, followers, true, false, false, false, false]);
-
-    var addToQue = client.query('INSERT INTO que (sender, account_id, id) VALUES ($1, $2, DEFAULT)', [sender, account_id]);
+    var addToPartners = client.query('INSERT INTO partners (sender, account_id, follower_count, qued, lmkwd, history, sent, outbound) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)', [sender, account_id, followers, true, false, false, false, false], function(err) {
+        if (err) {
+          console.log(err);
+        } else {
+            var addToQue = client.query('INSERT INTO que (sender, account_id, id) VALUES ($1, $2, DEFAULT)', [sender, account_id]);
+        }
+    });
 
     var newPartner = {
       sender: sender,

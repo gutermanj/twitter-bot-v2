@@ -153,7 +153,11 @@ module.exports = {
 							if (foundAccount.outbound === false || foundAccount.sent === false) {
 								var updateOne = function updateAddToQue() {
 										
-										var addToQue = client.query('INSERT INTO que(sender, account_id, id) VALUES ($1, $2, DEFAULT)', [foundAccount.sender, account.id]);
+										var addToQue = client.query('INSERT INTO que(sender, account_id, id) VALUES ($1, $2, DEFAULT)', [foundAccount.sender, account.id], function() {
+											if (err) {
+												console.log(err);
+											}
+										});
 
 									};
 

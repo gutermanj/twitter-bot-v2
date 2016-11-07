@@ -72,10 +72,34 @@ $(document).ready(function() {
 				var dad = response.username;
 
 				var removeAccountHtml = `
-					<h4 style='color: darkred;' class='js-delete-account' data-id='${account_id}'>REMOVE ACCOUNT</h4>
+					<h4 style='color: darkred;' class='js-delete-account' data-id='${account_id}' data-username='${username}'>REMOVE ACCOUNT</h4>
 				`
 
 				$('.delete-account').html(removeAccountHtml);
+
+
+				$('.js-delete-account').on('click', function() {
+					$.ajax({
+
+						url: '/api/v1/delete-account',
+
+						type: 'POST',
+
+						data: {
+							username: username,
+							id: account_id
+						},
+
+						success: function(response) {
+							console.log(response);
+						},
+
+						error: function(err) {
+							console.log(err);
+						}
+
+					});
+				});
 
 				$('.js-current-que').empty();
 				$('.js-current-history').empty();
@@ -187,9 +211,9 @@ $(document).ready(function() {
 
 					var html = `
 						<div class='js-request-item'>
-                    		<h5>${request.sender} | 
+                    		<h5>${request.sender} |
                     			<em>Followers: ${request.follower_count} </em>
-                    			<i class='glyphicon glyphicon-exclamation-sign' style='color: darkkhaki; font-size: 17px; margin-top: -3px; margin-left: 10px;'> </i>              			
+                    			<i class='glyphicon glyphicon-exclamation-sign' style='color: darkkhaki; font-size: 17px; margin-top: -3px; margin-left: 10px;'> </i>
                     			<i class='glyphicon glyphicon-remove pull-right js-deny-request' style='color: darkred; font-size: 20px; margin-top: -5px; cursor: pointer;' data-username='${request.sender}' data-id='${request.account_id}'>  </i>
                     			<i class='glyphicon glyphicon-thumbs-up pull-right js-approve-complete-trade' style='color: darkkhaki; font-size: 20px; margin-top: -5px; cursor: pointer; margin-right: 18px;' data-username='${request.sender}' data-id='${request.account_id}'>  </i>
                     			<i class='glyphicon glyphicon-ok pull-right js-approve-request' style='color: darkgreen; font-size: 20px; margin-top: -5px; margin-right: 20px; cursor: pointer;' data-username='${request.sender}' data-id='${request.account_id}' data-followers='${request.follower_count}'>  </i>
@@ -202,7 +226,7 @@ $(document).ready(function() {
 
 						var html = `
 							<div class='js-request-item'>
-	                    		<h5>${request.sender} | 
+	                    		<h5>${request.sender} |
 	                    			<em>Followers: ${request.follower_count} </em>
 	                    			<i class='glyphicon glyphicon-remove pull-right js-deny-request' style='color: darkred; font-size: 20px; margin-top: -5px; cursor: pointer;' data-username='${request.sender}' data-id='${request.account_id}'>  </i>
 	                    			<i class='glyphicon glyphicon-thumbs-up pull-right js-approve-complete-trade' style='color: darkkhaki; font-size: 20px; margin-top: -5px; cursor: pointer; margin-right: 18px;' data-username='${request.sender}' data-id='${request.account_id}'>  </i>
@@ -242,7 +266,7 @@ $(document).ready(function() {
 					approveCompleteTradeRequest(username, follower_count, account_id);
 				});
 
-				
+
 			},
 
 			error: function(err) {
@@ -271,8 +295,8 @@ $(document).ready(function() {
 
 					var html = `
 						<div class='js-partner-item'>
-                    		<h5>${partner.sender} | 
-                    			<em>Followers: ${partner.follower_count}</em>                   			
+                    		<h5>${partner.sender} |
+                    			<em>Followers: ${partner.follower_count}</em>
                     			<i class='glyphicon glyphicon-remove pull-right js-remove-partner' style='color: darkred; font-size: 20px; margin-top: -5px; cursor: pointer;' data-username='${partner.sender}' data-id='${partner.account_id}'>  </i>
                     		</h5>
                     		<hr style='border-color: #2E2E2E;'>
@@ -347,8 +371,8 @@ $(document).ready(function() {
 
 				var html = `
 						<div class='js-partner-item'>
-                    		<h5>${response.sender} | 
-                    			<em>Followers: ${response.follower_count}</em>                   			
+                    		<h5>${response.sender} |
+                    			<em>Followers: ${response.follower_count}</em>
                     			<i class='glyphicon glyphicon-remove pull-right js-remove-partner' style='color: darkred; font-size: 20px; margin-top: -5px; cursor: pointer;' data-username='${response.sender}' data-id='${response.account_id}'>  </i>
                     		</h5>
                     		<hr style='border-color: #2E2E2E;'>
@@ -417,8 +441,8 @@ $(document).ready(function() {
 
 				var html = `
 						<div class='js-partner-item'>
-                    		<h5>${response.sender} | 
-                    			<em>Followers: ${response.follower_count}</em>                   			
+                    		<h5>${response.sender} |
+                    			<em>Followers: ${response.follower_count}</em>
                     			<i class='glyphicon glyphicon-remove pull-right js-remove-partner' style='color: darkred; font-size: 20px; margin-top: -5px; cursor: pointer;' data-username='${response.sender}' data-id='${response.account_id}'>  </i>
                     		</h5>
                     		<hr style='border-color: #2E2E2E;'>
@@ -474,7 +498,7 @@ $(document).ready(function() {
 
 		var dad_id = $('.js-new-que-username').val();
 
-		
+
 		$.ajax({
 
 			type: 'POST',
@@ -499,7 +523,7 @@ $(document).ready(function() {
 	}
 
 		function removeFromLmkwd(username, account_id) {
-		
+
 			console.log(username);
 			var dad_id = $('.js-new-que-username').val();
 
@@ -531,7 +555,7 @@ $(document).ready(function() {
 
 		console.log(account_id);
 
-		
+
 		$.ajax({
 
 			type: 'POST',
@@ -559,7 +583,7 @@ $(document).ready(function() {
 
 		var dad_id = $('.js-new-que-username').val();
 
-		
+
 		$.ajax({
 
 			type: 'POST',
@@ -730,7 +754,7 @@ $(document).ready(function() {
 
 				success: function(response) {
 					console.log(response);
-					
+
 				},
 
 				error: function() {
@@ -825,30 +849,30 @@ $('.js-send-lmkwd').on('click', function() {
 $('.js-add-account').on('click', function() {
 	window.location.href = '/request-token';
 });
-	
-	
+
+
 $('.js-delete-account').on('click', function() {
 	var id = $('.js-new-que-username').val();
 	console.log(id);
-	
+
 	$.ajax({
-		
+
 		url: '/api/v1/delete-account',
-		
+
 		type: 'POST',
-		
+
 		data: {
 			username: id
 		},
-		
+
 		success: function(response) {
 			console.log(response);
 		},
-		
+
 		error: function(err) {
 			console.log(err);
 		}
-		
+
 	});
 });
 
@@ -863,7 +887,7 @@ $input.on('keyup', function () {
   typingTimer = setTimeout(doneTyping, doneTypingInterval);
 });
 
-//on keydown, clear the countdown 
+//on keydown, clear the countdown
 $input.on('keydown', function () {
   clearTimeout(typingTimer);
 });
@@ -920,7 +944,7 @@ function doneTyping () {
 		  				$('.mail').append(html);
 
   					}
-	   				
+
 	  				console.log("Printed");
   				} else {
   					if (account.active) {
@@ -946,7 +970,7 @@ function doneTyping () {
 		  				$('.mail').append(html);
 
   					}
-  					
+
 	  				console.log("Printed");
   				}
 
@@ -990,27 +1014,27 @@ function doneTyping () {
 			$('.js-delete-account').on('click', function() {
 			var id = $('.js-new-que-username').val();
 			console.log(id);
-			
+
 				$.ajax({
-					
+
 					url: '/api/v1/delete-account',
-					
+
 					type: 'POST',
-					
+
 					data: {
 						username: id
 					},
-					
+
 					success: function(response) {
 						console.log(response);
 					},
-					
+
 					error: function(err) {
 						console.log(err);
 					}
-					
+
 				});
-				
+
 			});
 
   		},

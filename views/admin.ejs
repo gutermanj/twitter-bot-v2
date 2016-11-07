@@ -12,7 +12,7 @@
     <link href="css/main.css" rel="stylesheet">
     <link href="css/font-style.css" rel="stylesheet">
     <link href="css/flexslider.css" rel="stylesheet">
-    
+
 	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
 
     <style type="text/css">
@@ -53,7 +53,7 @@ $(document).ready(function () {
      $("#btn-client-prev").click(function () {
       $('#clientCarousel').carousel('prev')
     });
-    
+
 });
 
  $(window).load(function(){
@@ -64,16 +64,16 @@ $(document).ready(function () {
         start: function(slider){
           $('body').removeClass('loading');
         }
-    });  
+    });
 });
 
 </script>
 
 
-    
+
   </head>
   <body>
-  
+
   	<!-- NAVIGATION MENU -->
 
     <div class="navbar-nav navbar-inverse navbar-fixed-top">
@@ -85,7 +85,7 @@ $(document).ready(function () {
             <span class="icon-bar"></span>
           </button>
           <a class="navbar-brand" href="index.html" ><img src="images/narwhal.png" alt="" width='2.5%'> PHENOMENAL</a>
-        </div> 
+        </div>
           <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
               <!-- <li class="active"><a href="index.html"><i class="icon-home icon-white"></i> Home</a></li>
@@ -102,7 +102,7 @@ $(document).ready(function () {
 
     <div class="container">
 
-	  <!-- FIRST ROW OF BLOCKS -->     
+	  <!-- FIRST ROW OF BLOCKS -->
       <div class="row">
 
       <!-- USER PROFILE BLOCK -->
@@ -118,9 +118,9 @@ $(document).ready(function () {
 					<h2 style='font-size: 30px;'><%= user.username %></h2>
           <br>
           <hr style="width: 80%; border-style: solid; border-color: darkgray;">
-				
+
 				</div>
-				
+
 				</div>
         </div>
 
@@ -143,7 +143,7 @@ $(document).ready(function () {
 	        	<h2><%= DisabledAccountCount.count %></h2>
 			</div>
         </div>
-        
+
         <div class="col-sm-3 col-lg-3">
 
       <!-- LOCAL TIME BLOCK -->
@@ -166,9 +166,9 @@ $(document).ready(function () {
 
         </div>
       </div><!-- /row -->
-      
-      
-	  <!-- SECOND ROW OF BLOCKS -->     
+
+
+	  <!-- SECOND ROW OF BLOCKS -->
       <div class="row">
         <div class="col-sm-6 col-lg-6">
        <!-- MAIL BLOCK -->
@@ -195,17 +195,17 @@ $(document).ready(function () {
                       <p class="message"><strong style='color: darkred;'>Disabled</strong></p>
                       <% } %>
 
-			                
+
 			            </li>
                   <% }); %>
-			            
+
 			        </ul>
     			</div>
 			</div>
 		</div><!-- /dash-unit -->
     </div><!-- /span3 -->
 
-	  <!-- GRAPH CHART - lineandbars.js file -->     
+	  <!-- GRAPH CHART - lineandbars.js file -->
         <div class="col-sm-3 col-lg-3">
       		<div class="dash-unit">
       		<dtitle>Total Trades</dtitle>
@@ -235,7 +235,7 @@ $(document).ready(function () {
 			</div>
         </div>
 
-      
+
 	</div> <!-- /container -->
 	<div id="footerwrap">
       	<footer class="clearfix"></footer>
@@ -247,12 +247,12 @@ $(document).ready(function () {
       			</div>
 
       		</div><!-- /row -->
-      	</div><!-- /container -->		
+      	</div><!-- /container -->
 	</div><!-- /footerwrap -->
 
-  
 
-  <!-- MODAL BLOCK -->     
+
+  <!-- MODAL BLOCK -->
       <!-- Modal -->
         <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
           <div class="modal-dialog">
@@ -266,58 +266,58 @@ $(document).ready(function () {
                 <p style='color: lightgray;'>Current Que</p>
                 <hr style='border-color: grey;'>
                 <div class='js-current-que'>
-                        
+
                 </div>
 
                 <br>
                 <p style='color: lightgray;'>Current Lmkwd</p>
                 <hr style='border-color: grey;'>
                 <div class='js-current-lmkwd'>
-                  
+
                 </div>
 
                 <br>
                 <p style='color: lightgray;'>Current History</p>
                 <hr style='border-color: grey;'>
                 <div class='js-current-history'>
-                  
+
                 </div>
 
                 <br>
                 <p style='color: lightgray;'>Current Sent</p>
                 <hr style='border-color: grey;'>
                 <div class='js-current-sent'>
-                  
+
                 </div>
 
                 <br>
                 <p style='color: lightgray;'>Requests</p>
                 <hr style='border-color: grey;'>
                 <div class='js-current-requests'>
-                  
+
                 </div>
 
                 <br>
                 <p style='color: lightgray;'>Partners</p>
                 <hr style='border-color: grey;'>
                 <div class='js-current-partners'>
-                  
+
                 </div>
 
                 <hr>
 
 
                 <div class='delete-account'>
-
+                    
                 </div>
 
               </div>
             </div><!-- /.modal-content -->
           </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
-		
-		
-		
+
+
+
 		<!-- Modal -->
 <div class="modal fade" id="new-manual-account-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
@@ -379,9 +379,9 @@ $(document).ready(function () {
     <!-- Placed at the end of the document so the pages load faster -->
     <script type="text/javascript" src="js/bootstrap.js"></script>
 	<script type="text/javascript" src="js/lineandbars.js"></script>
-    
+
 	<script type="text/javascript">
-   
+
     /*** First Chart in Dashboard page ***/
 
   $(document).ready(function() {
@@ -391,24 +391,24 @@ $(document).ready(function () {
         margin: [0, 0, 0, 0],
         backgroundColor: null,
                 plotBackgroundColor: 'none',
-              
+
       },
-      
+
       title: {
         text: null
       },
 
       tooltip: {
-        formatter: function() { 
+        formatter: function() {
           return this.point.name +': '+ this.y +' %';
-            
-        }   
+
+        }
       },
         series: [
         {
         borderWidth: 2,
         borderColor: '#F1F3EB',
-        shadow: false,  
+        shadow: false,
         type: 'pie',
         name: 'Income',
         innerSize: '65%',
@@ -423,7 +423,7 @@ $(document).ready(function () {
         }
       }]
     });
-    
+
   });
 
 /*** second Chart in Dashboard page ***/
@@ -435,24 +435,24 @@ $(document).ready(function () {
         margin: [0, 0, 0, 0],
         backgroundColor: null,
                 plotBackgroundColor: 'none',
-              
+
       },
-      
+
       title: {
         text: null
       },
 
       tooltip: {
-        formatter: function() { 
+        formatter: function() {
           return this.point.name +': '+ this.y +' %';
-            
-        }   
+
+        }
       },
         series: [
         {
         borderWidth: 2,
         borderColor: '#F1F3EB',
-        shadow: false,  
+        shadow: false,
         type: 'pie',
         name: 'SiteInfo',
         innerSize: '65%',
@@ -467,14 +467,14 @@ $(document).ready(function () {
         }
       }]
     });
-    
+
   });
 
 
 
   </script>
 	<script type="text/javascript" src="js/gauge.js"></script>
-	
+
 	<!-- NOTY JAVASCRIPT -->
 	<script type="text/javascript" src="js/noty/jquery.noty.js"></script>
 	<script type="text/javascript" src="js/noty/layouts/top.js"></script>
@@ -482,7 +482,7 @@ $(document).ready(function () {
 	<script type="text/javascript" src="js/noty/layouts/topRight.js"></script>
 	<script type="text/javascript" src="js/noty/layouts/topCenter.js"></script>
   <script type="text/javascript" src="javascripts/manual-add-que.js"></script>
-	
+
 	<!-- You can add more layouts if you want -->
 	<script type="text/javascript" src="js/noty/themes/default.js"></script>
     <!-- <script type="text/javascript" src="js/dash-noty.js"></script> This is a Noty bubble when you init the theme-->
@@ -493,5 +493,5 @@ $(document).ready(function () {
 
 
 
-  
+
 </body></html>

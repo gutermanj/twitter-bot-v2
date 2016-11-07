@@ -11,7 +11,7 @@ var Twitter = require('twitter');
 var TwitterLogin = require('node-twitter-api');
 var flash = require('connect-flash');
 var storage = require('node-persist');
-var manual = require('./config/manual.js'); // Include manual config file 
+var manual = require('./config/manual.js'); // Include manual config file
 var messages = require('./config/messages.js');
 var mongodb = require("mongodb");
 
@@ -216,7 +216,7 @@ app.get('/signup', function(req, res, next) {
 
 
 app.post('/signup', function(req, res, next) {
-  
+
    // Turning that password into something funky
     var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
 
@@ -277,7 +277,7 @@ app.post('/signup', function(req, res, next) {
 // });
 
 // app.post('/admin/signup', function(req, res, next) {
-  
+
 //    // Turning that password into something funky
 //     var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
 
@@ -334,27 +334,27 @@ app.post('/signup', function(req, res, next) {
 
 
 function updateAccount(data, res) {
-  
+
     var updateExistingAccount = client.query('UPDATE manualaccounts SET consumer_key = $1, consumer_secret = $2, access_token = $3, access_token_secret = $4, active = $5, status = $6 WHERE username = $7', [data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, true, true, data.username]);
-  
+
     updateExistingAccount.on('end', function() {
-        
+
         res.redirect('/');
-        
+
     });
-  
+
 }
 
 function createAccount(data, res) {
-  
+
     var updateExistingAccount = client.query('INSERT INTO manualaccounts (username, email, password, consumer_key, consumer_secret, access_token, access_token_secret, timestamp, admin, active, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)', [data.username, data.email, data.password, data.consumer_key, data.consumer_secret, data.access_token, data.access_token_secret, null, false, true, true]);
-  
+
     updateExistingAccount.on('end', function() {
-        
+
         res.redirect('/');
-        
+
     });
-  
+
 }
 
 
@@ -362,7 +362,7 @@ app.post('/newaccount/manual', requireAdmin, function(req, res) {
 
     // Turning that password into something funky
     var hash = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10));
-  
+
     var data = {
           username: req.body.username,
           email: req.body.email,
@@ -374,30 +374,30 @@ app.post('/newaccount/manual', requireAdmin, function(req, res) {
           timestamp: timestamp,
           admin: false
         };
-        
+
     foundAccount = [];
-      
+
     var isAccountSaved = client.query('SELECT * FROM manualaccounts where username = $1', [req.body.username]);
-    
-    
+
+
     isAccountSaved.on('row', function(row) {
-        
+
         foundAccount.push(row);
-        
+
     });
-    
+
     isAccountSaved.on('end', function() {
-        
+
         if (foundAccount.length > 0) {
-          
+
           updateAccount(data, res);
-          
+
         } else {
-          
+
           createAccount(data, res);
-          
+
         }
-        
+
     });
 
 
@@ -461,7 +461,7 @@ app.post('/signin', function(req, res) {
               }
             } else {
               res.redirect('/signin');
-            } // For some reason I have to check if it's undefined as well as 
+            } // For some reason I have to check if it's undefined as well as
               // null or SQL will yell at us
           }
         }); // query on end
@@ -470,7 +470,7 @@ app.post('/signin', function(req, res) {
 
 
 app.get('/admin/signin', function(req, res) {
-  
+
   if (req.session.user) {
     res.redirect('/');
   }   else {
@@ -523,7 +523,7 @@ app.post('/admin/signin', function(req, res) {
               }
             } else {
               res.redirect('/signin');
-            } // For some reason I have to check if it's undefined as well as 
+            } // For some reason I have to check if it's undefined as well as
               // null or SQL will yell at us
           }
         }); // query on end
@@ -549,7 +549,7 @@ app.get('/me', requireLogin, function(req, res) {
 // Dashboard route
 app.get('/', requireLogin, requireAdmin, function(req, res, next) {
 
-    
+
 
     var lastTrade = [];
 
@@ -575,7 +575,7 @@ app.get('/', requireLogin, requireAdmin, function(req, res, next) {
     var DisabledAccountCount = [];
     var allLmkwdNotifications = []
 
-    
+
 
     // Get a Postgres client from the connection pool
     // pg.connect(connectionString, function(err, client, done) {
@@ -631,7 +631,7 @@ app.get('/', requireLogin, requireAdmin, function(req, res, next) {
               manualAccountsQuery();
               // splitAccounts(res);
 
-              
+
           });
         }
 
@@ -657,7 +657,7 @@ app.get('/', requireLogin, requireAdmin, function(req, res, next) {
           });
         }
 
-    
+
 
 
     function eachManualAccountQuery() {
@@ -690,10 +690,10 @@ app.get('/', requireLogin, requireAdmin, function(req, res, next) {
     }
 
     // });
-    
+
 
   res.locals.user = req.session.user;
-  
+
 
 });
 
@@ -778,7 +778,7 @@ app.post('/newaccount', requireLogin, requireAdmin, function(req, res) {
 
     }); // pg connect
 
-    req.flash('success', 'Account was created!'); 
+    req.flash('success', 'Account was created!');
 });
 
 
@@ -845,7 +845,7 @@ var running = false;
               if (onlineStatus && running) {
                 console.log(".");
               } else if (onlineStatus) {
-                  
+
                   console.log("...");
                   resetInterval();
 
@@ -938,7 +938,7 @@ var arrayFull = false;
                 }
               }
 
-              
+
               if (pairingCounter >= oddSplit.length || attemptCounter > oddSplit.length * 20) {
                 console.log("Retweeting Started...");
                 console.log(pairs);
@@ -954,9 +954,9 @@ var arrayFull = false;
 
             }
 
-        
 
-        
+
+
 
 
 
@@ -977,7 +977,7 @@ var manualRunning = false;
 var manualStarted = false;
 
 app.get('/api/v1/manual', requireAdmin, function(req, res) {
-  
+
   if (manualRunning) {
 
     clearInterval(manualInterval);
@@ -1010,7 +1010,7 @@ function startManualMarket() {
   start();
 }
 
- 
+
   function start() {
     manualInterval = setInterval(function() {
 
@@ -1024,7 +1024,7 @@ function startManualMarket() {
     } else {
       console.log("Offline...");
     }
-      
+
 
     }, 20000);
   }
@@ -1160,7 +1160,7 @@ app.post('/api/v1/add-lmkwd', function(req, res) {
 
           }
 
-          
+
 
         });
 
@@ -1314,7 +1314,7 @@ app.post('/api/v1/get-account-info', function(req, res) {
 
     account.push(row);
 
-  }); 
+  });
 
   getInfo.on('end', function() {
 
@@ -1339,7 +1339,7 @@ app.post('/api/v1/show-lmkwd', function(req, res) {
             db.close();
           }
         });
-        
+
     }
   });
 
@@ -1474,7 +1474,7 @@ app.get('/api/v1/toggle', requireAdmin, function(req, res) {
         startMarket(all, res);
         done();
         return res.json(all);
-        
+
       });
 
 
@@ -1574,7 +1574,7 @@ function toggleTimer(pairs) {
                         consumer_secret:      oddSplit[oddPair].consumer_secret,
                         access_token_key:         oddSplit[oddPair].access_token,
                         access_token_secret:  oddSplit[oddPair].access_token_secret,
-                        timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests. 
+                        timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests.
                       });
 
                       var evenTwit = new Twitter({
@@ -1582,7 +1582,7 @@ function toggleTimer(pairs) {
                         consumer_secret:      evenSplit[evenPair].consumer_secret,
                         access_token_key:         evenSplit[evenPair].access_token,
                         access_token_secret:  evenSplit[evenPair].access_token_secret,
-                        timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests. 
+                        timeout_ms:           60*1000,  // optional HTTP request timeout to apply to all requests.
                       });
 
 
@@ -1601,7 +1601,7 @@ function toggleTimer(pairs) {
                           } else {
                             var currentTweetCounter = 0;
                             if (typeof tweets[currentTweetCounter] !== 'undefined') {
-                              
+
 
                               tweets.forEach(function(tweet) {
                                 evenTwit.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
@@ -1624,8 +1624,8 @@ function toggleTimer(pairs) {
                                     function updateRecord(recordExists, results) {
 
                                       if (recordExists > 0) {
-                                        
-                                        
+
+
                                         var tradeCount = results.rows[0].trades + 1;
 
                                         client.query('UPDATE records SET trades = ' + '\'' + tradeCount + '\'' + 'WHERE username = ' + '\'' + evenSplit[evenPair].username + '\'')
@@ -1638,7 +1638,7 @@ function toggleTimer(pairs) {
                                     setTimeout(function() {
 
                                       evenTwit.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
-                                        
+
                                         if (err) {
                                           console.log(err);
                                         } else {
@@ -1669,7 +1669,7 @@ function toggleTimer(pairs) {
 
                             if (typeof tweets[currentTweetCounter] !== 'undefined') {
 
-                             
+
 
                               tweets.forEach(function(tweet) {
                                 oddTwit.post('statuses/retweet/' + tweet.id_str, function(err, tweet, response) {
@@ -1694,8 +1694,8 @@ function toggleTimer(pairs) {
                                     function updateRecord(recordExists, results) {
 
                                       if (recordExists > 0) {
-                                        
-                                        
+
+
                                         console.log(results.rows[0].trades);
                                         console.log(tradeCount);
                                         var tradeCount = results.rows[0].trades + 1;
@@ -1711,7 +1711,7 @@ function toggleTimer(pairs) {
                                     setTimeout(function() {
 
                                       evenTwit.post('statuses/destroy/' + tweet.id_str, function(err, tweet, response) {
-                                        
+
                                         if (err) {
                                           console.log(err);
                                         } else {
@@ -1728,7 +1728,7 @@ function toggleTimer(pairs) {
                             }
 
                           }
-                        });                 
+                        });
 
                     }); // forEach
 
@@ -1753,7 +1753,7 @@ function toggleTimer(pairs) {
 
 
 // DELETE AN ACCOUNT ---------------------------------------------------------------------
-  
+
   //Ajax route to grab the users
   app.get('/api/v1/users', requireLogin, requireAdmin, function(req, res) {
       var results = [];
@@ -1928,37 +1928,44 @@ app.get('/api/v1/send-rts', requireAdmin, function(req, res) {
 });
 
 app.post('/api/v1/delete-account', requireAdmin, function(req, res) {
-  
-  var account_id = req.body.username;
+
+  var account_id = req.body.id;
   console.log(account_id);
-  var query = client.query('DELETE FROM list WHERE account_id = $1', [account_id], function(err) {
+  var query = client.query('DELETE FROM partners WHERE account_id = $1', [account_id], function(err) {
     if (err) {
       res.json(err);
     } else {
-      var query = client.query('DELETE FROM lmkwd WHERE account_id = $1', [account_id], function(err) {
-        if (err) {
-          res.json(err);
-        } else {
-          var query_two = client.query('DELETE FROM que WHERE account_id = $1', [account_id], function(err) {
+        var requestsquery = client.query('DELETE FROM requests WHERE account_id = $1', [account_id], function(err) {
             if (err) {
-              res.json(err);
+                res.json(err);
             } else {
-              var query_three = client.query('DELETE FROM manualaccounts WHERE id = $1', [account_id], function(err) {
+              var query = client.query('DELETE FROM lmkwd WHERE account_id = $1', [account_id], function(err) {
                 if (err) {
                   res.json(err);
                 } else {
-                  console.log("Removed Account: ", account_id);
-                  res.json("OK");
+                  var query_two = client.query('DELETE FROM que WHERE account_id = $1', [account_id], function(err) {
+                    if (err) {
+                      res.json(err);
+                    } else {
+                      var query_three = client.query('DELETE FROM manualaccounts WHERE id = $1', [account_id], function(err) {
+                        if (err) {
+                          res.json(err);
+                        } else {
+                          console.log("Removed Account: ", req.body.username);
+                          res.json("OK");
+                        }
+                      });
+                    }
+                  });
                 }
               });
+
             }
-          });
-        }
-      });
+        });
     }
   })
-  
-  
+
+
 });
 
 app.get('/api/v1/send-lmkwd', requireAdmin, function(req, res) {
@@ -1973,7 +1980,7 @@ app.get('/api/v1/send-lmkwd', requireAdmin, function(req, res) {
     // After all data is returned, close connection and return results
     query.on('end', function() {
       console.log("Accounts Ready.");
-     
+
       accounts.forEach(function(account) {
         var twitterClient = new Twitter({
           consumer_key: account.consumer_key,
@@ -2089,7 +2096,7 @@ app.get('/request-token', function(req, res) {
 
     });
 
-    
+
 
 });
 
@@ -2351,7 +2358,7 @@ app.get('/api/v1/enable-all', function(req, res) {
                   done();
               });
             }
-          } 
+          }
       });
   }
 
@@ -2363,7 +2370,50 @@ app.get('/api/v1/enable-all', function(req, res) {
 // TEST AREA ------------------------------------------------------------------------------------------------
 
 
+// function findDuplicates() {
 
+//   var queue = [];
+
+//   var duplicatesFound = [];
+
+
+//   var getQueue = client.query('SELECT * FROM que');
+
+//   getQueue.on('row', function(row) {
+
+//       queue.push(row);
+
+//   });
+
+//   getQueue.on('end', function() {
+
+//     queue.forEach(function(sender) {
+
+//         queue.forEach(function(sender2) {
+
+//             if (sender.sender === sender2.sender && sender.account_id === sender2.account_id && sender.id !== sender2.id) {
+//                   duplicatesFound.push({sender, sender2});
+
+//                   // Print results here---
+//             }
+
+//         });
+
+//     });
+
+//     console.log(duplicatesFound);
+
+//     duplicatesFound.forEach(function(duplicate) {
+
+//       if duplicate
+
+//     });
+
+//   });
+
+// }
+
+// findDuplicates();
 
 // TEST AREA -----------------------------------------END-------------------------------------------------------
 

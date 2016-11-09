@@ -1995,7 +1995,7 @@ app.get('/api/v1/send-lmkwd', requireAdmin, function(req, res) {
 
         var added = [];
 
-        var getHistory = client.query('SELECT * FROM list JOIN manualaccounts ON (list.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND list.lmkwd = $2', [account.id, true]);
+        var getHistory = client.query('SELECT * FROM partners JOIN manualaccounts ON (partners.account_id = manualaccounts.id) WHERE manualaccounts.id = $1 AND partners.lmkwd = $2', [account.id, true]);
 
         getHistory.on('row', function(row) {
           if (eachListed.indexOf(row) < 0) {

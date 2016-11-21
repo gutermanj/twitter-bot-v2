@@ -179,7 +179,7 @@ $(document).ready(function () {
     			<input type="text" id="search-input" name="contactname" placeholder="Search">
     			<div class="window">
 			        <ul class="mail">
-                  <% manAccounts.forEach(function(account) { %>
+                  <% updatedAccounts.forEach(function(account) { %>
 			            <li data-toggle="modal" href='#myModal' data-id='<%= account.id %>' data-username='<%= account.username %>' class='js-account'>
                       <% if (account.status) { %>
 			                <i class="unread"></i>
@@ -189,8 +189,11 @@ $(document).ready(function () {
 
 
 			                <p class="sender"><%= account.username %></p>
+                            <p class="sender" style='margin-left: 125px;'>Requests: <%= account.request_total %></p>
+
                       <% if (account.active) { %>
 			                <p class="message"><strong>Active</strong></p>
+
                       <% } else { %>
                       <p class="message"><strong style='color: darkred;'>Disabled</strong></p>
                       <% } %>
@@ -308,7 +311,7 @@ $(document).ready(function () {
 
 
                 <div class='delete-account'>
-                    
+
                 </div>
 
               </div>

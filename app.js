@@ -682,7 +682,69 @@ app.get('/', requireLogin, requireAdmin, function(req, res, next) {
           });
 
           res.locals.totalTrades = total_trade_count;
-          res.render('admin');
+
+          var accountProgress = 0;
+
+
+          allManualAccounts.forEach(function(account) {
+
+
+
+              var getRequestCount = client.query('SELECT count(*) FROM requests WHERE account_id = $1', [account.id], function(err, result) {
+
+                  if (err) {
+                      console.log(err);
+                  } else {
+
+                      console.log(result.rows[0].count);
+
+                      client.query('UPDATE manualaccounts SET request_total = $1 WHERE id = $2', [result.rows[0].count, account.id]);
+
+                      accountProgress++;
+
+                      if (accountProgress === allManualAccounts.length) {
+                          pullUpdatedAccounts();
+                      }
+
+                  }
+
+              });
+
+
+
+
+
+
+
+
+          });
+
+
+          function pullUpdatedAccounts() {
+
+              var updatedAccounts = [];
+
+              var getUpdatedAccounts = client.query('select * from manualaccounts ORDER BY username ASC');
+
+              getUpdatedAccounts.on('row', function(row) {
+
+                  updatedAccounts.push(row);
+
+              });
+
+              getUpdatedAccounts.on('end', function() {
+
+                  res.locals.updatedAccounts = updatedAccounts;
+
+                  res.render('admin');
+
+              });
+
+          }
+
+
+
+
 
       });
 

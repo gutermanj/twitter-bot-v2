@@ -31,7 +31,7 @@ module.exports = {
 		// MAIN POOL FOR POSTGRES - Ends at bottom of module
 		pg.connect(connectionString, function(err, client, done) {
 			if (err) return console.log(err);
-			
+
 			if (manualRunning === false) {
 				running = false;
 				clearInterval(currentQue);
@@ -40,6 +40,7 @@ module.exports = {
 				running = true;
 				messagePull = setInterval(function() {
 					var accounts = [];
+					// testing git push
 					// Get a Postgres client from the connection pool
 					pg.connect(connectionString, function(err, client, done) {
 						// Handle connection errors
@@ -98,7 +99,7 @@ module.exports = {
 
 						// wordfilter.clearList();
 
-						
+
 					}
 
 					function spacedFilter(uppcasedMessage) {
@@ -119,7 +120,7 @@ module.exports = {
 							}
 						}
 					}
-					
+
 					// Function Is Called If Followers Exceed 75k
 					function addToQue(foundAccount, account) {
 
@@ -145,14 +146,14 @@ module.exports = {
 							// 		}
 							// 	});
 							// }, 1000 * 60 * randomMinute);
-							
+
 							// Temporarily removed because lmkwd lists are buggy
 
 							console.log("Would've sent lmkwd to " + foundAccount.sender + " from " + account.username);
 						} else {
 							if (foundAccount.outbound === false || foundAccount.sent === false) {
 								var updateOne = function updateAddToQue() {
-										
+
 										var addToQue = client.query('INSERT INTO que(sender, account_id, id) VALUES ($1, $2, DEFAULT)', [foundAccount.sender, account.id], function() {
 											if (err) {
 												console.log(err);
@@ -181,7 +182,7 @@ module.exports = {
 						}
 
 					} // addToQue
-					
+
 					function isSenderQued(localAccount, sender) {
 						if (localAccount[0].qued === false) {
 							messageSirBryan(sender, localAccount[0]);
@@ -210,7 +211,7 @@ module.exports = {
 
 										if (err) {
 											console.log("direct_messages: " + account.username, err);
-											
+
 											if (err.statusCode === 403) {
 
 												var setStatusFalse403 = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [false, account.username]);
@@ -228,9 +229,9 @@ module.exports = {
 											var setStatusTrue = client.query('UPDATE manualaccounts SET status = $1 WHERE username = $2', [true, account.username]);
 
 											var updateLastMessageFromNull = client.query("UPDATE manualaccounts SET last_message =" + "'" + messages[0].id_str + "'" + "WHERE username =" + "'" + account.username + "'");
-												
+
 											console.log("Set new Last Message ID for: " + account.username);
-											
+
 										}
 									}); // Twitterclient.get
 								} else {
@@ -254,7 +255,7 @@ module.exports = {
 											}
 
 											console.log(err.statusCode);
-											
+
 
 										} else {
 											if (messages.length < 1) {
@@ -296,9 +297,9 @@ module.exports = {
 															}
 														});
 
-														
+
 														// Checks if the sender is currently qued
-														
+
 													}
 												});
 											}
@@ -310,7 +311,7 @@ module.exports = {
 
 						}); // forEach
 					}
-					
+
 					// Call function to handle incoming lmkwd messages
 
 					function pushSender(sender, account) {
@@ -331,7 +332,7 @@ module.exports = {
 
 						function isSenderSaved() {
 							if (foundAccount.length > 0) {
-								
+
 								/*
 									If the sender is already saved
 									handle it appropriately
@@ -362,8 +363,8 @@ module.exports = {
 									screen_name: sender
 								};
 
-								twitterAuthClient.users('show', params, 
-									account.access_token, 
+								twitterAuthClient.users('show', params,
+									account.access_token,
 									account.access_token_secret,
 									function(err, user, response) {
 									if (err) {
@@ -371,7 +372,7 @@ module.exports = {
 									} else {
 
 										var follower_count = user.followers_count;
-										
+
 										var addSenderToList = client.query('INSERT INTO requests(sender, follower_count, account_id) VALUES ($1, $2, $3)', [sender, follower_count, account.id], function(err) {
 											if (err) {
 												console.log(sender + " already awaiting approval...");
@@ -622,7 +623,7 @@ module.exports = {
 				//		});
 				//	}
 				// }
-				
+
 				// INACTIVE FUNCTION ^^
 
 				function morningMessage() {
@@ -638,7 +639,7 @@ module.exports = {
 							console.log("Accounts Ready.");
 							sendMessages(accounts);
 						});
-					
+
 				} // morning message function
 
 				function sendMessages(accounts) {
@@ -692,9 +693,9 @@ module.exports = {
 											    callback: 'http://localhost:3000/'
 											});
 
-											twitterAuthClient.direct_messages('new', messageParams, 
-												account.access_token, 
-												account.access_token_secret, 
+											twitterAuthClient.direct_messages('new', messageParams,
+												account.access_token,
+												account.access_token_secret,
 												function(err, message, response) {
 
 												if (err) return console.log(err);
@@ -736,7 +737,7 @@ module.exports = {
 							console.log("Accounts Ready.");
 							checkTimeAfternoon(accounts);
 						});
-					
+
 				} // morning message function
 
 				function checkTimeAfternoon(accounts) {
@@ -886,7 +887,7 @@ module.exports = {
 
 												if (err) return console.log(err);
 
-												
+
 														console.log("Morning LMKWD Message Sent To: " + sender.sender);
 
 
@@ -896,7 +897,7 @@ module.exports = {
 
 										}
 
-									
+
 
 								});
 
@@ -908,8 +909,8 @@ module.exports = {
 						}); // Accounts For Each
 					}
 				} // morning message function
-				
-				
+
+
 				function handleMissingTweets(currentTrader, account) {
 					if (currentTrader.outbound === false) {
 
@@ -958,7 +959,7 @@ module.exports = {
 					var updateLastTrade = client.query('UPDATE last_trade SET hour = $1, minute = $2, second = $3', [current_hour, current_minute, current_second]);
 
 					console.log("Initiated Trade for account: ", account.username);
-					
+
 					var twitterClient = new Twitter({
 						consumer_key: account.consumer_key,
 						consumer_secret: account.consumer_secret,
@@ -977,13 +978,13 @@ module.exports = {
 						screen_name: currentTrader.sender,
 						count: 3
 					};
-					twitterAuthClient.favorites('list', params, 
+					twitterAuthClient.favorites('list', params,
 						account.access_token,
 						account.access_token_secret,
 						function(err, tweets, response) {
 
 
-						// Pul storage here	
+						// Pul storage here
 
 						if (err) {
 							console.log("Favorites/list: ", err);
@@ -1005,9 +1006,9 @@ module.exports = {
 								totalTweetCount++;
 							});
 							if (totalTweetCount !== 3) {
-								
+
 								handleMissingTweets(currentTrader, account);
-								
+
 							} else {
 								var completeRetweetCount = 0;
 								tweets.forEach(function(tweet) {
@@ -1078,7 +1079,7 @@ module.exports = {
 
 
 																	if (foundAccount[0].outbound === false) {
-															
+
 																		addToLmkwdList(currentTrader, account);
 
 																	} else {
@@ -1133,9 +1134,9 @@ module.exports = {
 														}
 													});
 												}, 1000 * 60 * 19.5); // Destroy retweet
-												
+
 											}
-											
+
 											}); // retweet post
 
 										}
@@ -1167,7 +1168,7 @@ module.exports = {
 							};
 						}
 						// Confirm D20 message to sender
-						twitterAuthClient.direct_messages('new', messageParams, 
+						twitterAuthClient.direct_messages('new', messageParams,
 							account.access_token,
 							account.access_token_secret,
 							function(err, message, response) {
@@ -1299,7 +1300,7 @@ module.exports = {
 					if (foundAccount.length > 0) {
 						filterTheSender();
 					} else {
-						
+
 						// If the sender isn't in the db
 						// Lets create a request for them
 
@@ -1313,8 +1314,8 @@ module.exports = {
 							screen_name: sender
 						};
 
-						twitterAuthClient.users('show', params, 
-							account.access_token, 
+						twitterAuthClient.users('show', params,
+							account.access_token,
 							account.access_token_secret,
 							function(err, user, response) {
 							if (err) {
@@ -1431,7 +1432,7 @@ module.exports = {
 			}
 
 			function incrementTotalTradeCount(account) {
-					
+
 				var incrementTrades = client.query('UPDATE manualaccounts SET total_trades = total_trades + 1 WHERE username = $1', [account.username]);
 
 			}
